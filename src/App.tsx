@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { useEffect } from "react"
 
 // Auth Pages
-import { SuperAdminAuth } from "@/pages/auth/super-admin/SuperAdminAuth"
+import { SuperAdminAuth } from "@/pages/auth/super-admin/SuperAdminAuth";
 import { BankAdminAuth } from "@/pages/auth/bank-admin/BankAdminAuth"
 
 // Admin Portal Pages (Super Admin)

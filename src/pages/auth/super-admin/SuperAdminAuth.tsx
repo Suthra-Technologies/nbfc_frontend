@@ -1,128 +1,146 @@
+// SuperAdminLogin.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, Eye, EyeOff, Shield, AlertCircle } from 'lucide-react';
+import { 
+  Shield, 
+  Mail, 
+  Lock, 
+  Eye, 
+  EyeOff, 
+  AlertCircle, 
+  Loader2 
+} from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/services/auth.service';
 import './SuperAdminAuth.css';
 
 export function SuperAdminAuth() {
-    const navigate = useNavigate();
-    const { setAuth } = useAuth();
+  const navigate = useNavigate();
+  const { setAuth } = useAuth();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
 
-        if (!email || !password) {
-            setError('Please enter both email and password');
-            return;
-        }
+    if (!email.trim() || !password.trim()) {
+      setError('Email and password are required');
+      return;
+    }
 
-        try {
-            setIsLoading(true);
+    try {
+      setIsLoading(true);
+      const response = await authService.login({ email, password });
 
-            const response = await authService.login({
-                email,
-                password,
-            });
+      setAuth(response);
 
-            // Set auth state
-            setAuth(response);
+      // Super admin routing logic
+      if (response.user?.isSuperAdmin || response.user?.role === 'SUPER_ADMIN') {
+        navigate('/super-admin/dashboard', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Invalid credentials';
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-            // Navigate based on role
-            if (response.user.isSuperAdmin || response.user.role === 'SUPER_ADMIN') {
-                navigate('/super-admin/dashboard');
-            } else {
-                navigate('/dashboard');
-            }
-        } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : 'Invalid email or password';
-            setError(errorMessage);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  return (
+    <div className="super-admin-login-page">
+      <div className="background-layer" />
 
-    return (
-        <div className="super-admin-login-container">
-            <div className="login-card">
-                <div className="login-header">
-                    <div className="shield-icon-wrapper">
-                        <Shield size={24} />
-                    </div>
-                    <h1 className="login-title">Super Admin Access</h1>
-                    <p className="login-subtitle">Secure entrance to core protocols.</p>
-                </div>
-
-                <form onSubmit={handleSubmit} className="login-form">
-                    {error && (
-                        <div className="login-alert">
-                            <AlertCircle size={16} />
-                            {error}
-                        </div>
-                    )}
-
-                    <div className="input-group">
-                        <label className="input-label">Admin Credentials</label>
-                        <div className="input-relative">
-                            <Mail className="input-icon" />
-                            <input
-                                type="email"
-                                className="login-input"
-                                placeholder="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                autoFocus
-                            />
-                        </div>
-                    </div>
-
-                    <div className="input-group">
-                        <label className="input-label">Security Key</label>
-                        <div className="input-relative">
-                            <Lock className="input-icon" />
-                            <input
-                                type={showPassword ? 'text' : 'password'}
-                                className="login-input"
-                                placeholder="••••••••"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                            <button
-                                type="button"
-                                className="password-toggle"
-                                onClick={() => setShowPassword(!showPassword)}
-                            >
-                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                            </button>
-                        </div>
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="login-submit-btn"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? 'Accessing...' : 'Sign In'}
-                    </button>
-                </form>
-
-                <div className="login-footer">
-                    <div className="security-info">
-                        <Shield size={12} />
-                        <span>Secure Session</span>
-                    </div>
-                    <p className="security-desc">Authorized personnel only. All access attempts are monitored and logged.</p>
-                </div>
+      <div className="login-card-wrapper">
+        <div className="login-card animate-fade-in">
+          <div className="login-header">
+            <div className="shield-wrapper">
+              <Shield size={32} strokeWidth={1.8} />
             </div>
+            <h1>Super Admin Portal</h1>
+            <p>Restricted access — Banking Core Systems</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="login-form">
+            {error && (
+              <div className="error-alert animate-shake">
+                <AlertCircle size={18} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="form-field">
+              <label>Email</label>
+              <div className="input-wrapper">
+                <Mail className="field-icon" size={18} />
+                <input
+                  type="email"
+                  placeholder="admin@bank.in"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoFocus
+                  autoComplete="username"
+                />
+              </div>
+            </div>
+
+            <div className="form-field">
+              <label>Passphrase</label>
+              <div className="input-wrapper">
+                <Lock className="field-icon" size={18} />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="submit-btn"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                'Secure Access'
+              )}
+            </button>
+          </form>
+
+          <div className="security-footer">
+            <div className="security-badge">
+              <Shield size={14} />
+              <span>End-to-end encrypted</span>
+            </div>
+            <p className="security-note">
+              All access attempts are logged and monitored. Unauthorized use is prohibited.
+            </p>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
