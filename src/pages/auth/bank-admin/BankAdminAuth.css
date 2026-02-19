@@ -1,0 +1,55 @@
+:root {
+    --bank-primary: #4f46e5;
+    --bank-accent: #6366f1;
+    --bank-bg: #f8fafc;
+}
+
+.bank-admin-login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bank-bg);
+    padding: 1.5rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.bank-login-loading,
+.bank-login-error {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bank-bg);
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #1e293b 0%, #4338ca 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Custom transitions and refinements */
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rounded-3xl {
+    border-radius: 1.5rem;
+}
+
+.shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
