@@ -281,9 +281,35 @@ export const mockLogin = async (credentials: LoginCredentials): Promise<LoginRes
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 800));
 
+  // 1. Check Super Admin
+  if (
+    (credentials.email === 'ramu@corebranch.com' || credentials.email === 'RAMU-123') &&
+    credentials.password === 'ramu1234'
+  ) {
+    return {
+      user: {
+        id: 'sa-001',
+        email: 'ramu@corebranch.com',
+        firstName: 'Ramu',
+        lastName: 'Super',
+        phone: '+91-9999999999',
+        role: UserRole.SUPER_ADMIN,
+        branchIds: [],
+        isSuperAdmin: true,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      token: 'mock-sa-token-' + Date.now(),
+      refreshToken: 'mock-sa-refresh-token-' + Date.now(),
+      branches: getAllBranches(),
+      permissions: ROLE_PERMISSIONS[UserRole.SUPER_ADMIN],
+    };
+  }
+
   // 2. Check Bank Admins (Dynamic + Demo)
   const users = initializeUsers();
-  const user = users.find(u => u.email === credentials.email && u.password === credentials.password);
+  const user = users.find((u: any) => u.email === credentials.email && u.password === credentials.password);
   
   if (user) {
     const banks = getAllBranches().filter(b => b.id === user.bankId);
@@ -306,7 +332,7 @@ export const mockLogin = async (credentials: LoginCredentials): Promise<LoginRes
       token: 'mock-token-' + Date.now(),
       refreshToken: 'mock-refresh-token-' + Date.now(),
       branches: banks,
-      permissions: ROLE_PERMISSIONS[user.role],
+      permissions: ROLE_PERMISSIONS[user.role as UserRole],
     };
   }
 

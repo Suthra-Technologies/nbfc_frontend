@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Mail, Eye, EyeOff, Shield, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,11 +9,22 @@ export function SuperAdminAuth() {
     const navigate = useNavigate();
     const { setAuth } = useAuth();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('ramu@corebranch.com');
+    const [password, setPassword] = useState('ramu1234');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+
+    // Auto-login for development convenience
+    useEffect(() => {
+        if (email === 'ramu@corebranch.com' && password === 'ramu1234') {
+            const timer = setTimeout(() => {
+                const event = { preventDefault: () => { } } as React.FormEvent;
+                handleSubmit(event);
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
