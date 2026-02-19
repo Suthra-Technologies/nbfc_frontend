@@ -1,13 +1,11 @@
 import { api } from '@/lib/api-client';
 import type { LoginCredentials, LoginResponse, User } from '@/types/auth.types';
-import { mockLogin } from './mock-auth.service';
 export const authService = {
   /**
    * Login user with credentials
    */
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
-    // return api.post<LoginResponse>('/auth/login', credentials);
-    return mockLogin(credentials);
+    return api.post<LoginResponse>('/auth/login', credentials);
   },
 
   /**

@@ -68,7 +68,7 @@ function App() {
           </Route>
 
           {/* Default redirects */}
-          <Route path="/" element={<Navigate to="/auth/super-admin" replace />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
