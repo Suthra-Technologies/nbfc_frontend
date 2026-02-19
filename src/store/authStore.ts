@@ -43,9 +43,9 @@ export const useAuthStore = create<AuthStore>()(
         const { user, token, refreshToken, branches = [], permissions = [] } = data;
         
         // Decoding token to get role if not provided in user object
-        let decodedRole = 'USER';
+        let decodedRole = user?.role || 'USER';
         try {
-          if (token && typeof token === 'string') {
+          if (token && typeof token === 'string' && !user?.role) {
             const base64Url = token.split('.')[1];
             if (base64Url) {
               const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -63,9 +63,11 @@ export const useAuthStore = create<AuthStore>()(
         // Ensure user object has expected fields for the UI
         const normalizedUser = {
           ...user,
-          id: user.id || user.userId || user._id,
-          role: user.role || decodedRole,
-          isSuperAdmin: user.isSuperAdmin || user.role === UserRole.SUPER_ADMIN || decodedRole === UserRole.SUPER_ADMIN
+          id: user?.id || user?.userId || user?._id || 'unknown',
+          role: user?.role || decodedRole,
+          firstName: user?.firstName || user?.name?.split(' ')[0] || 'User',
+          lastName: user?.lastName || user?.name?.split(' ')[1] || '',
+          isSuperAdmin: user?.isSuperAdmin || user?.role === UserRole.SUPER_ADMIN || decodedRole === UserRole.SUPER_ADMIN
         };
 
         // Set active branch

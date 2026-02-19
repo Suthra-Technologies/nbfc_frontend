@@ -74,31 +74,37 @@ export function Sidebar() {
                         Main Navigation
                     </p>
                     <nav className="space-y-1">
-                        {filteredMenu.map((item) => {
-                            const isActive = location.pathname.startsWith(item.path)
-                            return (
-                                <Link to={item.path} key={item.path}>
-                                    <Button
-                                        variant={isActive ? "secondary" : "ghost"}
-                                        className={cn(
-                                            "w-full justify-start relative group transition-all duration-200",
-                                            isActive
-                                                ? "bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 border-r-4 border-purple-600 rounded-r-none"
-                                                : "text-muted-foreground hover:bg-purple-50 hover:text-purple-600"
-                                        )}
-                                    >
-                                        <item.icon className={cn(
-                                            "mr-3 h-5 w-5 transition-transform duration-200",
-                                            isActive ? "scale-110 text-purple-600" : "group-hover:scale-110 group-hover:text-purple-500"
-                                        )} />
-                                        <span className="font-medium text-sm">{item.label}</span>
-                                        {isActive && (
-                                            < ChevronRight className="ml-auto h-4 w-4" />
-                                        )}
-                                    </Button>
-                                </Link>
-                            )
-                        })}
+                        {filteredMenu.length > 0 ? (
+                            filteredMenu.map((item) => {
+                                const isActive = location.pathname.startsWith(item.path)
+                                return (
+                                    <Link to={item.path} key={item.path}>
+                                        <Button
+                                            variant={isActive ? "secondary" : "ghost"}
+                                            className={cn(
+                                                "w-full justify-start relative group transition-all duration-200",
+                                                isActive
+                                                    ? "bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 border-r-4 border-purple-600 rounded-r-none"
+                                                    : "text-muted-foreground hover:bg-purple-50 hover:text-purple-600"
+                                            )}
+                                        >
+                                            <item.icon className={cn(
+                                                "mr-3 h-5 w-5 transition-transform duration-200",
+                                                isActive ? "scale-110 text-purple-600" : "group-hover:scale-110 group-hover:text-purple-500"
+                                            )} />
+                                            <span className="font-medium text-sm">{item.label}</span>
+                                            {isActive && (
+                                                < ChevronRight className="ml-auto h-4 w-4" />
+                                            )}
+                                        </Button>
+                                    </Link>
+                                )
+                            })
+                        ) : (
+                            <div className="px-4 py-2 text-xs text-muted-foreground italic">
+                                Limited access mode
+                            </div>
+                        )}
                     </nav>
                 </div>
             </div>
