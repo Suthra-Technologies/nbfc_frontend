@@ -10,21 +10,23 @@ export interface TenantInfo {
   isLocal: boolean;
 }
 
-/**
- * Extract tenant information from current hostname
- */
 export const getTenantFromHostname = (): TenantInfo => {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
-  
+
+  // Common Admin identifiers
+  const adminPaths = ['/auth/super-admin', '/super-admin', '/admin'];
+  const isAdminPath = adminPaths.some(path => pathname.startsWith(path));
+
   // Development/Local Environment
   if (hostname === 'localhost' || hostname.includes('127.0.0.1') || hostname.includes('192.168')) {
-    // Check if accessing admin panel via /admin route
-    const isAdmin = pathname.startsWith('/admin');
-    
-    // For local development, you can set a default branch via localStorage
-    const localBranch = localStorage.getItem('dev_branch') || 'icici-bank';
-    
+    const isAdmin = isAdminPath;
+
+    // For local development, use a cleaner way to handle branch switching
+    const urlParams = new URLSearchParams(window.location.search);
+    const branchParam = urlParams.get('branch');
+    const localBranch = branchParam || localStorage.getItem('dev_branch') || 'bank1';
+
     return {
       subdomain: isAdmin ? 'admin' : localBranch,
       isAdmin,
@@ -32,23 +34,16 @@ export const getTenantFromHostname = (): TenantInfo => {
       isLocal: true,
     };
   }
-  
+
   // Production Environment
-  // Example: vijayawada.corebranch.com → subdomain = 'vijayawada'
-  // Example: admin.corebranch.com → subdomain = 'admin'
   const parts = hostname.split('.');
-  
-  if (parts.length < 2) {
-    throw new Error('Invalid domain structure');
-  }
-  
-  const subdomain = parts[0];
-  
-  // Check if it's the admin portal
-  const isAdmin = subdomain === 'admin' || subdomain === 'www' || pathname.startsWith('/admin');
-  
+  const subdomain = parts.length > 2 ? parts[0] : null;
+
+  // Check if it's the admin portal via subdomain or path
+  const isAdmin = subdomain === 'admin' || subdomain === 'www' || isAdminPath || !subdomain;
+
   return {
-    subdomain: isAdmin ? 'admin' : subdomain,
+    subdomain: isAdmin ? 'admin' : (subdomain || 'admin'),
     isAdmin,
     isBranch: !isAdmin,
     isLocal: false,
@@ -61,16 +56,16 @@ export const getTenantFromHostname = (): TenantInfo => {
  */
 export const getBaseDomain = (): string => {
   const hostname = window.location.hostname;
-  
+
   if (hostname === 'localhost' || hostname.includes('127.0.0.1')) {
     return 'localhost';
   }
-  
+
   const parts = hostname.split('.');
   if (parts.length < 2) {
     return hostname;
   }
-  
+
   // Return last two parts (domain.com)
   return parts.slice(-2).join('.');
 };
@@ -83,7 +78,7 @@ export const getBaseDomain = (): string => {
 export const buildTenantUrl = (subdomain: string, path: string = '/'): string => {
   const protocol = window.location.protocol;
   const baseDomain = getBaseDomain();
-  
+
   if (baseDomain === 'localhost') {
     // Local development: use path-based routing
     if (subdomain === 'admin') {
@@ -91,7 +86,7 @@ export const buildTenantUrl = (subdomain: string, path: string = '/'): string =>
     }
     return `${protocol}//${baseDomain}:${window.location.port}${path}?branch=${subdomain}`;
   }
-  
+
   // Production: use subdomain routing
   return `${protocol}//${subdomain}.${baseDomain}${path}`;
 };
