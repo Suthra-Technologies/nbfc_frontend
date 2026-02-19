@@ -1,22 +1,19 @@
 import { api } from '@/lib/api-client';
-import type { Branch } from '@/types/auth.types';
 
 export interface TenantResolution {
-  branch: Branch;
-  isActive: boolean;
-  settings: any;
+  name: string;
+  logo?: string;
+  subdomain: string;
 }
+
 export const tenantService = {
   /**
-   * Resolve tenant (branch) from subdomain
-   * @param subdomain - Branch subdomain (e.g., 'vijayawada')
+   * Resolve tenant (bank) from current subdomain
    */
-  resolve: async (subdomain: string): Promise<TenantResolution | null> => {
+  resolve: async (): Promise<TenantResolution | null> => {
     try {
-      const response = await api.post<TenantResolution>('/tenant/resolve', {
-        subdomain,
-      });
-      
+      // The backend detects subdomain from the 'host' header automatically
+      const response = await api.get<TenantResolution>('/banks/tenant-info');
       return response;
     } catch (error) {
       console.error('Tenant resolution failed:', error);
@@ -30,8 +27,10 @@ export const tenantService = {
    */
   checkAvailability: async (subdomain: string): Promise<boolean> => {
     try {
+      // This might need a backend endpoint if not already existing
+      // For now, keeping as is but pointing to possible bank utility
       const response = await api.get<{ available: boolean }>(
-        `/tenant/check-availability/${subdomain}`
+        `/banks/check-availability/${subdomain}`
       );
       return response.available;
     } catch (error) {
@@ -41,11 +40,10 @@ export const tenantService = {
 
   /**
    * Get tenant branding/theme
-   * @param subdomain - Branch subdomain
    */
-  getBranding: async (subdomain: string): Promise<any> => {
+  getBranding: async (): Promise<any> => {
     try {
-      return await api.get(`/tenant/${subdomain}/branding`);
+      return await api.get('/banks/tenant-info');
     } catch (error) {
       return null;
     }

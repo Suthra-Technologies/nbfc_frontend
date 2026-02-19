@@ -1,13 +1,12 @@
 import { useTenantStore } from '@/store/tenantStore';
 import { tenantService } from '@/services/tenant.service';
-import type { Branch } from '@/types/auth.types';
 
 /**
- * Custom hook for tenant/branch management
+ * Custom hook for tenant/bank management
  */
 export const useTenant = () => {
   const {
-    branch,
+    bank,
     subdomain,
     isResolved,
     isResolving,
@@ -15,7 +14,7 @@ export const useTenant = () => {
     isAdmin,
     isBranch,
     isLocal,
-    setBranch,
+    setBank,
     setError,
     setResolving,
     setResolved,
@@ -30,7 +29,7 @@ export const useTenant = () => {
       return;
     }
 
-    // Skip resolution for admin portal
+    // Skip resolution for super admin portal
     if (isAdmin) {
       setResolved(true);
       return;
@@ -40,31 +39,25 @@ export const useTenant = () => {
       setResolving(true);
       setError(null);
 
-      const resolution = await tenantService.resolve(subdomain);
+      const resolution = await tenantService.resolve();
 
       if (!resolution) {
-        throw new Error('Branch not found');
+        throw new Error('Bank not found for this subdomain');
       }
 
-      if (!resolution.isActive) {
-        throw new Error('This branch is currently inactive. Please contact support.');
-      }
-
-      setBranch(resolution.branch);
+      setBank(resolution);
     } catch (err: any) {
-      const errorMessage = err.message || 'Failed to resolve branch';
+      const errorMessage = err.message || 'Failed to resolve bank portal';
       setError(errorMessage);
       throw err;
     }
   };
 
   return {
-    // Branch Info
-    branch,
-    branchId: branch?.id,
-    branchName: branch?.name,
-    branchCode: branch?.code,
-    branchCity: branch?.address?.city,
+    // Bank Info
+    bank,
+    bankName: bank?.name,
+    bankLogo: bank?.logo,
     subdomain,
 
     // Status
@@ -79,19 +72,14 @@ export const useTenant = () => {
 
     // Actions
     resolveTenant,
-    setBranch,
+    setBank,
     setError,
     reset,
 
     // Utilities
-    getBranchDisplayName: () => {
+    getBankDisplayName: () => {
       if (isAdmin) return 'Super Admin Portal';
-      return branch ? `${branch.name} Branch` : 'Loading...';
+      return bank ? bank.name : 'Loading...';
     },
-
-    // Settings
-    businessDate: branch?.settings?.businessDate,
-    isDateLocked: branch?.settings?.isDateLocked || false,
-    currency: branch?.settings?.currency || 'INR',
   };
 };

@@ -12,7 +12,7 @@ import './BankAdminAuth.css';
 
 export function BankAdminAuth() {
     const navigate = useNavigate();
-    const { branch, branchName, isResolving, isResolved, error: tenantError, resolveTenant } = useTenant();
+    const { bank, bankName, isResolving, isResolved, error: tenantError, resolveTenant } = useTenant();
     const { setAuth } = useAuth();
 
     const [email, setEmail] = useState('');
@@ -23,7 +23,7 @@ export function BankAdminAuth() {
 
     useEffect(() => {
         resolveTenant().catch((err: unknown) => {
-            console.error('Failed to resolve branch:', err);
+            console.error('Failed to resolve bank:', err);
         });
     }, []);
 
@@ -36,8 +36,8 @@ export function BankAdminAuth() {
             return;
         }
 
-        if (!branch) {
-            setError('Branch information not available. Please wait for the page to load completely.');
+        if (!bank) {
+            setError('Bank information not available. Please wait for the page to load completely.');
             resolveTenant();
             return;
         }
@@ -127,7 +127,7 @@ export function BankAdminAuth() {
                     <div className="bg-indigo-600 p-8 text-white text-center relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
                         <Building2 className="h-10 w-10 mx-auto mb-3 opacity-90" />
-                        <h2 className="text-xl font-bold">{branchName || 'Institution Login'}</h2>
+                        <h2 className="text-xl font-bold">{bankName || 'Institution Login'}</h2>
                         <p className="text-indigo-100 text-sm opacity-80 mt-1">Authenticated Entry Protocol</p>
                     </div>
 
@@ -214,7 +214,7 @@ export function BankAdminAuth() {
 
                 <div className="text-center pt-4">
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                        System Terminal ID: {branch?.id?.substring(0, 8) || 'UNK-NODE'}
+                        System Terminal ID: {bank?.subdomain || 'UNK-NODE'}
                     </p>
                 </div>
             </div>
