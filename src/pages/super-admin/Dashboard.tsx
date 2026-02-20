@@ -78,8 +78,8 @@ export function AdminDashboard() {
                                 <AreaChart data={GROWTH_DATA}>
                                     <defs>
                                         <linearGradient id="colorMinimal" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1} />
-                                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#009BB0" stopOpacity={0.1} />
+                                            <stop offset="95%" stopColor="#009BB0" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -88,7 +88,7 @@ export function AdminDashboard() {
                                     <Tooltip
                                         contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05)', fontSize: '12px' }}
                                     />
-                                    <Area type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorMinimal)" />
+                                    <Area type="monotone" dataKey="value" stroke="#009BB0" strokeWidth={3} fillOpacity={1} fill="url(#colorMinimal)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>

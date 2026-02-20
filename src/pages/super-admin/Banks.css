@@ -49,14 +49,11 @@
     }
 }
 
-/* Page Header */
-.banks-page-header {
+/* Page Header - Refined for Sub-Layout Compatibility */
+.banks-title-bar {
     background: var(--bank-surface);
     border-bottom: 1px solid var(--bank-border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    padding: clamp(0.75rem, 2vh, 1.25rem) 0;
+    padding: clamp(1.5rem, 4vh, 2.5rem) 0;
 }
 
 .header-content {

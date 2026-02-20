@@ -29,27 +29,27 @@ export const useAuth = () => {
     isAuthenticated,
     isLoading,
     permissions,
-    
+
     // User Info
-    userName: user ? `${user.firstName} ${user.lastName}` : '',
+    userName: user?.name || (user ? `${user.firstName} ${user.lastName}` : ''),
     userEmail: user?.email || '',
     userRole: user?.role || UserRole.STAFF,
-    
+
     // Actions
     setAuth,
     updateUser,
     logout,
-    
+
     // Permission Checks
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
-    
+
     // Role Checks
     isSuperAdmin,
     isBranchAdmin,
     isStaff: () => !isSuperAdmin() && !isBranchAdmin(),
-    
+
     // Computed Properties
     canManageBranches: () => hasPermission(Permission.CREATE_BRANCH),
     canManageStaff: () => hasPermission(Permission.CREATE_STAFF),

@@ -68,7 +68,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
-    const { user, userRole, logout } = useAuth();
+    const { user, userRole, userName, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -177,9 +177,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             <div className="p-4 border-t bg-gradient-to-t from-[#009BB0]/5 to-transparent">
                 <div className="rounded-xl overflow-hidden shadow-md border border-[#009BB0]/10">
                     <div className="bg-[#009BB0] px-4 py-3 text-white">
-                        <p className="text-[10px] font-medium opacity-85">Connected as</p>
-                        <p className="text-sm font-semibold truncate">
-                            {user?.firstName} {user?.lastName}
+                        <p className="text-[10px] font-medium opacity-85 uppercase tracking-wider">Connected as</p>
+                        <p className="text-sm font-bold truncate">
+                            {userName || 'Global Administrator'}
                         </p>
                     </div>
                     <div className="bg-white px-4 py-3 flex items-center justify-between">
@@ -204,7 +204,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
 
                 <p className="mt-5 text-center text-[10px] text-slate-400">
-                    © {new Date().getFullYear()} CoreBranch
+                    © {new Date().getFullYear()} Suthra Technologies Pvt. Ltd.
                 </p>
             </div>
         </aside>

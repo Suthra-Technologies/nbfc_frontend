@@ -8,6 +8,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  name?: string;
   phone: string;
   role: UserRole;
   branchIds: string[]; // Branches this user has access to

@@ -9,6 +9,8 @@ import { BankAdminAuth } from "@/pages/auth/bank-admin/BankAdminAuth"
 import { AdminDashboard } from "@/pages/super-admin/Dashboard"
 import { Banks as BankList } from "@/pages/super-admin/Banks"
 import { CreateBank } from "@/pages/super-admin/CreateBank"
+import { AuditLogs } from "@/pages/super-admin/AuditLogs"
+import { PlatformSettings } from "@/pages/super-admin/Settings"
 
 // Bank Portal Pages (Bank Admin/Manager/Staff)
 import { Branches } from "@/pages/bank-admin/branches/Branches"
@@ -47,8 +49,8 @@ function App() {
                 <Route path="/super-admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/super-admin/banks" element={<BankList />} />
                 <Route path="/super-admin/banks/create" element={<CreateBank />} />
-                <Route path="/super-admin/audit-logs" element={<div className="p-8"><h1>Audit Logs</h1><p className="text-muted-foreground">Platform-wide system events</p></div>} />
-                <Route path="/super-admin/settings" element={<div className="p-8"><h1>Platform Settings</h1><p className="text-muted-foreground">Global configuration for the Multi-Bank SaaS</p></div>} />
+                <Route path="/super-admin/audit-logs" element={<AuditLogs />} />
+                <Route path="/super-admin/settings" element={<PlatformSettings />} />
               </Route>
 
               {/* Bank Administrative Routes (Bank Admin & Managers) */}

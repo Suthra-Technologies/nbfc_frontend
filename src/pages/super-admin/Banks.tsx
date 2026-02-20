@@ -59,8 +59,8 @@ export function Banks() {
 
     return (
         <div className="banks-container">
-            {/* Header Section */}
-            <div className="banks-page-header">
+            {/* Page Header - Clean Sub-Section */}
+            <div className="banks-title-bar">
                 <div className="header-content">
                     <div className="header-title-section">
                         <h1 className="header-title">Institution Registry</h1>
