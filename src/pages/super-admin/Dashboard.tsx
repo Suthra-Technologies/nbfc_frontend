@@ -34,39 +34,7 @@ export function AdminDashboard() {
 
     return (
         <div className="dashboard-container">
-            {/* Header */}
-            <header className="dashboard-header">
-                <div className="header-content">
-                    <div className="header-welcome">
-                        <h1>Platform Overview</h1>
-                        <div className="admin-badge">
-                            <Shield size={12} />
-                            Admin: {user?.firstName} {user?.lastName}
-                        </div>
-                    </div>
-
-                    <div className="header-actions">
-                        <div className="dashboard-search-wrapper">
-                            <Search className="dashboard-search-icon" />
-                            <input
-                                type="text"
-                                placeholder="Search..."
-                                className="dashboard-search-input"
-                            />
-                        </div>
-                        <button className="icon-btn">
-                            <Bell size={16} />
-                        </button>
-                        <button
-                            onClick={() => navigate('/super-admin/banks/create')}
-                            className="primary-action-btn"
-                        >
-                            <Plus size={16} />
-                            Add Bank
-                        </button>
-                    </div>
-                </div>
-            </header>
+        
 
             <main className="dashboard-main">
                 {/* Stats Grid */}
