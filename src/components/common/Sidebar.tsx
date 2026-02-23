@@ -7,11 +7,13 @@ import {
     CreditCard,
     IndianRupee,
     Briefcase,
-    Shield,
     PieChart,
     ChevronRight,
     LogOut,
+    CalendarCheck,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { demoRequestService } from "@/services/demo-request.service";
 
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -45,6 +47,7 @@ const CORE_MENU: MenuItem[] = [
 
 const SUPER_ADMIN_MENU: MenuItem[] = [
     { label: "Bank Management", path: "/super-admin/banks", icon: Building2, roles: [UserRole.SUPER_ADMIN] },
+    { label: "Demo Requests", path: "/super-admin/demo-requests", icon: CalendarCheck, roles: [UserRole.SUPER_ADMIN] },
     { label: "Audit Logs", path: "/super-admin/audit-logs", icon: FileText, roles: [UserRole.SUPER_ADMIN] },
     { label: "Settings", path: "/super-admin/settings", icon: Settings, roles: [UserRole.SUPER_ADMIN] },
 ];
@@ -71,6 +74,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     const { user, userRole, userName, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
+    const [demoUnreadCount, setDemoUnreadCount] = useState(0);
 
     const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
 
@@ -80,6 +84,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     const superAdminItems = filterMenu(SUPER_ADMIN_MENU);
     const operationsItems = filterMenu(OPERATIONS_MENU);
     const insightsItems = filterMenu(INSIGHTS_MENU);
+
+    // Fetch unread demo request count for super admin
+    useEffect(() => {
+        if (!isSuperAdmin) return;
+        const fetchCount = async () => {
+            try {
+                const count = await demoRequestService.getUnreadCount();
+                setDemoUnreadCount(count);
+            } catch (_) { }
+        };
+        fetchCount();
+        const interval = setInterval(fetchCount, 30000); // refresh every 30s
+        return () => clearInterval(interval);
+    }, [isSuperAdmin]);
 
     const handleLogout = () => {
         logout();
@@ -97,8 +115,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <nav className="space-y-1">
                     {items.map((item) => {
                         const isActive = location.pathname === item.path;
+                        const isDemoRequests = item.path === "/super-admin/demo-requests";
+                        const badgeCount = isDemoRequests ? demoUnreadCount : 0;
                         return (
-                            <Link to={item.path} key={item.path} onClick={onClose}>
+                            <Link to={item.path} key={item.path} onClick={() => {
+                                if (isDemoRequests) setDemoUnreadCount(0);
+                                onClose?.();
+                            }}>
                                 <Button
                                     variant="ghost"
                                     className={cn(
@@ -118,7 +141,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                     />
                                     <span className="font-medium text-sm">{item.label}</span>
 
-                                    {isActive && (
+                                    {badgeCount > 0 && (
+                                        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-[#F18422] text-[10px] font-bold text-white px-1.5 shadow-sm">
+                                            {badgeCount > 99 ? '99+' : badgeCount}
+                                        </span>
+                                    )}
+
+                                    {isActive && badgeCount === 0 && (
                                         <ChevronRight className="ml-auto h-4 w-4 text-[#009BB0] opacity-70 animate-pulse-slow" />
                                     )}
                                 </Button>

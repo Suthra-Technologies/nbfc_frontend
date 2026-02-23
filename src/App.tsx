@@ -11,6 +11,7 @@ import { Banks as BankList } from "@/pages/super-admin/Banks"
 import { CreateBank } from "@/pages/super-admin/CreateBank"
 import { AuditLogs } from "@/pages/super-admin/AuditLogs"
 import { PlatformSettings } from "@/pages/super-admin/Settings"
+import { DemoRequests } from "@/pages/super-admin/DemoRequests"
 
 // Bank Portal Pages (Bank Admin/Manager/Staff)
 import { Branches } from "@/pages/bank-admin/branches/Branches"
@@ -51,6 +52,7 @@ function App() {
                 <Route path="/super-admin/banks/create" element={<CreateBank />} />
                 <Route path="/super-admin/audit-logs" element={<AuditLogs />} />
                 <Route path="/super-admin/settings" element={<PlatformSettings />} />
+                <Route path="/super-admin/demo-requests" element={<DemoRequests />} />
               </Route>
 
               {/* Bank Administrative Routes (Bank Admin & Managers) */}

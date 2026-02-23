@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import {
     Building2, Users, IndianRupee,
-    Plus, Search, Bell,
     TrendingUp,
     Shield
 } from 'lucide-react';
@@ -28,33 +27,38 @@ const RECENT_BANKS = [
     { id: '3', name: 'Zion Savings & Loans', status: 'Active', growth: '+15.1%' },
 ];
 
+const STATS = [
+    { label: 'Registered Banks', value: '42', icon: Building2 },
+    { label: 'Portfolio Volume', value: '₹2,845 Cr', icon: IndianRupee },
+    { label: 'Active Users', value: '184.5k', icon: Users },
+    { label: 'System Uptime', value: '99.98%', icon: Shield },
+];
+
 export function AdminDashboard() {
     const navigate = useNavigate();
     const { user } = useAuth();
 
     return (
         <div className="dashboard-container">
-        
-
             <main className="dashboard-main">
+
                 {/* Stats Grid */}
                 <div className="stats-grid">
-                    {[
-                        { label: 'Registered Banks', value: '42', icon: Building2 },
-                        { label: 'Portfolio Volume', value: '₹2,845 Cr', icon: IndianRupee },
-                        { label: 'Active Users', value: '184.5k', icon: Users },
-                        { label: 'System Uptime', value: '99.98%', icon: Shield },
-                    ].map((stat, i) => (
-                        <div key={i} className="stat-card">
+                    {STATS.map((stat, i) => (
+                        <div
+                            key={i}
+                            className="stat-card"
+                            style={{ '--order': i } as React.CSSProperties}
+                        >
                             <div className="stat-header">
                                 <div className="stat-icon-wrapper">
-                                    <stat.icon size={16} />
+                                    <stat.icon size={14} />
                                 </div>
                                 <div className="stat-trend">
-                                    <TrendingUp size={10} />
+                                    <TrendingUp size={9} />
                                 </div>
                             </div>
-                            <h3 className="stat-label">{stat.label}</h3>
+                            <p className="stat-label">{stat.label}</p>
                             <p className="stat-value">{stat.value}</p>
                         </div>
                     ))}
@@ -66,29 +70,56 @@ export function AdminDashboard() {
                         <div className="chart-header">
                             <div className="chart-info">
                                 <h2>Network Growth</h2>
-                                <p>Monthly transaction volume aggregation</p>
+                                <p>Monthly transaction volume</p>
                             </div>
                             <select className="chart-select">
                                 <option>Last 6 Months</option>
                                 <option>Last Year</option>
                             </select>
                         </div>
-                        <div style={{ height: '300px' }}>
+                        <div style={{ height: '220px' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={GROWTH_DATA}>
+                                <AreaChart data={GROWTH_DATA} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="colorMinimal" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#009BB0" stopOpacity={0.1} />
+                                            <stop offset="5%" stopColor="#009BB0" stopOpacity={0.08} />
                                             <stop offset="95%" stopColor="#009BB0" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }} dx={-10} />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05)', fontSize: '12px' }}
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
+                                        dy={8}
                                     />
-                                    <Area type="monotone" dataKey="value" stroke="#009BB0" strokeWidth={3} fillOpacity={1} fill="url(#colorMinimal)" />
+                                    <YAxis
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
+                                        dx={-4}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: '#fff',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e8edf2',
+                                            boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
+                                            fontSize: '11px',
+                                            padding: '7px 10px',
+                                        }}
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="value"
+                                        stroke="#009BB0"
+                                        strokeWidth={2}
+                                        fillOpacity={1}
+                                        fill="url(#colorMinimal)"
+                                        dot={false}
+                                        activeDot={{ r: 4, fill: '#009BB0', strokeWidth: 0 }}
+                                    />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -103,7 +134,7 @@ export function AdminDashboard() {
                                     <div key={bank.id} className="side-item">
                                         <div className="side-item-main">
                                             <div className="token-icon">
-                                                <Building2 size={14} />
+                                                <Building2 size={12} />
                                             </div>
                                             <p className="side-item-name">{bank.name}</p>
                                         </div>
