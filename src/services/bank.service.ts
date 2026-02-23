@@ -32,6 +32,8 @@ export interface Bank {
     pincode: string;
   };
   isActive: boolean;
+  subdomain?: string;
+  dbName?: string;
   createdAt: string;
 }
 
@@ -55,5 +57,9 @@ export const bankService = {
    */
   getById: async (id: string): Promise<Bank> => {
     return api.get<Bank>(`/banks/${id}`);
+  },
+
+  getProfile: async (): Promise<Bank> => {
+    return api.get<Bank>('/banks/profile');
   }
 };

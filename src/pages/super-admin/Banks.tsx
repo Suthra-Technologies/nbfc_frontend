@@ -6,12 +6,14 @@ import {
     LayoutGrid, List,
     ArrowRight,
     Users,
-    Activity,
     Plus,
-    Target
+    Target,
+    Copy,
+    Check
 } from 'lucide-react';
 import { bankService } from '@/services/bank.service';
 import type { Bank } from '@/services/bank.service';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import './Banks.css';
 
@@ -24,6 +26,8 @@ export function Banks() {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
+    const { toast } = useToast();
+    const [copiedId, setCopiedId] = useState<string | null>(null);
 
     useEffect(() => {
         loadBanks();
@@ -56,6 +60,40 @@ export function Banks() {
             return matchesSearch && matchesStatus;
         });
     }, [banks, searchTerm, statusFilter]);
+
+    const handleCopyUrl = (bank: Bank) => {
+        if (!bank.subdomain) {
+            toast({
+                title: 'Missing Identifier',
+                description: 'This bank does not have a configured subdomain yet.',
+                variant: 'destructive'
+            });
+            return;
+        }
+
+        const host = window.location.host;
+        const protocol = window.location.protocol;
+        let url = "";
+
+        if (host.includes('localhost')) {
+            url = `${protocol}//${bank.subdomain}.${host}/login`;
+        } else {
+            const parts = host.split('.');
+            if (parts.length > 2) {
+                parts.shift();
+            }
+            url = `${protocol}//${bank.subdomain}.${parts.join('.')}/login`;
+        }
+
+        navigator.clipboard.writeText(url);
+        setCopiedId(bank.id);
+        toast({
+            title: 'URL Copied',
+            description: `Portal link for ${bank.name} on the clipboard.`,
+        });
+
+        setTimeout(() => setCopiedId(null), 2000);
+    };
 
     return (
         <div className="banks-container">
@@ -164,19 +202,28 @@ export function Banks() {
                         {filteredBanks.map((bank, index) => (
                             <div key={bank.id} className="bank-card" style={{ animationDelay: `${index * 0.05}s` }}>
                                 <div className="card-top">
-                                    <div className="bank-logo-box">
-                                        {bank.logo ? (
-                                            <img src={bank.logo} alt={bank.name} className="bank-logo-img" />
-                                        ) : (
-                                            <Building2 size={24} style={{ color: 'var(--bank-primary)' }} />
-                                        )}
+                                    <div className="card-top-left">
+                                        <div className="bank-logo-box">
+                                            {bank.logo ? (
+                                                <img src={bank.logo} alt={bank.name} className="bank-logo-img" />
+                                            ) : (
+                                                <Building2 size={24} style={{ color: 'var(--bank-primary)' }} />
+                                            )}
+                                        </div>
+                                        <div className={cn(
+                                            "status-pill",
+                                            bank.isActive ? "active-pill" : "offline-pill"
+                                        )}>
+                                            {bank.isActive ? 'Operational' : 'Maintenance'}
+                                        </div>
                                     </div>
-                                    <div className={cn(
-                                        "status-pill",
-                                        bank.isActive ? "active-pill" : "offline-pill"
-                                    )}>
-                                        {bank.isActive ? 'Operational' : 'Maintenance'}
-                                    </div>
+                                    <button
+                                        className={cn("copy-url-btn", copiedId === bank.id && "copied")}
+                                        onClick={() => handleCopyUrl(bank)}
+                                        title="Copy Portal URL"
+                                    >
+                                        {copiedId === bank.id ? <Check size={14} /> : <Copy size={14} />}
+                                    </button>
                                 </div>
                                 <div className="bank-info">
                                     <h3>{bank.name}</h3>
@@ -244,9 +291,19 @@ export function Banks() {
                                             </div>
                                         </td>
                                         <td style={{ textAlign: 'right' }}>
-                                            <button className="view-btn active" style={{ width: 'auto', padding: '0 1rem', height: '36px' }}>
-                                                Configure <ArrowRight size={14} style={{ marginLeft: '8px' }} />
-                                            </button>
+                                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                                                <button
+                                                    className={cn("copy-url-btn", copiedId === bank.id && "copied")}
+                                                    style={{ position: 'static', background: '#f8fafc', border: '1px solid #edf2f7' }}
+                                                    onClick={() => handleCopyUrl(bank)}
+                                                    title="Copy Portal URL"
+                                                >
+                                                    {copiedId === bank.id ? <Check size={14} /> : <Copy size={14} />}
+                                                </button>
+                                                <button className="view-btn active" style={{ width: 'auto', padding: '0 1rem', height: '36px' }}>
+                                                    Configure <ArrowRight size={14} style={{ marginLeft: '8px' }} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

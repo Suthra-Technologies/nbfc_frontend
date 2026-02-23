@@ -53,16 +53,18 @@ const SUPER_ADMIN_MENU: MenuItem[] = [
 ];
 
 const OPERATIONS_MENU: MenuItem[] = [
-    { label: "Manage Branches", path: "/bank-admin/branches", icon: Building2, roles: [UserRole.BRANCH_ADMIN] },
-    { label: "Staff Directory", path: "/bank-admin/staff", icon: Users, roles: [UserRole.BRANCH_ADMIN, UserRole.MANAGER] },
-    { label: "Customer Registry", path: "/bank-admin/customers", icon: Users, roles: [UserRole.BRANCH_ADMIN, UserRole.MANAGER, UserRole.CASHIER, UserRole.STAFF] },
-    { label: "Account Openings", path: "/bank-admin/accounts", icon: CreditCard, roles: [UserRole.BRANCH_ADMIN, UserRole.MANAGER, UserRole.ACCOUNTANT] },
-    { label: "Financial Ledger", path: "/bank-admin/transactions", icon: IndianRupee, roles: [UserRole.BRANCH_ADMIN, UserRole.MANAGER, UserRole.CASHIER, UserRole.ACCOUNTANT] },
-    { label: "Loan Portfolio", path: "/bank-admin/loans", icon: Briefcase, roles: [UserRole.BRANCH_ADMIN, UserRole.MANAGER] },
+    { label: "Admin Dashboard", path: "/dashboard", icon: Home, roles: [UserRole.BANK_ADMIN] },
+    { label: "Manage Branches", path: "/bank-admin/branches", icon: Building2, roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN] },
+    { label: "Staff Directory", path: "/bank-admin/staff", icon: Users, roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER] },
+    { label: "Customer Registry", path: "/bank-admin/customers", icon: Users, roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER, UserRole.CASHIER, UserRole.STAFF] },
+    { label: "Account Openings", path: "/bank-admin/accounts", icon: CreditCard, roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER, UserRole.ACCOUNTANT] },
+    { label: "Financial Ledger", path: "/bank-admin/transactions", icon: IndianRupee, roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER, UserRole.CASHIER, UserRole.ACCOUNTANT] },
+    { label: "Loan Portfolio", path: "/bank-admin/loans", icon: Briefcase, roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER] },
+    { label: "Organization Profile", path: "/bank-admin/profile", icon: Building2, roles: [UserRole.BANK_ADMIN] },
 ];
 
 const INSIGHTS_MENU: MenuItem[] = [
-    { label: "Performance Analytics", path: "/bank-admin/analytics", icon: PieChart, roles: [UserRole.BRANCH_ADMIN, UserRole.MANAGER] },
+    { label: "Performance Analytics", path: "/bank-admin/analytics", icon: PieChart, roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER] },
 ];
 
 interface SidebarProps {

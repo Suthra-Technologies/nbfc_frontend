@@ -36,11 +36,9 @@ export function BankAdminAuth() {
             return;
         }
 
-        if (!bank) {
-            setError('Bank information not available. Please wait for the page to load completely.');
-            resolveTenant();
-            return;
-        }
+        // Allow login to proceed even if bank isn't resolved (fallback for localhost)
+        // The backend will identify the bank from the user's email
+
 
         try {
             setIsLoading(true);

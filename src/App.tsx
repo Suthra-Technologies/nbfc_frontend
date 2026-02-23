@@ -12,10 +12,14 @@ import { CreateBank } from "@/pages/super-admin/CreateBank"
 import { AuditLogs } from "@/pages/super-admin/AuditLogs"
 import { PlatformSettings } from "@/pages/super-admin/Settings"
 import { DemoRequests } from "@/pages/super-admin/DemoRequests"
+import { BankProfile } from "@/pages/bank-admin/dashboard/BankProfile";
 
 // Bank Portal Pages (Bank Admin/Manager/Staff)
 import { Branches } from "@/pages/bank-admin/branches/Branches"
 import { Staff } from "@/pages/bank-admin/staff/Staff"
+import { Customers } from "@/pages/bank-admin/customers/Customers"
+import { Loans } from "@/pages/bank-admin/loans/Loans"
+import { AccountOpening } from "@/pages/bank-admin/accounts/AccountOpening"
 import { DashboardDispatcher } from "@/pages/dashboard/DashboardDispatcher"
 
 import { ThemeProvider } from "@/components/theme-provider"
@@ -56,17 +60,18 @@ function App() {
               </Route>
 
               {/* Bank Administrative Routes (Bank Admin & Managers) */}
-              <Route element={<ProtectedRoute allowedRoles={[UserRole.BRANCH_ADMIN, UserRole.MANAGER]} />}>
+              <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER]} />}>
                 <Route path="/bank-admin/branches" element={<Branches />} />
                 <Route path="/bank-admin/staff" element={<Staff />} />
+                <Route path="/bank-admin/profile" element={<BankProfile />} />
               </Route>
 
               {/* Operations Routes (Bank Admin, Manager, Cashier, Accountant, etc.) */}
-              <Route element={<ProtectedRoute allowedRoles={[UserRole.BRANCH_ADMIN, UserRole.MANAGER, UserRole.CASHIER, UserRole.ACCOUNTANT]} />}>
-                <Route path="/bank-admin/customers" element={<div className="p-8"><h1>Customer Directory</h1><p className="text-muted-foreground">Centralized view of all bank customers</p></div>} />
-                <Route path="/bank-admin/accounts" element={<div className="p-8"><h1>Accounts Management</h1><p className="text-muted-foreground">Savings, Current, and Fixed Deposit accounts</p></div>} />
+              <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER, UserRole.CASHIER, UserRole.ACCOUNTANT]} />}>
+                <Route path="/bank-admin/customers" element={<Customers />} />
+                <Route path="/bank-admin/accounts" element={<AccountOpening />} />
                 <Route path="/bank-admin/transactions" element={<div className="p-8"><h1>Transaction History</h1><p className="text-muted-foreground">Monitor real-time financial activity</p></div>} />
-                <Route path="/bank-admin/loans" element={<div className="p-8"><h1>Loan Operations</h1><p className="text-muted-foreground">Process applications and manage credit risk</p></div>} />
+                <Route path="/bank-admin/loans" element={<Loans />} />
                 <Route path="/bank-admin/analytics" element={<div className="p-8"><h1>Bank Performance Analytics</h1><p className="text-muted-foreground">Revenue and growth insights for your bank</p></div>} />
               </Route>
             </Route>
