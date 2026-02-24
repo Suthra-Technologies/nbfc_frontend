@@ -10,6 +10,7 @@ export function DashboardDispatcher() {
     switch (userRole) {
         case UserRole.SUPER_ADMIN:
             return <AdminDashboard />
+        case UserRole.BANK_ADMIN:
         case UserRole.BRANCH_ADMIN:
             return <BankAdminDashboard />
         case UserRole.MANAGER:

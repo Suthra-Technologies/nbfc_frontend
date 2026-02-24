@@ -260,8 +260,40 @@
 .card-top {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: 1.25rem;
+}
+
+.card-top-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.copy-url-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--bank-border);
+    background: transparent;
+    color: var(--bank-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.copy-url-btn:hover {
+    background: var(--bank-primary-soft);
+    color: var(--bank-primary);
+    border-color: var(--bank-primary-soft);
+}
+
+.copy-url-btn.copied {
+    background: #ecfdf5;
+    color: #10b981;
+    border-color: #d1fae5;
 }
 
 .bank-logo-box {

@@ -12,7 +12,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ModeToggle } from "@/components/common/ModeToggle";
+
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -26,7 +26,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/constants/roles";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { demoRequestService } from "@/services/demo-request.service";
 
 interface HeaderProps {
     onMenuClick?: () => void;
@@ -73,6 +74,21 @@ export function Header({ onMenuClick }: HeaderProps) {
 
     // Optional: real search handling (you can connect to query params or context)
     const [searchQuery, setSearchQuery] = useState("");
+    const [demoUnreadCount, setDemoUnreadCount] = useState(0);
+
+    // Poll unread demo request count for super admin
+    useEffect(() => {
+        if (!isSuperAdmin) return;
+        const fetchCount = async () => {
+            try {
+                const count = await demoRequestService.getUnreadCount();
+                setDemoUnreadCount(count);
+            } catch (_) { }
+        };
+        fetchCount();
+        const interval = setInterval(fetchCount, 30000);
+        return () => clearInterval(interval);
+    }, [isSuperAdmin]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -184,13 +200,16 @@ export function Header({ onMenuClick }: HeaderProps) {
                     <Button
                         variant="ghost"
                         size="icon"
+                        onClick={() => isSuperAdmin && navigate("/super-admin/demo-requests")}
                         className="relative text-gray-600 hover:text-[#009BB0] hover:bg-gray-100/70 transition-colors"
                         aria-label="Notifications"
                     >
                         <Bell className="h-5 w-5" />
-                        <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#F18422] text-[10px] font-bold text-white shadow">
-                            3
-                        </span>
+                        {(isSuperAdmin ? demoUnreadCount : 0) > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#F18422] text-[10px] font-bold text-white shadow animate-pulse">
+                                {demoUnreadCount > 9 ? '9+' : demoUnreadCount}
+                            </span>
+                        )}
                     </Button>
 
                     {actionButton}

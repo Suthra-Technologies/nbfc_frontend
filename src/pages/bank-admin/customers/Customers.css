@@ -1,0 +1,188 @@
+/* Customers.css */
+.customers-container {
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.customers-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.header-info h1 {
+    font-size: 2.25rem;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+}
+
+.header-info p {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 0 1rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    width: 320px;
+    height: 44px;
+    transition: all 0.2s;
+}
+
+.search-box:focus-within {
+    border-color: #009BB0;
+    box-shadow: 0 0 0 4px rgba(0, 155, 176, 0.1);
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    width: 100%;
+    color: #1e293b;
+}
+
+.customers-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 24px;
+    border: 1px solid rgba(0, 155, 176, 0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+
+.stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.customer-table-card {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.customer-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.customer-table th {
+    background: #f8fafc;
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.customer-table td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f8fafc;
+    vertical-align: middle;
+}
+
+.customer-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.avatar-initials {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #009BB0/10;
+    color: #009BB0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.customer-name {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.9375rem;
+}
+
+.customer-id {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-family: monospace;
+}
+
+.risk-tag {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.625rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.risk-LOW {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.risk-MEDIUM {
+    background: #fffbeb;
+    color: #d97706;
+}
+
+.risk-HIGH {
+    background: #fef2f2;
+    color: #dc2626;
+}

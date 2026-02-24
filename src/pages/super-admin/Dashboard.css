@@ -1,20 +1,23 @@
-/* Dashboard.css — Modern banking admin dashboard with #009BB0 & #F18422 */
+/* Dashboard.css — Compact Minimalist banking admin dashboard */
 
 :root {
-  --bg:            #f8fafc;
-  --surface:       #ffffff;
-  --border:        #e2e8f0;
-  --text:          #0f172a;
-  --muted:         #64748b;
-  --primary:       #009BB0;           /* main brand color */
-  --primary-dark:  #008aa0;
-  --primary-light: rgba(0, 155, 176, 0.12);
-  --accent:        #F18422;           /* warm secondary accent */
-  --accent-light:  rgba(241, 132, 34, 0.12);
-  --radius:        12px;
-  --shadow-sm:     0 1px 3px rgba(0,0,0,0.04);
-  --shadow-md:     0 8px 24px rgba(0,0,0,0.08);
-  --transition:    all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e8edf2;
+  --text: #0f172a;
+  --muted: #94a3b8;
+  --muted-dark: #64748b;
+  --primary: #009BB0;
+  --primary-dark: #008aa0;
+  --primary-light: rgba(0, 155, 176, 0.08);
+  --accent: #F18422;
+  --accent-light: rgba(241, 132, 34, 0.08);
+  --radius: 10px;
+  --radius-sm: 7px;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.08);
+  --transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * {
@@ -27,156 +30,182 @@
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ────────────────────────────────────────
-   Main content area
-───────────────────────────────────────── */
+/* ─── Main ─────────────────────────────── */
 .dashboard-main {
-  padding: 2rem 1.5rem;
+  padding: 1.25rem 1.5rem;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* ────────────────────────────────────────
-   Stats Cards Grid
-───────────────────────────────────────── */
+/* ─── Stats Grid ───────────────────────── */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
 }
 
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  padding: 1rem 1.125rem;
+  box-shadow: var(--shadow-xs);
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  cursor: default;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), transparent);
+  opacity: 0;
+  transition: var(--transition);
 }
 
 .stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: rgba(0, 155, 176, 0.15);
+}
+
+.stat-card:hover::before {
+  opacity: 1;
 }
 
 .stat-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.625rem;
 }
 
 .stat-icon-wrapper {
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   background: var(--primary-light);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--primary);
   transition: var(--transition);
+  flex-shrink: 0;
 }
 
 .stat-card:hover .stat-icon-wrapper {
-  transform: scale(1.08);
+  background: var(--primary);
+  color: #fff;
 }
 
 .stat-trend {
   color: var(--accent);
   background: var(--accent-light);
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
 }
 
 .stat-label {
-  font-size: 0.875rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--muted);
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .stat-value {
-  font-size: 1.75rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   color: var(--text);
+  line-height: 1;
 }
 
-/* ────────────────────────────────────────
-   Dashboard Grid (Chart + Sidebar)
-───────────────────────────────────────── */
+/* ─── Dashboard Grid ───────────────────── */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 1.75rem;
+  gap: 0.875rem;
 }
 
 @media (max-width: 1024px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-/* Chart Card */
+/* ─── Chart Card ────────────────────────── */
 .chart-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  padding: 1.125rem 1.25rem;
+  box-shadow: var(--shadow-xs);
   transition: var(--transition);
 }
 
 .chart-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .chart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .chart-header h2 {
-  font-size: 1.25rem;
+  font-size: 0.875rem;
   font-weight: 700;
+  color: var(--text);
   margin: 0;
 }
 
 .chart-header p {
-  font-size: 0.875rem;
+  font-size: 0.7rem;
   color: var(--muted);
-  margin: 0.25rem 0 0;
+  margin: 0.15rem 0 0;
 }
 
 .chart-select {
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 0.6rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 500;
   background: white;
-  color: var(--text);
+  color: var(--muted-dark);
   cursor: pointer;
+  outline: none;
+  transition: var(--transition);
 }
 
-/* ────────────────────────────────────────
-   Recharts customization
-───────────────────────────────────────── */
+.chart-select:focus {
+  border-color: var(--primary);
+}
+
+/* ─── Recharts ──────────────────────────── */
 .recharts-cartesian-axis-tick-value {
-  font-size: 11px !important;
+  font-size: 10px !important;
   fill: var(--muted) !important;
   font-weight: 500;
 }
@@ -186,19 +215,19 @@
 }
 
 .recharts-default-tooltip {
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   border: 1px solid var(--border) !important;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
-  background: rgba(255,255,255,0.96) !important;
-  backdrop-filter: blur(8px) !important;
-  padding: 10px 14px !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  padding: 7px 10px !important;
+  font-size: 11px !important;
 }
 
-/* Sidebar Stack (Top Institutions + Health) */
+/* ─── Sidebar Stack ─────────────────────── */
 .sidebar-stack {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.875rem;
 }
 
 .glass-card,
@@ -206,84 +235,109 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  padding: 1rem 1.125rem;
+  box-shadow: var(--shadow-xs);
   transition: var(--transition);
 }
 
 .glass-card:hover,
 .highlight-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
 }
 
-.glass-card h2,
-.highlight-card h2 {
-  font-size: 1.1rem;
+.glass-card h2 {
+  font-size: 0.75rem;
   font-weight: 700;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
   color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .side-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0;
 }
 
 .side-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 0;
+  padding: 0.5rem 0;
   border-bottom: 1px solid var(--border);
   transition: var(--transition);
 }
 
+.side-item:last-child {
+  border-bottom: none;
+}
+
 .side-item:hover {
-  transform: translateX(4px);
+  transform: translateX(3px);
 }
 
 .side-item-main {
   display: flex;
   align-items: center;
-  gap: 0.875rem;
+  gap: 0.6rem;
 }
 
 .token-icon {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   background: var(--primary-light);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--primary);
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.side-item:hover .token-icon {
+  background: var(--primary);
+  color: #fff;
 }
 
 .side-item-name {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.78rem;
+  color: var(--text);
 }
 
 .growth-indicator {
-  color: var(--accent);
-  font-weight: 600;
-  font-size: 0.9rem;
+  color: #10b981;
+  font-weight: 700;
+  font-size: 0.72rem;
+  background: rgba(16, 185, 129, 0.08);
+  padding: 0.15rem 0.45rem;
+  border-radius: 20px;
 }
 
-/* Systems Health Card */
+/* ─── Health Card ────────────────────────── */
+.highlight-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.2rem;
+}
+
 .highlight-value {
-  font-size: 1.4rem;
+  font-size: 0.975rem;
   font-weight: 700;
   color: var(--primary);
-  margin: 0.5rem 0 1.25rem;
+  margin: 0.25rem 0 0.75rem;
+  letter-spacing: -0.01em;
 }
 
 .health-metrics {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1.25rem;
 }
 
 .metric-unit {
@@ -291,52 +345,65 @@
 }
 
 .metric-unit p:first-child {
-  font-size: 1.6rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--text);
+  line-height: 1;
 }
 
 .metric-unit p:last-child {
-  font-size: 0.8rem;
+  font-size: 0.65rem;
   color: var(--muted);
-  margin-top: 0.25rem;
+  margin-top: 0.2rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .metric-divider {
   width: 1px;
-  height: 48px;
+  height: 36px;
   background: var(--border);
 }
 
-/* Animations */
+/* ─── Animations ─────────────────────────── */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.stats-grid > div {
-  animation: fadeInUp 0.6s ease-out forwards;
-  animation-delay: calc(0.08s * var(--order));
+.stat-card {
+  animation: fadeInUp 0.4s ease-out forwards;
+  animation-delay: calc(0.06s * var(--order, 0));
+  opacity: 0;
 }
 
 .chart-card {
-  animation: fadeInUp 0.7s ease-out forwards;
-  animation-delay: 0.2s;
+  animation: fadeInUp 0.45s ease-out 0.15s forwards;
+  opacity: 0;
 }
 
-.sidebar-stack > div {
-  animation: fadeInUp 0.7s ease-out forwards;
-  animation-delay: 0.3s;
+.sidebar-stack>div {
+  animation: fadeInUp 0.45s ease-out 0.2s forwards;
+  opacity: 0;
 }
 
-/* Responsive */
+/* ─── Responsive ─────────────────────────── */
 @media (max-width: 768px) {
-  .stats-grid {
-    grid-template-columns: 1fr 1fr;
+  .dashboard-main {
+    padding: 1rem;
   }
 
-  .dashboard-main {
-    padding: 1.5rem 1rem;
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
   }
 }
 

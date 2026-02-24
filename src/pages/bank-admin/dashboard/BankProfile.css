@@ -1,0 +1,150 @@
+.profile-container {
+    padding: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    margin-bottom: 3rem;
+}
+
+.profile-hero {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.profile-logo-wrapper {
+    width: 120px;
+    height: 120px;
+    background: white;
+    border-radius: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 12px 30px -10px rgba(0, 155, 176, 0.15);
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+}
+
+.profile-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 1rem;
+}
+
+.profile-name {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.04em;
+}
+
+.profile-id {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.profile-content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.identity-card {
+    background: white;
+    border-radius: 2rem;
+    padding: 2.5rem;
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s ease;
+}
+
+.identity-card:hover {
+    border-color: #e2e8f0;
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.detail-item {
+    display: flex;
+    gap: 1.25rem;
+}
+
+.detail-icon {
+    margin-top: 2px;
+    color: #009BB0;
+    opacity: 0.6;
+}
+
+.detail-item label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 0.075em;
+    margin-bottom: 0.25rem;
+}
+
+.detail-item p {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.subdomain-tag {
+    display: flex;
+    align-items: center;
+    color: #009BB0 !important;
+}
+
+.profile-footer {
+    display: flex;
+    justify-content: center;
+}
+
+.security-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: #f8fafc;
+    border-radius: 1rem;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid #f1f5f9;
+}
+
+@media (max-width: 768px) {
+    .profile-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .profile-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
