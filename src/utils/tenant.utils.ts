@@ -14,39 +14,60 @@ export const getTenantFromHostname = (): TenantInfo => {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
 
-  // Common Admin identifiers
+  // 1. Check if we are on a reserved "Super Admin" path
   const adminPaths = ['/auth/super-admin', '/super-admin', '/admin'];
   const isAdminPath = adminPaths.some(path => pathname.startsWith(path));
 
-  // Development/Local Environment
-  if (hostname === 'localhost' || hostname.includes('127.0.0.1') || hostname.includes('192.168')) {
-    const isAdmin = isAdminPath;
+  // 2. Parse parts of the hostname
+  const parts = hostname.split('.');
+  let subdomain: string | null = null;
 
-    // For local development, use a cleaner way to handle branch switching
+  // Handle local environments (localhost, 127.0.0.1, 192.168.*)
+  const isLocal = hostname === 'localhost' ||
+    hostname.startsWith('127.0.0.') ||
+    hostname.startsWith('192.168.') ||
+    hostname.endsWith('.local');
+
+  if (isLocal) {
+    // If hostname has multiple parts (subdomain.localhost or axis.127.0.0.1.nip.io)
+    // We assume anything BEFORE the first dot is the subdomain if there are 2+ parts
+    // AND it's not raw IP start
+    if (parts.length > 1 && !parts[0].match(/^\d+$/)) {
+      subdomain = parts[0];
+    }
+
+    // Fallback/Override: Query param or localStorage for easier local testing
+    // This allows: localhost:5173/?branch=axis
     const urlParams = new URLSearchParams(window.location.search);
-    const branchParam = urlParams.get('branch');
-    const localBranch = branchParam || localStorage.getItem('dev_branch') || 'bank1';
+    const querySubdomain = urlParams.get('branch') || urlParams.get('tenant');
 
-    return {
-      subdomain: isAdmin ? 'admin' : localBranch,
-      isAdmin,
-      isBranch: !isAdmin,
-      isLocal: true,
-    };
+    if (querySubdomain) {
+      subdomain = querySubdomain;
+      // Persist for this session
+      localStorage.setItem('dev_tenant_override', querySubdomain);
+    } else {
+      const persisted = localStorage.getItem('dev_tenant_override');
+      if (persisted && !subdomain) {
+        subdomain = persisted;
+      }
+    }
+  } else {
+    // Production: subdomain.domain.com
+    // Usually parts are [subdomain, domain, com] -> length 3
+    if (parts.length >= 3) {
+      subdomain = parts[0];
+    }
   }
 
-  // Production Environment
-  const parts = hostname.split('.');
-  const subdomain = parts.length > 2 ? parts[0] : null;
-
-  // Check if it's the admin portal via subdomain or path
-  const isAdmin = subdomain === 'admin' || subdomain === 'www' || isAdminPath || !subdomain;
+  // 3. Determine Final Identity
+  // 'admin' subdomain is a special case for the hosted admin portal
+  const isAdmin = isAdminPath || subdomain === 'admin';
 
   return {
-    subdomain: isAdmin ? 'admin' : (subdomain || 'admin'),
+    subdomain: isAdmin ? 'admin' : (subdomain || ''),
     isAdmin,
-    isBranch: !isAdmin,
-    isLocal: false,
+    isBranch: !isAdmin && !!subdomain,
+    isLocal,
   };
 };
 

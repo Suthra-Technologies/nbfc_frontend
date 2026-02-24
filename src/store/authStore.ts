@@ -65,9 +65,10 @@ export const useAuthStore = create<AuthStore>()(
           ...user,
           id: user?.id || user?.userId || user?._id || 'unknown',
           role: user?.role || decodedRole,
-          name: user?.name || (user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : null),
-          firstName: user?.firstName || user?.name?.split(' ')[0] || 'User',
-          lastName: user?.lastName || user?.name?.split(' ')[1] || '',
+          name: user?.name || user?.fullName || (user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : null),
+          firstName: user?.firstName || user?.fullName?.split(' ')[0] || user?.name?.split(' ')[0] || 'User',
+          lastName: user?.lastName || user?.fullName?.split(' ').slice(1).join(' ') || user?.name?.split(' ')[1] || '',
+          phone: user?.phone || user?.mobile || '',
           isSuperAdmin: user?.isSuperAdmin || user?.role === UserRole.SUPER_ADMIN || decodedRole === UserRole.SUPER_ADMIN
         };
 

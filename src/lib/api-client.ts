@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
 import { useAuthStore } from '@/store/authStore';
+import { useTenantStore } from '@/store/tenantStore';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
@@ -25,7 +26,13 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Add Branch Context (for non-Super Admins or when explicitly requested)
+    // Add Tenant Context (Subdomain) for multi-tenancy support
+    const { subdomain, isBranch } = useTenantStore.getState();
+    if (subdomain && isBranch) {
+      config.headers['X-Tenant-Id'] = subdomain;
+    }
+
+    // Add Branch Context (ID)
     if (!isSuperAdmin() && currentBranch) {
       config.headers['X-Branch-Id'] = currentBranch.id;
     }
@@ -57,7 +64,7 @@ apiClient.interceptors.response.use(
       try {
         // Try to refresh token
         const { refreshToken } = useAuthStore.getState();
-        
+
         if (refreshToken) {
           const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refreshToken,
