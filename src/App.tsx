@@ -24,7 +24,7 @@ import { UserRights } from "@/pages/bank-admin/user-rights/UserRights"
 
 // Producer Company Pages
 // import { MemberDetails } from "@/pages/bank-admin/producer-company/MemberDetails"
-// import { ShareCapital } from "@/pages/bank-admin/producer-company/ShareCapital"
+import { ShareCapital } from "@/pages/bank-admin/producer-company/ShareCapital"
 import { IntroducedDetails } from "@/pages/bank-admin/producer-company/IntroducedDetails"
 // import { AccountCreation } from "@/pages/bank-admin/producer-company/AccountCreation"
 import { FixedDeposits } from "@/pages/bank-admin/producer-company/FixedDeposits"
@@ -93,7 +93,7 @@ function App() {
               <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER]} />}>
                 <Route path="/bank-admin/producer-company" element={<PCPlaceholder title="Producer Company Operations" />} />
                 <Route path="/bank-admin/producer-company/member-details" element={<MemberDetails />} />
-                <Route path="/bank-admin/producer-company/share-capital" element={<PCPlaceholder title="Share Capital" />} />
+                <Route path="/bank-admin/producer-company/share-capital" element={<ShareCapital />} />
                 <Route path="/bank-admin/producer-company/introduced-details" element={<IntroducedDetails />} />
                 <Route path="/bank-admin/producer-company/bank-creation" element={<PCPlaceholder title="Savings/Current Account Creation" />} />
                 <Route path="/bank-admin/producer-company/fixed-deposits" element={<FixedDeposits />} />
