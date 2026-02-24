@@ -12,10 +12,9 @@ export const tenantService = {
    * Resolve tenant (bank) from current subdomain
    */
   resolve: async (): Promise<TenantResolution | null> => {
+    const { subdomain, isLocal } = useTenantStore.getState();
+    
     try {
-      // 1. Get the detected subdomain from the global state/utility
-      const { subdomain } = useTenantStore.getState();
-
       if (!subdomain || subdomain === 'admin') {
         return null;
       }
@@ -27,10 +26,17 @@ export const tenantService = {
       });
       return response;
     } catch (error: any) {
-      if (error?.response?.status === 404 || !error.response) {
-        const { subdomain } = useTenantStore.getState();
-        console.warn('Tenant Resolution API 404 - Using Development Fallback Node');
+      // For local development, always provide a fallback if a subdomain is present
+      if (isLocal && subdomain && subdomain !== 'admin') {
+        console.warn('Tenant Resolution failed - Using Local Development Fallback for:', subdomain);
+        return {
+          name: `${subdomain.replace(/-/g, ' ').toUpperCase()}`,
+          subdomain: subdomain,
+          logo: 'https://cdn-icons-png.flaticon.com/512/2830/2830284.png'
+        };
+      }
 
+      if (error?.response?.status === 404 || !error.response) {
         return {
           name: subdomain ? `${subdomain.toUpperCase()} Bank` : 'Finware Central Bank',
           subdomain: subdomain || 'axis-bank',

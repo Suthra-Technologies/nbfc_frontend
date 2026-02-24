@@ -24,6 +24,7 @@ export const getTenantFromHostname = (): TenantInfo => {
 
   // Handle local environments (localhost, 127.0.0.1, 192.168.*)
   const isLocal = hostname === 'localhost' ||
+    hostname.endsWith('.localhost') ||
     hostname.startsWith('127.0.0.') ||
     hostname.startsWith('192.168.') ||
     hostname.endsWith('.local');
