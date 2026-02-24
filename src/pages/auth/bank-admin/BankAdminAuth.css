@@ -1,7 +1,12 @@
 :root {
-    --bank-primary: #4f46e5;
-    --bank-accent: #6366f1;
-    --bank-bg: #f8fafc;
+    --bank-primary: #009BB0;
+    --bank-primary-soft: rgba(0, 155, 176, 0.1);
+    --bank-secondary: #F18422;
+    --bank-bg: #0f172a;
+    --bank-surface: rgba(255, 255, 255, 0.03);
+    --bank-border: rgba(255, 255, 255, 0.08);
+    --bank-text: #f1f5f9;
+    --bank-text-muted: #94a3b8;
 }
 
 .bank-admin-login-container {
@@ -9,47 +14,234 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bank-bg);
+    background-color: var(--bank-bg);
+    background-image:
+        radial-gradient(circle at 0% 0%, rgba(0, 155, 176, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(241, 132, 34, 0.1) 0%, transparent 40%);
+    background-attachment: fixed;
     padding: 1.5rem;
-    font-family: 'Inter', sans-serif;
+    position: relative;
+    overflow: hidden;
 }
 
-.bank-login-loading,
-.bank-login-error {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bank-bg);
+/* Abstract Background Elements */
+.bank-admin-login-container::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+    animation: backgroundScroll 120s linear infinite;
 }
 
-.text-gradient {
-    background: linear-gradient(135deg, #1e293b 0%, #4338ca 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-/* Custom transitions and refinements */
-.fade-in {
-    animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
+@keyframes backgroundScroll {
     from {
-        opacity: 0;
-        transform: translateY(10px);
+        transform: translate(-25%, -25%);
     }
 
     to {
-        opacity: 1;
-        transform: translateY(0);
+        transform: translate(0, 0);
     }
 }
 
-.rounded-3xl {
-    border-radius: 1.5rem;
+.bank-login-card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--bank-surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--bank-border);
+    border-radius: 32px;
+    padding: 3rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    transition: transform 0.3s ease;
 }
 
-.shadow-2xl {
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+.bank-login-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 155, 176, 0.3);
+}
+
+.bank-brand-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.bank-brand-logo {
+    width: 64px;
+    height: 64px;
+    background: var(--bank-primary);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    box-shadow: 0 10px 20px rgba(0, 155, 176, 0.3);
+}
+
+.bank-brand-header h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #222226;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.bank-brand-header p {
+    color: #F18422;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.login-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.login-form-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #F18422;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.625rem;
+    margin-left: 0.25rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper svg {
+    position: absolute;
+    left: 1.25rem;
+    color: var(--bank-text-muted);
+    transition: color 0.3s ease;
+}
+
+.input-wrapper input {
+    width: 100%;
+    height: 56px;
+    padding: 0 1.25rem 0 3.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--bank-border);
+    border-radius: 16px;
+    color: var(--bank-text);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.input-wrapper input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--bank-primary);
+    box-shadow: 0 0 0 4px rgba(0, 155, 176, 0.1);
+    outline: none;
+}
+
+.input-wrapper input:focus+svg {
+    color: var(--bank-primary);
+}
+
+.password-toggle {
+    position: absolute;
+    right: 1.25rem;
+    background: none;
+    border: none;
+    color: var(--bank-text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.bank-login-btn {
+    width: 100%;
+    height: 56px;
+    background: var(--bank-primary);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.bank-login-btn:hover:not(:disabled) {
+    background: #008fa3;
+    transform: scale(1.02);
+    box-shadow: 0 10px 25px rgba(0, 155, 176, 0.4);
+}
+
+.bank-login-btn:active {
+    transform: scale(0.98);
+}
+
+.bank-login-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.security-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--bank-border);
+}
+
+.security-footer p {
+    font-size: 0.75rem;
+    color: var(--bank-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Error Alert */
+.login-error-alert {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #f87171;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Loading Spinner */
+.login-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 480px) {
+    .bank-login-card {
+        padding: 2rem;
+        border-radius: 24px;
+    }
 }

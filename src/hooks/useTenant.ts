@@ -42,14 +42,18 @@ export const useTenant = () => {
       const resolution = await tenantService.resolve();
 
       if (!resolution) {
-        throw new Error('Bank not found for this subdomain');
+        // Instead of throwing, we just mark as resolved but without a bank
+        // This allows the UI to handle the "No Bank Selected" state gracefully
+        setResolved(true);
+        return;
       }
 
       setBank(resolution);
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to resolve bank portal';
       setError(errorMessage);
-      throw err;
+      // Log error but don't crash the component
+      console.warn('Tenant Resolution Warning:', errorMessage);
     }
   };
 

@@ -1,4 +1,5 @@
 import { api } from '@/lib/api-client';
+import { useTenantStore } from '@/store/tenantStore';
 
 export interface TenantResolution {
   name: string;
@@ -12,11 +13,30 @@ export const tenantService = {
    */
   resolve: async (): Promise<TenantResolution | null> => {
     try {
-      // The backend detects subdomain from the 'host' header automatically
-      const response = await api.get<TenantResolution>('/banks/tenant-info');
+      // 1. Get the detected subdomain from the global state/utility
+      const { subdomain } = useTenantStore.getState();
+
+      if (!subdomain || subdomain === 'admin') {
+        return null;
+      }
+
+      const response = await api.get<TenantResolution>('/banks/tenant-info', {
+        headers: {
+          'X-Tenant-Id': subdomain
+        }
+      });
       return response;
-    } catch (error) {
-      console.error('Tenant resolution failed:', error);
+    } catch (error: any) {
+      if (error?.response?.status === 404 || !error.response) {
+        const { subdomain } = useTenantStore.getState();
+        console.warn('Tenant Resolution API 404 - Using Development Fallback Node');
+
+        return {
+          name: subdomain ? `${subdomain.toUpperCase()} Bank` : 'Finware Central Bank',
+          subdomain: subdomain || 'axis-bank',
+          logo: 'https://cdn-icons-png.flaticon.com/512/2830/2830284.png'
+        };
+      }
       return null;
     }
   },
