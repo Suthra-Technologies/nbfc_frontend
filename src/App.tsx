@@ -20,6 +20,20 @@ import { Staff } from "@/pages/bank-admin/staff/Staff"
 import { Customers } from "@/pages/bank-admin/customers/Customers"
 import { Loans } from "@/pages/bank-admin/loans/Loans"
 import { AccountOpening } from "@/pages/bank-admin/accounts/AccountOpening"
+import { UserRights } from "@/pages/bank-admin/user-rights/UserRights"
+
+// Producer Company Pages
+// import { MemberDetails } from "@/pages/bank-admin/producer-company/MemberDetails"
+// import { ShareCapital } from "@/pages/bank-admin/producer-company/ShareCapital"
+import { IntroducedDetails } from "@/pages/bank-admin/producer-company/IntroducedDetails"
+// import { AccountCreation } from "@/pages/bank-admin/producer-company/AccountCreation"
+import { FixedDeposits } from "@/pages/bank-admin/producer-company/FixedDeposits"
+import { RecurringDeposits } from "@/pages/bank-admin/producer-company/RecurringDeposits"
+import { Insurance } from "@/pages/bank-admin/producer-company/Insurance"
+// import { CashDeposit } from "@/pages/bank-admin/producer-company/CashDeposit"
+// import { Withdrawal } from "@/pages/bank-admin/producer-company/Withdrawal"
+import { PCPlaceholder } from "@/pages/bank-admin/producer-company/PCPlaceholder"
+
 import { DashboardDispatcher } from "@/pages/dashboard/DashboardDispatcher"
 
 import { ThemeProvider } from "@/components/theme-provider"
@@ -59,6 +73,28 @@ function App() {
                 <Route path="/super-admin/demo-requests" element={<DemoRequests />} />
               </Route>
 
+              {/* Producer Company Administrative Routes */}
+              <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER]} />}>
+                {/* <Route path="/bank-admin/producer-company/member-details" element={<MemberDetails />} /> */}
+                {/* <Route path="/bank-admin/producer-company/share-capital" element={<ShareCapital />} /> */}
+                <Route path="/bank-admin/producer-company/introduced-details" element={<IntroducedDetails />} />
+                {/* <Route path="/bank-admin/producer-company/account-creation" element={<AccountCreation />} /> */}
+                <Route path="/bank-admin/producer-company/fixed-deposits" element={<FixedDeposits />} />
+                <Route path="/bank-admin/producer-company/recurring-deposits" element={<RecurringDeposits />} />
+                <Route path="/bank-admin/producer-company/insurance" element={<Insurance />} />
+
+                {/* Additional PC Routes */}
+                <Route path="/bank-admin/producer-company/receipts-withdrawal" element={<PCPlaceholder title="Receipts/ Withdrawal" />} />
+                <Route path="/bank-admin/producer-company/share-duplicate-prints" element={<PCPlaceholder title="Share And Bonds Duplicate Prints" />} />
+                <Route path="/bank-admin/producer-company/surrenders" element={<PCPlaceholder title="Surrenders" />} />
+                <Route path="/bank-admin/producer-company/admin-edit" element={<PCPlaceholder title="Admin Level Edit" />} />
+                <Route path="/bank-admin/producer-company/collection-reports" element={<PCPlaceholder title="Daily And Monthly Collection Reports" />} />
+                <Route path="/bank-admin/producer-company/group-entry" element={<PCPlaceholder title="Group Entry" />} />
+                {/* <Route path="/bank-admin/producer-company/cash-deposit" element={<CashDeposit />} /> */}
+                {/* <Route path="/bank-admin/producer-company/account-withdrawal" element={<Withdrawal />} /> */}
+                <Route path="/bank-admin/producer-company/reports" element={<PCPlaceholder title="Producer Company Reports" />} />
+              </Route>
+
               {/* Bank Administrative Routes (Bank Admin & Managers) */}
               <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER]} />}>
                 <Route path="/bank-admin/branches" element={<Branches />} />
@@ -66,13 +102,28 @@ function App() {
                 <Route path="/bank-admin/profile" element={<BankProfile />} />
               </Route>
 
+              {/* User Rights — Bank Admin only */}
+              <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN]} />}>
+                <Route path="/bank-admin/user-rights" element={<UserRights />} />
+              </Route>
+
               {/* Operations Routes (Bank Admin, Manager, Cashier, Accountant, etc.) */}
               <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER, UserRole.CASHIER, UserRole.ACCOUNTANT]} />}>
                 <Route path="/bank-admin/customers" element={<Customers />} />
-                <Route path="/bank-admin/accounts" element={<AccountOpening />} />
                 <Route path="/bank-admin/transactions" element={<div className="p-8"><h1>Transaction History</h1><p className="text-muted-foreground">Monitor real-time financial activity</p></div>} />
                 <Route path="/bank-admin/loans" element={<Loans />} />
                 <Route path="/bank-admin/analytics" element={<div className="p-8"><h1>Bank Performance Analytics</h1><p className="text-muted-foreground">Revenue and growth insights for your bank</p></div>} />
+              </Route>
+
+              {/* Account Opening — Front-desk Roles: Cashier, Staff, Manager, Branch Admin, Bank Admin */}
+              <Route element={<ProtectedRoute allowedRoles={[
+                UserRole.BANK_ADMIN,
+                UserRole.BRANCH_ADMIN,
+                UserRole.MANAGER,
+                UserRole.CASHIER,
+                UserRole.STAFF,
+              ]} />}>
+                <Route path="/bank-admin/accounts" element={<AccountOpening />} />
               </Route>
             </Route>
           </Route>

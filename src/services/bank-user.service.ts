@@ -25,6 +25,7 @@ export interface BankRole {
   _id: string;
   code: string;
   name: string;
+  permissions?: string[];
 }
 
 export const bankUserService = {
@@ -54,4 +55,8 @@ export const bankRoleService = {
   getAll: async (): Promise<BankRole[]> => {
     return api.get<BankRole[]>('/roles');
   },
+  updatePermissions: async (id: string, permissions: string[]): Promise<BankRole> => {
+    return api.put<BankRole>(`/roles/${id}`, { permissions });
+  },
 };
+

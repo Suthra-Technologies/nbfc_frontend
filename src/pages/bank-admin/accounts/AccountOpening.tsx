@@ -1,510 +1,589 @@
 import { useState } from 'react';
 import {
-    User,
-    Home,
-    Phone,
-    ShieldCheck,
-    Image as ImageIcon,
-    FileText,
-    MapPin,
-    Users,
-    Save,
-    RefreshCw,
-    Upload,
-    ArrowRight,
-    CheckCircle2
+    CreditCard, User, ShieldCheck, Phone, Home, Users, Save,
+    RefreshCw, Upload, Image as ImageIcon, FileSignature,
+    AlertCircle, CheckCircle2, Building2, Banknote
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import './AccountOpening.css';
 
-export function AccountOpening() {
-    const [step, setStep] = useState(1);
-    const [formData] = useState({
-        membership: {
-            type: '',
-            date: new Date().toISOString().split('T')[0],
-            fee: '50'
-        },
-        personal: {
-            fullName: '',
-            fatherHusbandName: '',
-            motherName: '',
-            gender: '',
-            dob: '',
-            age: '',
-            occupation: '',
-            aadharNo: '',
-            panNo: ''
-        },
-        contact: {
-            mobile1: '',
-            mobile2: '',
-            landline: '',
-            alternate: ''
-        },
-        address: {
-            permanent: {
-                houseNo: '',
-                area: '',
-                village: '',
-                country: 'India',
-                state: 'Andhra Pradesh',
-                district: '',
-                mandal: '',
-                city: '',
-                landmark: '',
-                pincode: ''
-            },
-            isSameAsPermanent: false,
-            correspondence: {
-                houseNo: '',
-                area: '',
-                village: '',
-                country: 'India',
-                state: 'Andhra Pradesh',
-                district: '',
-                mandal: '',
-                city: '',
-                landmark: '',
-                pincode: ''
-            }
-        },
-        nominee: {
-            name: '',
-            relation: '',
-            age: '',
-            houseNo: '',
-            area: '',
-            village: '',
-            state: 'Andhra Pradesh',
-            city: '',
-            pincode: '',
-            mobile: ''
-        },
-        kyc: {
-            idProofType: '',
-            addressProofType: '',
-            otherDoc: ''
-        }
-    });
+const INDIAN_STATES = [
+    "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar",
+    "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli", "Daman and Diu", "Delhi",
+    "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+    "Kerala", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur",
+    "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab",
+    "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh",
+    "Uttarakhand", "West Bengal"
+];
 
-    const steps = [
-        { id: 1, label: 'Applicant Details', icon: User },
-        { id: 2, label: 'Contact & Address', icon: Home },
-        { id: 3, label: 'Nominee & KYC', icon: ShieldCheck },
-    ];
+interface SectionProps {
+    icon: React.ElementType;
+    title: string;
+    subtitle?: string;
+    children: React.ReactNode;
+    required?: boolean;
+}
+
+function Section({ icon: Icon, title, subtitle, children, required }: SectionProps) {
+    return (
+        <div className="ao-section">
+            <div className="ao-section-header">
+                <div className="ao-section-icon">
+                    <Icon size={18} />
+                </div>
+                <div>
+                    <h3 className="ao-section-title">
+                        {title}
+                        {required && <span className="ao-required-badge">Required</span>}
+                    </h3>
+                    {subtitle && <p className="ao-section-subtitle">{subtitle}</p>}
+                </div>
+            </div>
+            <div className="ao-section-body">
+                {children}
+            </div>
+        </div>
+    );
+}
+
+function Field({ label, required, children, colSpan = 1 }: {
+    label: string; required?: boolean; children: React.ReactNode; colSpan?: number;
+}) {
+    return (
+        <div className={cn("ao-field", colSpan === 2 && "ao-field-span2")}>
+            <label className="ao-label">
+                {label}
+                {required && <span className="ao-asterisk">*</span>}
+            </label>
+            {children}
+        </div>
+    );
+}
+
+export function AccountOpening() {
+    const [sameAddress, setSameAddress] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+
+    const today = new Date().toISOString().split('T')[0];
+
+    if (submitted) {
+        return (
+            <div className="ao-success animate-fade-in">
+                <div className="ao-success-card">
+                    <div className="ao-success-icon">
+                        <CheckCircle2 size={56} />
+                    </div>
+                    <h2>Application Submitted!</h2>
+                    <p>Account opening application has been recorded. The applicant will be notified once their KYC is verified and account is activated.</p>
+                    <div className="ao-success-ref">
+                        <span>Reference No.</span>
+                        <strong>ACC{Date.now().toString().slice(-8)}</strong>
+                    </div>
+                    <Button
+                        onClick={() => setSubmitted(false)}
+                        className="ao-btn-primary mt-6"
+                    >
+                        Open Another Account
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="account-opening-container animate-fade-in">
-            <header className="page-header">
-                <div className="header-content">
-                    <div className="title-wrapper">
-                        <div className="icon-badge">
-                            <Users size={24} className="text-[#009BB0]" />
-                        </div>
-                        <div>
-                            <h1>Account Opening</h1>
-                            <p>Register a new member and initialize their financial profile.</p>
-                        </div>
+        <div className="ao-container animate-fade-in">
+            {/* Page Header */}
+            <div className="ao-header">
+                <div className="ao-header-left">
+                    <div className="ao-header-icon">
+                        <CreditCard size={22} />
                     </div>
-                    <div className="header-actions">
-                        <Button variant="outline" className="gap-2 h-11 px-6 rounded-xl border-slate-200">
-                            <RefreshCw size={16} /> Reset
-                        </Button>
-                        <Button className="bg-[#009BB0] hover:bg-[#008aa0] text-white gap-2 h-11 px-8 rounded-xl font-bold transition-all shadow-lg shadow-[#009BB0]/20">
-                            <Save size={16} /> Save Application
-                        </Button>
+                    <div>
+                        <h1 className="ao-page-title">Account Opening Form</h1>
+                        <p className="ao-page-subtitle">Fill all required details and submit to open a new savings / current account</p>
                     </div>
                 </div>
+                <div className="ao-header-actions">
+                    <Button variant="outline" className="ao-btn-outline" onClick={() => window.location.reload()}>
+                        <RefreshCw size={15} /> Reset Form
+                    </Button>
+                    <Button className="ao-btn-primary" onClick={() => setSubmitted(true)}>
+                        <Save size={15} /> Submit Application
+                    </Button>
+                </div>
+            </div>
 
-                <div className="stepper-wrapper">
-                    {steps.map((s) => (
-                        <div
-                            key={s.id}
-                            className={cn("step-item", step === s.id && "active", step > s.id && "completed")}
-                            onClick={() => setStep(s.id)}
-                        >
-                            <div className="step-icon">
-                                {step > s.id ? <CheckCircle2 size={18} /> : <s.icon size={18} />}
+            {/* Required note */}
+            <div className="ao-info-bar">
+                <AlertCircle size={14} />
+                <span>Fields marked with <strong>*</strong> are mandatory as per RBI KYC guidelines.</span>
+            </div>
+
+            <div className="ao-form-body">
+
+                {/* ── SECTION 1: Account Details ── */}
+                <Section icon={Building2} title="Account Details" subtitle="Choose account type and branch" required>
+                    <div className="ao-grid ao-grid-4">
+                        <Field label="Account Type" required>
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Select Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="savings">Savings Account</SelectItem>
+                                    <SelectItem value="current">Current Account</SelectItem>
+                                    <SelectItem value="salary">Salary Account</SelectItem>
+                                    <SelectItem value="fd">Fixed Deposit (FD)</SelectItem>
+                                    <SelectItem value="rd">Recurring Deposit (RD)</SelectItem>
+                                    <SelectItem value="nri">NRI Account</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field label="Date of Application" required>
+                            <Input type="date" defaultValue={today} className="ao-input" />
+                        </Field>
+                        <Field label="Branch" required>
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Select Branch" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="main">Main Branch</SelectItem>
+                                    <SelectItem value="north">North Branch</SelectItem>
+                                    <SelectItem value="south">South Branch</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field label="Initial Deposit (₹)" required>
+                            <Input type="number" placeholder="Min ₹500" className="ao-input ao-mono" />
+                        </Field>
+                        <Field label="Mode of Operation" required>
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Select Mode" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="single">Single</SelectItem>
+                                    <SelectItem value="joint_either">Joint – Either or Survivor</SelectItem>
+                                    <SelectItem value="joint_both">Joint – Both to Sign</SelectItem>
+                                    <SelectItem value="joint_former">Joint – Former or Survivor</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field label="Currency">
+                            <Select defaultValue="inr">
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="inr">INR – Indian Rupee</SelectItem>
+                                    <SelectItem value="usd">USD – US Dollar</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                    </div>
+                </Section>
+
+                {/* ── SECTION 2: Personal Details ── */}
+                <Section icon={User} title="Personal Details" subtitle="As per government-issued identity proof" required>
+                    <div className="ao-grid ao-grid-3">
+                        <Field label="Title">
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Mr / Ms / Dr" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="mr">Mr.</SelectItem>
+                                    <SelectItem value="ms">Ms.</SelectItem>
+                                    <SelectItem value="mrs">Mrs.</SelectItem>
+                                    <SelectItem value="dr">Dr.</SelectItem>
+                                    <SelectItem value="prof">Prof.</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field label="Full Name (as in Aadhaar)" required colSpan={2}>
+                            <Input placeholder="Enter Full Legal Name" className="ao-input ao-uppercase" />
+                        </Field>
+
+                        <Field label="Father's Name" required>
+                            <Input placeholder="Father's Full Name" className="ao-input" />
+                        </Field>
+                        <Field label="Mother's Name" required>
+                            <Input placeholder="Mother's Full Name" className="ao-input" />
+                        </Field>
+                        <Field label="Spouse Name">
+                            <Input placeholder="If applicable" className="ao-input" />
+                        </Field>
+
+                        <Field label="Date of Birth" required>
+                            <Input type="date" className="ao-input" />
+                        </Field>
+                        <Field label="Gender" required>
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="male">Male</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="other">Other / Prefer not to say</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field label="Marital Status">
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="single">Single / Unmarried</SelectItem>
+                                    <SelectItem value="married">Married</SelectItem>
+                                    <SelectItem value="widowed">Widowed</SelectItem>
+                                    <SelectItem value="divorced">Divorced</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+
+                        <Field label="Nationality" required>
+                            <Select defaultValue="indian">
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="indian">Indian</SelectItem>
+                                    <SelectItem value="nri">NRI</SelectItem>
+                                    <SelectItem value="foreign">Foreign National</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field label="Occupation / Profession" required>
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Select Occupation" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="salaried">Salaried – Private</SelectItem>
+                                    <SelectItem value="salaried_govt">Salaried – Government</SelectItem>
+                                    <SelectItem value="business">Business / Self-employed</SelectItem>
+                                    <SelectItem value="professional">Professional (CA/Doctor/Lawyer)</SelectItem>
+                                    <SelectItem value="agriculturist">Agriculturist</SelectItem>
+                                    <SelectItem value="retired">Retired</SelectItem>
+                                    <SelectItem value="student">Student</SelectItem>
+                                    <SelectItem value="housewife">Homemaker</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field label="Annual Income (₹)">
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Select Range" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="lt1">Below ₹1 Lakh</SelectItem>
+                                    <SelectItem value="1to3">₹1 – ₹3 Lakhs</SelectItem>
+                                    <SelectItem value="3to5">₹3 – ₹5 Lakhs</SelectItem>
+                                    <SelectItem value="5to10">₹5 – ₹10 Lakhs</SelectItem>
+                                    <SelectItem value="10to25">₹10 – ₹25 Lakhs</SelectItem>
+                                    <SelectItem value="agt25">Above ₹25 Lakhs</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                    </div>
+                </Section>
+
+                {/* ── SECTION 3: Identity Documents ── */}
+                <Section icon={ShieldCheck} title="Identity & KYC Documents" subtitle="Mandatory under RBI KYC norms" required>
+                    <div className="ao-grid ao-grid-3">
+                        <Field label="Aadhaar Number" required>
+                            <Input placeholder="XXXX XXXX XXXX" className="ao-input ao-mono" maxLength={12} />
+                        </Field>
+                        <Field label="PAN Card Number" required>
+                            <Input placeholder="ABCDE1234F" className="ao-input ao-mono ao-uppercase" maxLength={10} />
+                        </Field>
+                        <Field label="Form 60 (if no PAN)">
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Submitted?" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="na">N/A – PAN Provided</SelectItem>
+                                    <SelectItem value="yes">Yes – Form 60 Enclosed</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+
+                        <Field label="ID Proof Type" required>
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Select Document" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="aadhaar">Aadhaar Card</SelectItem>
+                                    <SelectItem value="passport">Passport</SelectItem>
+                                    <SelectItem value="voter">Voter ID Card</SelectItem>
+                                    <SelectItem value="dl">Driving License</SelectItem>
+                                    <SelectItem value="nrega">NREGA Job Card</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field label="ID Document Number" required>
+                            <Input placeholder="Enter document number" className="ao-input ao-mono ao-uppercase" />
+                        </Field>
+                        <Field label="ID Expiry Date">
+                            <Input type="date" className="ao-input" />
+                        </Field>
+
+                        <Field label="Address Proof Type" required>
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Select Document" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="aadhaar">Aadhaar Card</SelectItem>
+                                    <SelectItem value="passport">Passport</SelectItem>
+                                    <SelectItem value="utility">Utility Bill (≤ 3 months)</SelectItem>
+                                    <SelectItem value="ration">Ration Card</SelectItem>
+                                    <SelectItem value="rental">Rental Agreement</SelectItem>
+                                    <SelectItem value="bank_stmt">Bank Statement</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field label="Address Proof Number">
+                            <Input placeholder="Number on document" className="ao-input ao-mono" />
+                        </Field>
+                        <Field label="Tax Residency Status">
+                            <Select defaultValue="india">
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="india">India Only</SelectItem>
+                                    <SelectItem value="us">United States (FATCA)</SelectItem>
+                                    <SelectItem value="other">Other Country (CRS)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                    </div>
+                </Section>
+
+                {/* ── SECTION 4: Contact Information ── */}
+                <Section icon={Phone} title="Contact Information" required>
+                    <div className="ao-grid ao-grid-4">
+                        <Field label="Mobile Number" required>
+                            <Input placeholder="+91 98765 43210" className="ao-input ao-mono" maxLength={10} />
+                        </Field>
+                        <Field label="Alternate Mobile">
+                            <Input placeholder="+91" className="ao-input ao-mono" maxLength={10} />
+                        </Field>
+                        <Field label="Landline / Telephone">
+                            <Input placeholder="STD code + Number" className="ao-input ao-mono" />
+                        </Field>
+                        <Field label="Email Address" required>
+                            <Input type="email" placeholder="example@email.com" className="ao-input" />
+                        </Field>
+                    </div>
+                </Section>
+
+                {/* ── SECTION 5: Permanent Address ── */}
+                <Section icon={Home} title="Permanent Address" subtitle="As per Aadhaar / ID proof" required>
+                    <div className="ao-grid ao-grid-3">
+                        <Field label="House / Flat / Plot No." required>
+                            <Input placeholder="e.g. 15-2/A" className="ao-input" />
+                        </Field>
+                        <Field label="Street / Locality" required colSpan={2}>
+                            <Input placeholder="Street name, area, locality" className="ao-input" />
+                        </Field>
+                        <Field label="Village / Town">
+                            <Input placeholder="Village or Colony name" className="ao-input" />
+                        </Field>
+                        <Field label="Landmark">
+                            <Input placeholder="Near / Opposite" className="ao-input" />
+                        </Field>
+                        <Field label="Post Office">
+                            <Input placeholder="Post Office name" className="ao-input" />
+                        </Field>
+                        <Field label="State" required>
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Select State" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {INDIAN_STATES.map(s => (
+                                        <SelectItem key={s} value={s.toLowerCase().replace(/ /g, '_')}>{s}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field label="District" required>
+                            <Input placeholder="Enter District" className="ao-input" />
+                        </Field>
+                        <Field label="City / Town" required>
+                            <Input placeholder="Enter City" className="ao-input" />
+                        </Field>
+                        <Field label="Pincode" required>
+                            <Input placeholder="6-digit PIN" className="ao-input ao-mono" maxLength={6} />
+                        </Field>
+                    </div>
+
+                    {/* Correspondence Address */}
+                    <div className="ao-same-address-toggle">
+                        <Checkbox
+                            id="sameAddr"
+                            checked={sameAddress}
+                            onCheckedChange={(v) => setSameAddress(v as boolean)}
+                        />
+                        <label htmlFor="sameAddr" className="ao-same-addr-label">
+                            Mailing / Correspondence address is the same as Permanent address
+                        </label>
+                    </div>
+
+                    {!sameAddress && (
+                        <div className="ao-subsection animate-slide-up">
+                            <h4 className="ao-subsection-title">Correspondence (Mailing) Address</h4>
+                            <div className="ao-grid ao-grid-3 mt-4">
+                                <Field label="House / Flat No." required>
+                                    <Input placeholder="e.g. 15-2/A" className="ao-input" />
+                                </Field>
+                                <Field label="Street / Locality" required colSpan={2}>
+                                    <Input placeholder="Street name, area, locality" className="ao-input" />
+                                </Field>
+                                <Field label="State" required>
+                                    <Select>
+                                        <SelectTrigger className="ao-input">
+                                            <SelectValue placeholder="Select State" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {INDIAN_STATES.map(s => (
+                                                <SelectItem key={s} value={s.toLowerCase().replace(/ /g, '_')}>{s}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+                                <Field label="City / Town" required>
+                                    <Input placeholder="Enter City" className="ao-input" />
+                                </Field>
+                                <Field label="Pincode" required>
+                                    <Input placeholder="6-digit PIN" className="ao-input ao-mono" maxLength={6} />
+                                </Field>
                             </div>
-                            <span className="step-label">{s.label}</span>
-                            {s.id < steps.length && <div className="step-connector" />}
-                        </div>
-                    ))}
-                </div>
-            </header>
-
-            <main className="form-content">
-                <div className="glass-card main-form-card">
-                    {step === 1 && (
-                        <div className="step-content animate-slide-up">
-                            <section className="form-section">
-                                <div className="section-header">
-                                    <div className="section-dot" />
-                                    <h3>Basic Membership</h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="space-y-2">
-                                        <Label>Member Type</Label>
-                                        <Select>
-                                            <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-slate-50/50">
-                                                <SelectValue placeholder="Select Member Type" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="regular">Regular Member</SelectItem>
-                                                <SelectItem value="associate">Associate Member</SelectItem>
-                                                <SelectItem value="nominal">Nominal Member</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Date</Label>
-                                        <Input type="date" value={formData.membership.date} className="h-12 rounded-xl border-slate-200 bg-slate-50/50" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Membership Fee (₹)</Label>
-                                        <Input value={formData.membership.fee} className="h-12 rounded-xl border-slate-200 bg-slate-50/50 font-mono font-bold text-[#009BB0]" />
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section className="form-section mt-10">
-                                <div className="section-header">
-                                    <div className="section-dot" />
-                                    <h3>Personal Details</h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="space-y-2">
-                                        <Label>Full Name</Label>
-                                        <Input placeholder="Enter Applicant Name" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Father / Husband Name</Label>
-                                        <Input placeholder="Enter Father/Husband Name" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Mother Name</Label>
-                                        <Input placeholder="Enter Mother Name" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Gender</Label>
-                                        <Select>
-                                            <SelectTrigger className="h-12 rounded-xl border-slate-200">
-                                                <SelectValue placeholder="Select Gender" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="male">Male</SelectItem>
-                                                <SelectItem value="female">Female</SelectItem>
-                                                <SelectItem value="other">Other</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Date of Birth</Label>
-                                        <Input type="date" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Occupation</Label>
-                                        <Input placeholder="Current Profession" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Aadhar Card No.</Label>
-                                        <Input placeholder="12-digit UID" className="h-12 rounded-xl border-slate-200" maxLength={12} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>PAN Card No.</Label>
-                                        <Input placeholder="10-digit PAN" className="h-12 rounded-xl border-slate-200 uppercase" maxLength={10} />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                                    <div className="upload-box group">
-                                        <div className="upload-preview">
-                                            <ImageIcon size={32} className="text-slate-300 group-hover:text-[#009BB0] transition-colors" />
-                                        </div>
-                                        <div className="upload-info">
-                                            <h4>Applicant Photo</h4>
-                                            <p>PNG or JPG upto 2MB</p>
-                                            <Button variant="ghost" className="h-8 px-3 text-[#009BB0] hover:bg-[#009BB0]/10 rounded-lg text-xs font-bold gap-2">
-                                                <Upload size={14} /> Upload Image
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    <div className="upload-box group">
-                                        <div className="upload-preview">
-                                            <FileText size={32} className="text-slate-300 group-hover:text-[#009BB0] transition-colors" />
-                                        </div>
-                                        <div className="upload-info">
-                                            <h4>Specimen Signature</h4>
-                                            <p>Scan clear signature on white paper</p>
-                                            <Button variant="ghost" className="h-8 px-3 text-[#009BB0] hover:bg-[#009BB0]/10 rounded-lg text-xs font-bold gap-2">
-                                                <Upload size={14} /> Upload Scan
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
                         </div>
                     )}
+                </Section>
 
-                    {step === 2 && (
-                        <div className="step-content animate-slide-up">
-                            <section className="form-section">
-                                <div className="section-header">
-                                    <div className="section-dot" />
-                                    <h3>Contact Information</h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                    <div className="space-y-2">
-                                        <Label>Primary Mobile</Label>
-                                        <div className="relative">
-                                            <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                            <Input placeholder="+91" className="h-12 rounded-xl border-slate-200 pl-11" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Alternate Mobile</Label>
-                                        <Input placeholder="+91" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Landline No.</Label>
-                                        <Input placeholder="STD Code - Number" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Work Contact</Label>
-                                        <Input placeholder="+91" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                </div>
-                            </section>
+                {/* ── SECTION 6: Nominee ── */}
+                <Section icon={Users} title="Nominee Details" subtitle="Person entitled to funds in case of account holder's demise">
+                    <div className="ao-grid ao-grid-3">
+                        <Field label="Nominee Full Name" required>
+                            <Input placeholder="Full legal name of nominee" className="ao-input" />
+                        </Field>
+                        <Field label="Relationship with Applicant" required>
+                            <Select>
+                                <SelectTrigger className="ao-input">
+                                    <SelectValue placeholder="Select Relation" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="spouse">Spouse</SelectItem>
+                                    <SelectItem value="son">Son</SelectItem>
+                                    <SelectItem value="daughter">Daughter</SelectItem>
+                                    <SelectItem value="father">Father</SelectItem>
+                                    <SelectItem value="mother">Mother</SelectItem>
+                                    <SelectItem value="brother">Brother</SelectItem>
+                                    <SelectItem value="sister">Sister</SelectItem>
+                                    <SelectItem value="grandchild">Grandchild</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field label="Nominee Date of Birth" required>
+                            <Input type="date" className="ao-input" />
+                        </Field>
+                        <Field label="Nominee Mobile">
+                            <Input placeholder="+91" className="ao-input ao-mono" />
+                        </Field>
+                        <Field label="Nominee Address" colSpan={2}>
+                            <Input placeholder="House No., Street, City, PIN" className="ao-input" />
+                        </Field>
+                    </div>
+                    <div className="ao-nominee-guardian mt-4 p-4 bg-amber-50/60 border border-amber-100 rounded-xl text-sm text-amber-700">
+                        <strong>Note:</strong> If nominee is a minor, please provide guardian details on a separate form (Form G-1) at the branch.
+                    </div>
+                </Section>
 
-                            <section className="form-section mt-10">
-                                <div className="flex items-center justify-between mb-6">
-                                    <div className="section-header mb-0">
-                                        <div className="section-dot" />
-                                        <h3>Permanent Residence</h3>
-                                    </div>
-                                    <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
-                                        <MapPin size={14} className="text-[#009BB0]" />
-                                        <span className="text-xs font-bold text-slate-500 uppercase tracking-tight">Geo-Verified</span>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                                    <div className="space-y-2">
-                                        <Label>House / Flat No.</Label>
-                                        <Input placeholder="E.g. #12-4" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Street / Area</Label>
-                                        <Input placeholder="Locality Name" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Village / Colony</Label>
-                                        <Input placeholder="Village Name" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Country</Label>
-                                        <Select defaultValue="india">
-                                            <SelectTrigger className="h-12 rounded-xl border-slate-200">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="india">India</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>State</Label>
-                                        <Select defaultValue="ap">
-                                            <SelectTrigger className="h-12 rounded-xl border-slate-200">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="ap">Andhra Pradesh</SelectItem>
-                                                <SelectItem value="ts">Telangana</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>District</Label>
-                                        <Input placeholder="Enter District" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>City / Town</Label>
-                                        <Input placeholder="Enter City" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Pincode</Label>
-                                        <Input placeholder="6-digit ZIP" className="h-12 rounded-xl border-slate-200" maxLength={6} />
-                                    </div>
-                                </div>
-                            </section>
-
-                            <div className="mt-10 pt-10 border-t border-slate-100">
-                                <div className="flex items-center gap-3 mb-8">
-                                    <Checkbox id="sameAsAbove" />
-                                    <Label htmlFor="sameAsAbove" className="text-sm font-bold text-slate-700 cursor-pointer">Correspondence address is same as permanent address</Label>
-                                </div>
-
-                                <section className="form-section opacity-50 blur-[1px] pointer-events-none transition-all">
-                                    <div className="section-header">
-                                        <div className="section-dot" />
-                                        <h3>Correspondence Address</h3>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                        <div className="space-y-2">
-                                            <Label>House No.</Label>
-                                            <Input className="h-12 rounded-xl border-slate-200" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Area</Label>
-                                            <Input className="h-12 rounded-xl border-slate-200" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>City</Label>
-                                            <Input className="h-12 rounded-xl border-slate-200" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Pincode</Label>
-                                            <Input className="h-12 rounded-xl border-slate-200" />
-                                        </div>
-                                    </div>
-                                </section>
+                {/* ── SECTION 7: Photo & Signature ── */}
+                <Section icon={FileSignature} title="Photo & Signature" subtitle="Applicant's recent passport photo and specimen signature">
+                    <div className="ao-grid ao-grid-2">
+                        <div className="ao-upload-card">
+                            <div className="ao-upload-area">
+                                <ImageIcon size={36} className="ao-upload-icon" />
+                            </div>
+                            <div className="ao-upload-info">
+                                <h4>Recent Photograph</h4>
+                                <ul className="ao-upload-rules">
+                                    <li>Passport-size, white background</li>
+                                    <li>Taken within last 6 months</li>
+                                    <li>JPG / PNG, max 500 KB</li>
+                                </ul>
+                                <label className="ao-upload-btn">
+                                    <Upload size={14} /> Browse File
+                                    <input type="file" accept="image/*" className="hidden" />
+                                </label>
                             </div>
                         </div>
-                    )}
-
-                    {step === 3 && (
-                        <div className="step-content animate-slide-up">
-                            <section className="form-section">
-                                <div className="section-header">
-                                    <div className="section-dot" />
-                                    <h3>Nominee Assignment</h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="space-y-2">
-                                        <Label>Nominee Full Name</Label>
-                                        <Input placeholder="Enter Nominee Name" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Relationship</Label>
-                                        <Select>
-                                            <SelectTrigger className="h-12 rounded-xl border-slate-200">
-                                                <SelectValue placeholder="Select Relation" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="spouse">Spouse</SelectItem>
-                                                <SelectItem value="parent">Parent</SelectItem>
-                                                <SelectItem value="sibling">Sibling</SelectItem>
-                                                <SelectItem value="child">Child</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Nominee Age</Label>
-                                        <Input placeholder="Years" className="h-12 rounded-xl border-slate-200" />
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section className="form-section mt-10">
-                                <div className="section-header">
-                                    <div className="section-dot" />
-                                    <h3>KYC Compliance</h3>
-                                </div>
-                                <div className="p-6 bg-[#009BB0]/5 rounded-3xl border border-[#009BB0]/10 border-dashed">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <Label className="text-[#009BB0] font-black uppercase text-[10px] tracking-widest">Identification Proof</Label>
-                                                <div className="flex gap-2">
-                                                    <div className="flex-1">
-                                                        <Select>
-                                                            <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white text-left">
-                                                                <SelectValue placeholder="Select ID Type" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectItem value="passport">Passport</SelectItem>
-                                                                <SelectItem value="voter">Voter ID</SelectItem>
-                                                                <SelectItem value="dl">Driving License</SelectItem>
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <Button variant="outline" className="h-12 w-12 p-0 rounded-xl border-dashed border-[#009BB0]/30 text-[#009BB0]">
-                                                        <Upload size={18} />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-[#009BB0] font-black uppercase text-[10px] tracking-widest">Address Proof</Label>
-                                                <div className="flex gap-2">
-                                                    <div className="flex-1">
-                                                        <Select>
-                                                            <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white text-left">
-                                                                <SelectValue placeholder="Select Address Proof" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectItem value="electric">Electricity Bill</SelectItem>
-                                                                <SelectItem value="ration">Ration Card</SelectItem>
-                                                                <SelectItem value="rental">Rental Agreement</SelectItem>
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <Button variant="outline" className="h-12 w-12 p-0 rounded-xl border-dashed border-[#009BB0]/30 text-[#009BB0]">
-                                                        <Upload size={18} />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-col items-center justify-center p-8 bg-white/50 rounded-2xl border border-white">
-                                            <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 mb-4 shadow-inner">
-                                                <ShieldCheck size={32} />
-                                            </div>
-                                            <h4 className="font-bold text-slate-800">Compliance Verified</h4>
-                                            <p className="text-xs text-center text-slate-500 mt-2 px-6">Ensure all documents are original scans. Tampered documents will be rejected by the auditing engine.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                        </div>
-                    )}
-
-                    <div className="form-footer mt-12 pt-8 border-t border-slate-100 flex items-center justify-between">
-                        <Button
-                            variant="ghost"
-                            disabled={step === 1}
-                            onClick={() => setStep(prev => prev - 1)}
-                            className="font-bold text-slate-400 hover:text-slate-600 h-12 px-8 rounded-xl"
-                        >
-                            Back
-                        </Button>
-                        <div className="flex gap-3">
-                            {step < 3 ? (
-                                <Button
-                                    onClick={() => setStep(prev => prev + 1)}
-                                    className="bg-slate-900 hover:bg-slate-800 text-white gap-2 h-12 px-8 rounded-xl font-bold transition-all"
-                                >
-                                    Continue <ArrowRight size={16} />
-                                </Button>
-                            ) : (
-                                <Button className="bg-[#009BB0] hover:bg-[#008aa0] text-white gap-2 h-12 px-10 rounded-xl font-black transition-all shadow-xl shadow-[#009BB0]/30 hover:scale-[1.02] active:scale-[0.98]">
-                                    Complete Onboarding
-                                </Button>
-                            )}
+                        <div className="ao-upload-card">
+                            <div className="ao-upload-area">
+                                <FileSignature size={36} className="ao-upload-icon" />
+                            </div>
+                            <div className="ao-upload-info">
+                                <h4>Specimen Signature</h4>
+                                <ul className="ao-upload-rules">
+                                    <li>Sign on plain white paper</li>
+                                    <li>Scan at minimum 200 DPI</li>
+                                    <li>JPG / PNG, max 200 KB</li>
+                                </ul>
+                                <label className="ao-upload-btn">
+                                    <Upload size={14} /> Browse File
+                                    <input type="file" accept="image/*" className="hidden" />
+                                </label>
+                            </div>
                         </div>
                     </div>
+                </Section>
+
+                {/* ── SECTION 8: Declaration ── */}
+                <Section icon={Banknote} title="Applicant Declaration">
+                    <div className="ao-declaration-box">
+                        <p>
+                            I / We hereby declare that the details furnished above are true and correct to the best of my / our knowledge and belief, and I / we undertake to inform you of any changes therein, immediately. In case any of the above information is found to be false or untrue or misleading, I / We am / are aware that I / We may be held liable therefor.
+                        </p>
+                        <div className="ao-declaration-check">
+                            <Checkbox id="declAgree" />
+                            <label htmlFor="declAgree" className="ao-same-addr-label font-semibold text-slate-700">
+                                I agree to the above declaration and consent to share my KYC data with the bank and regulatory authorities.
+                            </label>
+                        </div>
+                    </div>
+                </Section>
+
+                {/* ── SUBMIT ── */}
+                <div className="ao-form-footer">
+                    <Button variant="outline" className="ao-btn-outline" onClick={() => window.location.reload()}>
+                        <RefreshCw size={15} /> Clear Form
+                    </Button>
+                    <Button className="ao-btn-primary ao-btn-submit" onClick={() => setSubmitted(true)}>
+                        <Save size={16} /> Submit Account Opening Request
+                    </Button>
                 </div>
-            </main>
+
+            </div>
         </div>
     );
 }
