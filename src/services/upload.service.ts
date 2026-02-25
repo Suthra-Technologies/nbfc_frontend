@@ -21,16 +21,14 @@ export const uploadService = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await api.post<UploadResponse>('/upload/single', formData, {
+    const response = await api.post<any>('/upload/single', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
 
-    // api-client unwrap() usually returns the 'data' part if the response has a data property
-    // Looking at common patterns in this project, api.post might return the whole response or just data.
-    // Let's assume it returns the structured response based on the type helper.
-    return response.data;
+    // The api-client unwrap() function automatically returns res.data.data
+    return response;
   },
 
   /**
@@ -48,6 +46,7 @@ export const uploadService = {
       },
     });
 
-    return response.data;
+    // The api-client unwrap() function automatically returns res.data.data
+    return response;
   }
 };

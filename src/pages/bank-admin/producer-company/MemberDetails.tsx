@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { UserPlus, Save, RotateCcw, Image, FileText, MapPin, Phone, Users, ShieldCheck, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { UserPlus, Save, RotateCcw, Image, FileText, MapPin, Phone, Users, ShieldCheck, CheckCircle, AlertCircle, Loader2, Camera, X } from 'lucide-react';
 import './producer.css';
 import { memberService } from '@/services/member.service';
 import { uploadService } from '@/services/upload.service';
@@ -53,7 +53,6 @@ const EMPTY_FORM = {
     mobile1: '',
     landline: '',
     alternateMobile: '',
-    mobile4: '',
     // Photo & Signature
     photoUrl: '',
     signatureUrl: '',
@@ -89,8 +88,15 @@ export default function MemberDetails() {
     const [dobError, setDobError] = useState<string | null>(null);
     const [showOccupationList, setShowOccupationList] = useState(false);
     const [aadharError, setAadharError] = useState<string | null>(null);
-    const [panError, setPanError] = useState<string | null>(null);
     const [uploading, setUploading] = useState<Record<string, boolean>>({});
+    const [panError, setPanError] = useState<string | null>(null);
+    const [phoneErrors, setPhoneErrors] = useState<Record<string, string | null>>({});
+    const [showCamera, setShowCamera] = useState(false);
+    const [captureField, setCaptureField] = useState<string | null>(null);
+    const [cameraLoading, setCameraLoading] = useState(false);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const streamRef = useRef<MediaStream | null>(null);
 
     const showToast = (type: 'success' | 'error', message: string) => {
         setToast({ type, message });
@@ -157,7 +163,6 @@ export default function MemberDetails() {
         }
     }, [form.aadharNo]);
 
-    // PAN Validation
     useEffect(() => {
         if (form.panNo) {
             const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
@@ -170,6 +175,28 @@ export default function MemberDetails() {
             setPanError(null);
         }
     }, [form.panNo]);
+
+    // real-time phone validation
+    const validatePhone = (phone: string) => {
+        if (!phone) return null;
+        const phoneRegex = /^[6-9]\d{9}$/;
+        if (!phoneRegex.test(phone)) {
+            return 'Invalid mobile number (10 digits starting with 6-9)';
+        }
+        return null;
+    };
+
+    useEffect(() => {
+        setPhoneErrors(prev => ({ ...prev, mobile1: validatePhone(form.mobile1) }));
+    }, [form.mobile1]);
+
+    useEffect(() => {
+        setPhoneErrors(prev => ({ ...prev, alternateMobile: validatePhone(form.alternateMobile) }));
+    }, [form.alternateMobile]);
+
+    useEffect(() => {
+        setPhoneErrors(prev => ({ ...prev, nomineeMobile: validatePhone(form.nominee.mobileNo) }));
+    }, [form.nominee.mobileNo]);
 
     // Handle "Same as Above" for Correspondence Address
     useEffect(() => {
@@ -188,7 +215,10 @@ export default function MemberDetails() {
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        uploadFile(file, key);
+    };
 
+    const uploadFile = async (file: File | Blob, key: string) => {
         // 1. Show local preview immediately
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -199,7 +229,10 @@ export default function MemberDetails() {
         // 2. Upload to S3
         setUploading(prev => ({ ...prev, [key]: true }));
         try {
-            const data = await uploadService.uploadSingle(file);
+            // Convert Blob to File if necessary
+            const fileToUpload = file instanceof File ? file : new File([file], `${key}_${Date.now()}.jpg`, { type: 'image/jpeg' });
+
+            const data = await uploadService.uploadSingle(fileToUpload);
             const s3Url = data.url;
 
             // 3. Update form field based on key
@@ -218,6 +251,56 @@ export default function MemberDetails() {
         }
     };
 
+    const startCamera = async (field: string) => {
+        setCaptureField(field);
+        setShowCamera(true);
+        setCameraLoading(true);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' },
+                audio: false
+            });
+            streamRef.current = stream;
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+            }
+        } catch (err) {
+            console.error("Error accessing camera:", err);
+            showToast('error', 'Could not access camera. Please check permissions.');
+            setShowCamera(false);
+        } finally {
+            setCameraLoading(false);
+        }
+    };
+
+    const stopCamera = () => {
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
+        setShowCamera(false);
+        setCaptureField(null);
+    };
+
+    const capturePhoto = () => {
+        if (videoRef.current && canvasRef.current && captureField) {
+            const video = videoRef.current;
+            const canvas = canvasRef.current;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        uploadFile(blob, captureField);
+                        stopCamera();
+                    }
+                }, 'image/jpeg', 0.82);
+            }
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -225,6 +308,7 @@ export default function MemberDetails() {
             await memberService.createMember({
                 ...form,
                 memberType: form.memberType as 'MEMBER' | 'ASSOCIATE',
+                gender: form.gender as 'MALE' | 'FEMALE' | 'OTHER',
                 membershipFee: Number(form.membershipFee),
                 age: Number(form.age),
                 nominee: {
@@ -481,6 +565,9 @@ export default function MemberDetails() {
                                         )}
                                         <input type="file" className="pc-file-input" accept="image/*" onChange={e => handleFileChange(e, 'photo')} disabled={uploading.photo} />
                                     </label>
+                                    <button type="button" className="pc-camera-btn" onClick={() => startCamera('photo')} disabled={uploading.photo}>
+                                        <Camera size={14} /> Take Photo
+                                    </button>
                                     {previews.photo && <img src={previews.photo} alt="Preview" style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover', opacity: uploading.photo ? 0.5 : 1 }} />}
                                 </div>
                             </div>
@@ -495,6 +582,9 @@ export default function MemberDetails() {
                                         )}
                                         <input type="file" className="pc-file-input" accept="image/*" onChange={e => handleFileChange(e, 'signature')} disabled={uploading.signature} />
                                     </label>
+                                    <button type="button" className="pc-camera-btn" onClick={() => startCamera('signature')} disabled={uploading.signature}>
+                                        <Camera size={14} /> Capture
+                                    </button>
                                     {previews.signature && <img src={previews.signature} alt="Preview" style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover', opacity: uploading.signature ? 0.5 : 1 }} />}
                                 </div>
                             </div>
@@ -515,7 +605,14 @@ export default function MemberDetails() {
                         <div className="pc-grid">
                             <div className="pc-field">
                                 <label className="pc-label">Mobile Number1 :*</label>
-                                <input className="pc-input" value={form.mobile1} onChange={e => updateField('mobile1', e.target.value)} placeholder="Enter Mobile No1." required />
+                                <input
+                                    className={`pc-input ${phoneErrors.mobile1 ? 'error' : ''}`}
+                                    value={form.mobile1}
+                                    onChange={e => updateField('mobile1', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                                    placeholder="Enter 10 digit Mobile No."
+                                    required
+                                />
+                                {phoneErrors.mobile1 && <span className="pc-error-text">{phoneErrors.mobile1}</span>}
                             </div>
                             <div className="pc-field">
                                 <label className="pc-label">Land No. :</label>
@@ -523,11 +620,13 @@ export default function MemberDetails() {
                             </div>
                             <div className="pc-field">
                                 <label className="pc-label">Alternate No. :</label>
-                                <input className="pc-input" value={form.alternateMobile} onChange={e => updateField('alternateMobile', e.target.value)} placeholder="Enter Mobile No3." />
-                            </div>
-                            <div className="pc-field">
-                                <label className="pc-label">Mobile Number4 :</label>
-                                <input className="pc-input" value={form.mobile4} onChange={e => updateField('mobile4', e.target.value)} placeholder="Enter Mobile No4." />
+                                <input
+                                    className={`pc-input ${phoneErrors.alternateMobile ? 'error' : ''}`}
+                                    value={form.alternateMobile}
+                                    onChange={e => updateField('alternateMobile', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                                    placeholder="Enter Alternate No."
+                                />
+                                {phoneErrors.alternateMobile && <span className="pc-error-text">{phoneErrors.alternateMobile}</span>}
                             </div>
                         </div>
                     </div>
@@ -605,7 +704,13 @@ export default function MemberDetails() {
                             </div>
                             <div className="pc-field">
                                 <label className="pc-label">Mobile No. :</label>
-                                <input className="pc-input" value={form.nominee.mobileNo} onChange={e => updateField('nominee.mobileNo', e.target.value)} placeholder="Enter Mobile no." />
+                                <input
+                                    className={`pc-input ${phoneErrors.nomineeMobile ? 'error' : ''}`}
+                                    value={form.nominee.mobileNo}
+                                    onChange={e => updateField('nominee.mobileNo', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                                    placeholder="Enter Nominee Mobile"
+                                />
+                                {phoneErrors.nomineeMobile && <span className="pc-error-text">{phoneErrors.nomineeMobile}</span>}
                             </div>
                         </div>
 
@@ -648,6 +753,9 @@ export default function MemberDetails() {
                                         <span style={{ marginLeft: '4px' }}>{uploading.idProof ? 'Uploading...' : 'Browse...'}</span>
                                         <input type="file" className="pc-file-input" onChange={e => handleFileChange(e, 'idProof')} disabled={uploading.idProof} />
                                     </label>
+                                    <button type="button" className="pc-camera-btn-kyc" onClick={() => startCamera('idProof')} disabled={uploading.idProof}>
+                                        <Camera size={14} /> Camera
+                                    </button>
                                     {previews.idProof && (
                                         <div style={{ marginLeft: '8px', display: 'flex', alignItems: 'center' }}>
                                             <CheckCircle size={14} color="#10b981" />
@@ -669,6 +777,9 @@ export default function MemberDetails() {
                                         <span style={{ marginLeft: '4px' }}>{uploading.addressProof ? 'Uploading...' : 'Browse...'}</span>
                                         <input type="file" className="pc-file-input" onChange={e => handleFileChange(e, 'addressProof')} disabled={uploading.addressProof} />
                                     </label>
+                                    <button type="button" className="pc-camera-btn-kyc" onClick={() => startCamera('addressProof')} disabled={uploading.addressProof}>
+                                        <Camera size={14} /> Camera
+                                    </button>
                                     {previews.addressProof && (
                                         <div style={{ marginLeft: '8px', display: 'flex', alignItems: 'center' }}>
                                             <CheckCircle size={14} color="#10b981" />
@@ -685,6 +796,9 @@ export default function MemberDetails() {
                                         <span style={{ marginLeft: '4px' }}>{uploading.otherDoc ? 'Uploading...' : 'Browse...'}</span>
                                         <input type="file" className="pc-file-input" onChange={e => handleFileChange(e, 'otherDoc')} disabled={uploading.otherDoc} />
                                     </label>
+                                    <button type="button" className="pc-camera-btn-kyc" onClick={() => startCamera('otherDoc')} disabled={uploading.otherDoc}>
+                                        <Camera size={14} /> Camera
+                                    </button>
                                     {previews.otherDoc && (
                                         <div style={{ marginLeft: '8px', display: 'flex', alignItems: 'center' }}>
                                             <CheckCircle size={14} color="#10b981" />
@@ -701,12 +815,45 @@ export default function MemberDetails() {
                     <span className="pc-submit-info">* Ensure all mandatory fields marked with asterisk are filled.</span>
                     <div className="pc-submit-actions">
                         <button type="button" className="pc-btn-ghost" onClick={() => setForm(EMPTY_FORM)}><RotateCcw size={14} style={{ display: 'inline', marginRight: 6 }} /> Reset Form</button>
-                        <button type="submit" className="pc-btn-primary" disabled={isSubmitting || !!dobError || !!aadharError || !!panError}>
+                        <button type="submit" className="pc-btn-primary" disabled={isSubmitting || !!dobError || !!aadharError || !!panError || Object.values(phoneErrors).some(err => !!err)}>
                             {isSubmitting ? 'Saving...' : <><Save size={14} /> Save Member Details</>}
                         </button>
                     </div>
                 </div>
             </form>
+
+            {/* Camera Capture Modal */}
+            {showCamera && (
+                <div className="pc-camera-modal">
+                    <div className="pc-camera-content">
+                        <div className="pc-camera-header">
+                            <h3>Capture {captureField ?
+                                captureField.charAt(0).toUpperCase() + captureField.slice(1)
+                                : ''}</h3>
+                            <button className="pc-camera-close" onClick={stopCamera}><X size={20} /></button>
+                        </div>
+                        <div className="pc-camera-body">
+                            {cameraLoading && (
+                                <div className="pc-camera-loading">
+                                    <Loader2 size={40} className="animate-spin" />
+                                    <p>Accessing Camera...</p>
+                                </div>
+                            )}
+                            <video ref={videoRef} autoPlay playsInline className="pc-camera-video"></video>
+                            <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+                        </div>
+                        <div className="pc-camera-footer">
+                            <button className="pc-btn-ghost" onClick={stopCamera}>Cancel</button>
+                            <button className="pc-btn-primary" onClick={capturePhoto} disabled={cameraLoading}>
+                                <div className="pc-capture-ring">
+                                    <div className="pc-capture-inner"></div>
+                                </div>
+                                Capture Photo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

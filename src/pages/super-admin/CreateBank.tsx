@@ -41,6 +41,8 @@ const createBankSchema = z.object({
         .min(8, "Password must be at least 8 characters")
         .regex(/[A-Z]/, "Include at least one uppercase letter")
         .regex(/[0-9]/, "Include at least one number"),
+    branchName: z.string().min(3, "Primary branch name is required"),
+    branchCode: z.string().min(3, "Branch code is required (e.g., HO001)"),
 });
 
 type CreateBankForm = z.infer<typeof createBankSchema>;
@@ -79,6 +81,15 @@ export function CreateBank() {
         }
     }, [logoFile]);
 
+    const institutionName = watch("name");
+    useEffect(() => {
+        if (institutionName) {
+            // Only auto-fill if the field is currently empty or was previously auto-filled
+            setValue("branchName", `${institutionName} - Head Office`, { shouldValidate: true });
+            setValue("branchCode", "HO001", { shouldValidate: true });
+        }
+    }, [institutionName, setValue]);
+
     const onSubmit = async (data: CreateBankForm) => {
         setIsSubmitting(true);
         setSubmitError(null);
@@ -88,7 +99,8 @@ export function CreateBank() {
 
             if (data.logo instanceof File) {
                 const { uploadService } = await import("@/services/upload.service");
-                logoUrl = await uploadService.uploadFile(data.logo);
+                const uploadRes = await uploadService.uploadSingle(data.logo);
+                logoUrl = uploadRes.url;
             }
 
             const payload = {
@@ -107,6 +119,8 @@ export function CreateBank() {
                 adminEmail: data.adminEmail,
                 adminMobile: data.adminMobile,
                 adminPassword: data.adminPassword,
+                branchName: data.branchName,
+                branchCode: data.branchCode,
             };
 
             await bankService.create(payload);
@@ -312,6 +326,36 @@ export function CreateBank() {
                                     {errors.pincode && <p className="input-error">{errors.pincode.message}</p>}
                                 </div>
                             </div>
+                        </section>
+                        {/* Branch Initialization Section */}
+                        <section className="form-section animate-fade-in" style={{ animationDelay: "0.25s" }}>
+                            <div className="section-header">
+                                <Building2 size={20} className="text-[#009BB0]" />
+                                <h2>Primary Branch Node</h2>
+                            </div>
+
+                            <div className="grid-2">
+                                <div className="form-group">
+                                    <label>Initial Branch Name *</label>
+                                    <input
+                                        className={cn("input", errors.branchName && "input-error-border")}
+                                        placeholder="Head Office"
+                                        {...register("branchName")}
+                                    />
+                                    {errors.branchName && <p className="input-error">{errors.branchName.message}</p>}
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Internal Branch Code *</label>
+                                    <input
+                                        className={cn("input", errors.branchCode && "input-error-border")}
+                                        placeholder="HO001"
+                                        {...register("branchCode")}
+                                    />
+                                    {errors.branchCode && <p className="input-error">{errors.branchCode.message}</p>}
+                                </div>
+                            </div>
+                            <p className="input-hint mt-2">The administrator will be automatically assigned to this primary branch node.</p>
                         </section>
 
                         {/* Admin Account Section */}
