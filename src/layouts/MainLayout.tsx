@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom"
 import { Sidebar } from "@/components/common/Sidebar"
 import { Header } from "@/components/common/Header"
 import { Toaster } from "@/components/ui/toaster"
+import { Chatbot } from "@/components/chatbot/Chatbot"
 import { cn } from "@/lib/utils"
 
 export function MainLayout() {
@@ -35,6 +36,7 @@ export function MainLayout() {
                     <Outlet />
                 </main>
             </div>
+            {/* <Chatbot /> */}
             <Toaster />
         </div>
     )
