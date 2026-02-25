@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { UserPlus, Save, RotateCcw, Image, FileText, MapPin, Phone, Users, ShieldCheck, CheckCircle, AlertCircle } from 'lucide-react';
+import { UserPlus, Save, RotateCcw, Image, FileText, MapPin, Phone, Users, ShieldCheck, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import './producer.css';
 import { memberService } from '@/services/member.service';
+import { uploadService } from '@/services/upload.service';
 
 const INITIAL_ADDRESS = {
     houseNo: '',
@@ -17,6 +18,22 @@ const INITIAL_ADDRESS = {
     cityArea: '',
     pincode: ''
 };
+
+const OCCUPATIONS = [
+    "AGRICULTURE / FARMING",
+    "BUSINESS / SELF-EMPLOYED",
+    "GOVERNMENT SERVICE",
+    "PRIVATE SERVICE",
+    "PROFESSIONAL (DOCTOR/LAWYER/ENG)",
+    "HOUSEWIFE / HOMEMAKER",
+    "ARTISAN / CRAFTSPERSON",
+    "DAILY WAGE LABORER",
+    "TRADER / SHOPKEEPER",
+    "DRIVER / TRANSPORT",
+    "STUDENT",
+    "RETIRED",
+    "OTHER"
+];
 
 const EMPTY_FORM = {
     memberType: 'MEMBER',
@@ -37,6 +54,9 @@ const EMPTY_FORM = {
     landline: '',
     alternateMobile: '',
     mobile4: '',
+    // Photo & Signature
+    photoUrl: '',
+    signatureUrl: '',
     // Addresses
     permanentAddress: { ...INITIAL_ADDRESS },
     correspondenceAddress: { ...INITIAL_ADDRESS },
@@ -53,8 +73,11 @@ const EMPTY_FORM = {
     // KYC
     kyc: {
         idProofType: '',
+        idProofUrl: '',
         addressProofType: '',
-        otherDocumentLabel: ''
+        addressProofUrl: '',
+        otherDocumentLabel: '',
+        otherDocumentUrl: ''
     }
 };
 
@@ -63,6 +86,11 @@ export default function MemberDetails() {
     const [previews, setPreviews] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [dobError, setDobError] = useState<string | null>(null);
+    const [showOccupationList, setShowOccupationList] = useState(false);
+    const [aadharError, setAadharError] = useState<string | null>(null);
+    const [panError, setPanError] = useState<string | null>(null);
+    const [uploading, setUploading] = useState<Record<string, boolean>>({});
 
     const showToast = (type: 'success' | 'error', message: string) => {
         setToast({ type, message });
@@ -83,19 +111,65 @@ export default function MemberDetails() {
         });
     };
 
-    // Calculate age from DOB
+    // Calculate age and validate DOB
     useEffect(() => {
         if (form.dob) {
             const birth = new Date(form.dob);
             const today = new Date();
+
+            if (birth > today) {
+                setDobError('Date of birth cannot be in the future');
+                updateField('age', '0');
+                return;
+            }
+
             let age = today.getFullYear() - birth.getFullYear();
             const m = today.getMonth() - birth.getMonth();
             if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
                 age--;
             }
+
+            if (age < 18) {
+                setDobError('Member must be at least 18 years old');
+            } else if (age > 120) {
+                setDobError('Please enter a valid date of birth');
+            } else {
+                setDobError(null);
+            }
+
             updateField('age', age > 0 ? age.toString() : '0');
+        } else {
+            setDobError(null);
         }
     }, [form.dob]);
+
+    // Aadhar Validation
+    useEffect(() => {
+        if (form.aadharNo) {
+            const aadharRegex = /^\d{12}$/;
+            if (!aadharRegex.test(form.aadharNo)) {
+                setAadharError('Aadhar number must be exactly 12 digits');
+            } else {
+                setAadharError(null);
+            }
+        } else {
+            setAadharError(null);
+        }
+    }, [form.aadharNo]);
+
+    // PAN Validation
+    useEffect(() => {
+        if (form.panNo) {
+            const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+            if (!panRegex.test(form.panNo)) {
+                setPanError('Invalid PAN format (e.g., ABCDE1234F)');
+            } else {
+                setPanError(null);
+            }
+        } else {
+            setPanError(null);
+        }
+    }, [form.panNo]);
 
     // Handle "Same as Above" for Correspondence Address
     useEffect(() => {
@@ -111,14 +185,36 @@ export default function MemberDetails() {
         }
     }, [form.nominee.sameAsPermanent, form.permanentAddress]);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviews(prev => ({ ...prev, [key]: reader.result as string }));
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        // 1. Show local preview immediately
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviews(prev => ({ ...prev, [key]: reader.result as string }));
+        };
+        reader.readAsDataURL(file);
+
+        // 2. Upload to S3
+        setUploading(prev => ({ ...prev, [key]: true }));
+        try {
+            const data = await uploadService.uploadSingle(file);
+            const s3Url = data.url;
+
+            // 3. Update form field based on key
+            if (key === 'photo') updateField('photoUrl', s3Url);
+            else if (key === 'signature') updateField('signatureUrl', s3Url);
+            else if (key === 'idProof') updateField('kyc.idProofUrl', s3Url);
+            else if (key === 'addressProof') updateField('kyc.addressProofUrl', s3Url);
+            else if (key === 'otherDoc') updateField('kyc.otherDocumentUrl', s3Url);
+
+            showToast('success', `${key.charAt(0).toUpperCase() + key.slice(1)} uploaded successfully`);
+        } catch (error: any) {
+            console.error('File upload failed:', error);
+            showToast('error', `Failed to upload ${key}. Please try again.`);
+        } finally {
+            setUploading(prev => ({ ...prev, [key]: false }));
         }
     };
 
@@ -128,6 +224,7 @@ export default function MemberDetails() {
         try {
             await memberService.createMember({
                 ...form,
+                memberType: form.memberType as 'MEMBER' | 'ASSOCIATE',
                 membershipFee: Number(form.membershipFee),
                 age: Number(form.age),
                 nominee: {
@@ -299,7 +396,14 @@ export default function MemberDetails() {
                             </div>
                             <div className="pc-field">
                                 <label className="pc-label">Date Of Birth :</label>
-                                <input type="date" className="pc-input" value={form.dob} onChange={e => updateField('dob', e.target.value)} />
+                                <input
+                                    type="date"
+                                    className={`pc-input ${dobError ? 'error' : ''}`}
+                                    value={form.dob}
+                                    max={new Date().toISOString().split('T')[0]}
+                                    onChange={e => updateField('dob', e.target.value)}
+                                />
+                                {dobError && <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600 }}>{dobError}</span>}
                             </div>
                             <div className="pc-field">
                                 <label className="pc-label">Age:</label>
@@ -307,34 +411,91 @@ export default function MemberDetails() {
                             </div>
                             <div className="pc-field">
                                 <label className="pc-label">Occupation :</label>
-                                <input className="pc-input" value={form.occupation} onChange={e => updateField('occupation', e.target.value)} />
+                                <div className="pc-dropdown-container">
+                                    <input
+                                        className="pc-input"
+                                        value={form.occupation}
+                                        onChange={e => {
+                                            updateField('occupation', e.target.value.toUpperCase());
+                                            setShowOccupationList(true);
+                                        }}
+                                        onFocus={() => setShowOccupationList(true)}
+                                        onBlur={() => setTimeout(() => setShowOccupationList(false), 200)}
+                                        placeholder="Search or type occupation"
+                                    />
+                                    {showOccupationList && (
+                                        <div className="pc-dropdown-list">
+                                            {OCCUPATIONS.filter(occ =>
+                                                occ.toLowerCase().includes(form.occupation.toLowerCase())
+                                            ).length > 0 ? (
+                                                OCCUPATIONS.filter(occ =>
+                                                    occ.toLowerCase().includes(form.occupation.toLowerCase())
+                                                ).map(occ => (
+                                                    <div
+                                                        key={occ}
+                                                        className="pc-dropdown-item"
+                                                        onMouseDown={(e) => {
+                                                            e.preventDefault(); // Prevent input onBlur from firing before selection
+                                                            updateField('occupation', occ);
+                                                            setShowOccupationList(false);
+                                                        }}
+                                                    >
+                                                        {occ}
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="pc-dropdown-no-results">No matches found. Press enter to keep custom text.</div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                             <div className="pc-field">
                                 <label className="pc-label">AadharCard No. :</label>
-                                <input className="pc-input" value={form.aadharNo} onChange={e => updateField('aadharNo', e.target.value)} placeholder="Enter AdharCard no." />
+                                <input
+                                    className={`pc-input ${aadharError ? 'error' : ''}`}
+                                    value={form.aadharNo}
+                                    onChange={e => updateField('aadharNo', e.target.value.replace(/\D/g, '').slice(0, 12))}
+                                    placeholder="Enter 12 digit Aadhar No."
+                                />
+                                {aadharError && <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600 }}>{aadharError}</span>}
                             </div>
                             <div className="pc-field">
                                 <label className="pc-label">PAN No. :</label>
-                                <input className="pc-input" value={form.panNo} onChange={e => updateField('panNo', e.target.value.toUpperCase())} placeholder="ENTER PAN NO." />
+                                <input
+                                    className={`pc-input ${panError ? 'error' : ''}`}
+                                    value={form.panNo}
+                                    onChange={e => updateField('panNo', e.target.value.toUpperCase().slice(0, 10))}
+                                    placeholder="ENTER 10 DIGIT PAN NO."
+                                />
+                                {panError && <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600 }}>{panError}</span>}
                             </div>
                             <div className="pc-field">
                                 <label className="pc-label">Customer Photo :</label>
                                 <div className="pc-file-wrapper">
-                                    <label className="pc-file-btn">
-                                        <Image size={14} /> Browse...
-                                        <input type="file" className="pc-file-input" accept="image/*" onChange={e => handleFileChange(e, 'photo')} />
+                                    <label className={`pc-file-btn ${uploading.photo ? 'uploading' : ''}`}>
+                                        {uploading.photo ? (
+                                            <><Loader2 size={14} className="animate-spin" /> Uploading...</>
+                                        ) : (
+                                            <><Image size={14} /> Browse...</>
+                                        )}
+                                        <input type="file" className="pc-file-input" accept="image/*" onChange={e => handleFileChange(e, 'photo')} disabled={uploading.photo} />
                                     </label>
-                                    {previews.photo && <img src={previews.photo} alt="Preview" style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover' }} />}
+                                    {previews.photo && <img src={previews.photo} alt="Preview" style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover', opacity: uploading.photo ? 0.5 : 1 }} />}
                                 </div>
                             </div>
                             <div className="pc-field">
                                 <label className="pc-label">Customer Signature :</label>
                                 <div className="pc-file-wrapper">
-                                    <label className="pc-file-btn">
-                                        <FileText size={14} /> Browse...
-                                        <input type="file" className="pc-file-input" accept="image/*" onChange={e => handleFileChange(e, 'signature')} />
+                                    <label className={`pc-file-btn ${uploading.signature ? 'uploading' : ''}`}>
+                                        {uploading.signature ? (
+                                            <><Loader2 size={14} className="animate-spin" /> Uploading...</>
+                                        ) : (
+                                            <><FileText size={14} /> Browse...</>
+                                        )}
+                                        <input type="file" className="pc-file-input" accept="image/*" onChange={e => handleFileChange(e, 'signature')} disabled={uploading.signature} />
                                     </label>
-                                    {previews.signature && <img src={previews.signature} alt="Preview" style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover' }} />}
+                                    {previews.signature && <img src={previews.signature} alt="Preview" style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover', opacity: uploading.signature ? 0.5 : 1 }} />}
                                 </div>
                             </div>
                         </div>
@@ -482,10 +643,16 @@ export default function MemberDetails() {
                                         <option>DRIVING LICENSE</option>
                                         <option>PASSPORT</option>
                                     </select>
-                                    <label className="pc-file-btn">
-                                        <FileText size={14} /> Browse...
-                                        <input type="file" className="pc-file-input" onChange={e => handleFileChange(e, 'idProof')} />
+                                    <label className={`pc-file-btn ${uploading.idProof ? 'uploading' : ''}`}>
+                                        {uploading.idProof ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+                                        <span style={{ marginLeft: '4px' }}>{uploading.idProof ? 'Uploading...' : 'Browse...'}</span>
+                                        <input type="file" className="pc-file-input" onChange={e => handleFileChange(e, 'idProof')} disabled={uploading.idProof} />
                                     </label>
+                                    {previews.idProof && (
+                                        <div style={{ marginLeft: '8px', display: 'flex', alignItems: 'center' }}>
+                                            <CheckCircle size={14} color="#10b981" />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div className="pc-field pc-grid-double">
@@ -497,20 +664,32 @@ export default function MemberDetails() {
                                         <option>ELECTRICITY BILL</option>
                                         <option>TELEPHONE BILL</option>
                                     </select>
-                                    <label className="pc-file-btn">
-                                        <FileText size={14} /> Browse...
-                                        <input type="file" className="pc-file-input" onChange={e => handleFileChange(e, 'addressProof')} />
+                                    <label className={`pc-file-btn ${uploading.addressProof ? 'uploading' : ''}`}>
+                                        {uploading.addressProof ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+                                        <span style={{ marginLeft: '4px' }}>{uploading.addressProof ? 'Uploading...' : 'Browse...'}</span>
+                                        <input type="file" className="pc-file-input" onChange={e => handleFileChange(e, 'addressProof')} disabled={uploading.addressProof} />
                                     </label>
+                                    {previews.addressProof && (
+                                        <div style={{ marginLeft: '8px', display: 'flex', alignItems: 'center' }}>
+                                            <CheckCircle size={14} color="#10b981" />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div className="pc-field pc-grid-double">
                                 <label className="pc-label">Other Document :</label>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                                     <input className="pc-input" value={form.kyc.otherDocumentLabel} onChange={e => updateField('kyc.otherDocumentLabel', e.target.value)} placeholder="Enter Other Document." />
-                                    <label className="pc-file-btn">
-                                        <FileText size={14} /> Browse...
-                                        <input type="file" className="pc-file-input" onChange={e => handleFileChange(e, 'otherDoc')} />
+                                    <label className={`pc-file-btn ${uploading.otherDoc ? 'uploading' : ''}`}>
+                                        {uploading.otherDoc ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+                                        <span style={{ marginLeft: '4px' }}>{uploading.otherDoc ? 'Uploading...' : 'Browse...'}</span>
+                                        <input type="file" className="pc-file-input" onChange={e => handleFileChange(e, 'otherDoc')} disabled={uploading.otherDoc} />
                                     </label>
+                                    {previews.otherDoc && (
+                                        <div style={{ marginLeft: '8px', display: 'flex', alignItems: 'center' }}>
+                                            <CheckCircle size={14} color="#10b981" />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -522,7 +701,7 @@ export default function MemberDetails() {
                     <span className="pc-submit-info">* Ensure all mandatory fields marked with asterisk are filled.</span>
                     <div className="pc-submit-actions">
                         <button type="button" className="pc-btn-ghost" onClick={() => setForm(EMPTY_FORM)}><RotateCcw size={14} style={{ display: 'inline', marginRight: 6 }} /> Reset Form</button>
-                        <button type="submit" className="pc-btn-primary" disabled={isSubmitting}>
+                        <button type="submit" className="pc-btn-primary" disabled={isSubmitting || !!dobError || !!aadharError || !!panError}>
                             {isSubmitting ? 'Saving...' : <><Save size={14} /> Save Member Details</>}
                         </button>
                     </div>
