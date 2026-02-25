@@ -73,8 +73,16 @@ export function Staff() {
                 bankRoleService.getAll(),
                 branchService.getAll()
             ]);
+
+            // Fix duplicate role name from database seed
+            const fixedRolesData = rolesData.map((r: BankRole) =>
+                (r.code === 'ASSISTANT_MANAGER' && r.name === 'Branch Manager')
+                    ? { ...r, name: 'Assistant Manager' }
+                    : r
+            );
+
             setStaff(usersData);
-            setRoles(rolesData);
+            setRoles(fixedRolesData);
             setBranches(branchesData);
         } catch (error: any) {
             toast({

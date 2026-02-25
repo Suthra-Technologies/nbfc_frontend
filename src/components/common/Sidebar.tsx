@@ -16,6 +16,7 @@ import {
     Mail,
     LayoutDashboard,
     PieChart,
+    Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { demoRequestService } from "@/services/demo-request.service";
@@ -71,14 +72,14 @@ const ADMIN_MENU: MenuItem[] = [
         label: "Admin",
         path: "/admin",
         icon: ShieldCheck,
-        roles: [UserRole.SUPER_ADMIN, UserRole.BANK_ADMIN],
+        roles: [UserRole.SUPER_ADMIN, UserRole.BANK_ADMIN, UserRole.MANAGER],
         subItems: [
             {
                 label: "Administration",
                 path: "/admin/administration",
-                roles: [UserRole.BANK_ADMIN],
+                roles: [UserRole.BANK_ADMIN, UserRole.MANAGER],
                 subItems: [
-                    { label: "User Rights", path: "/bank-admin/user-rights", roles: [UserRole.BANK_ADMIN] },
+                    { label: "User Rights", path: "/bank-admin/user-rights", roles: [UserRole.BANK_ADMIN, UserRole.MANAGER] },
                     { label: "Date Lock & Unlock", path: "/bank-admin/admin/date-lock", roles: [UserRole.BANK_ADMIN] },
                 ]
             }
@@ -512,6 +513,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     const navigate = useNavigate();
     const [demoUnreadCount, setDemoUnreadCount] = useState(0);
     const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
+    const [searchTerm, setSearchTerm] = useState("");
 
     const toggleSubmenu = (label: string) => {
         setOpenSubmenus(prev => ({ ...prev, [label]: !prev[label] }));
@@ -562,7 +564,33 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
     const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
 
-    const filterMenu = (menu: MenuItem[]) => menu.filter((item) => item.roles.includes(userRole ?? ""));
+    const isSearching = searchTerm.trim().length > 0;
+
+    const filterBySearch = <T extends { label: string; subItems?: any[] }>(items: T[]): T[] => {
+        if (!isSearching) return items;
+        const lowerSearch = searchTerm.toLowerCase();
+
+        const filterItemsRecursive = (arr: any[]): any[] => {
+            return arr.map(item => {
+                const matchIt = item.label.toLowerCase().includes(lowerSearch);
+                let filteredSubItems = [];
+                if (item.subItems) {
+                    filteredSubItems = filterItemsRecursive(item.subItems);
+                }
+
+                if (matchIt) {
+                    return item;
+                } else if (filteredSubItems.length > 0) {
+                    return { ...item, subItems: filteredSubItems };
+                }
+                return null;
+            }).filter(Boolean);
+        };
+
+        return filterItemsRecursive(items);
+    };
+
+    const filterMenu = (menu: MenuItem[]) => filterBySearch(menu.filter((item) => item.roles.includes(userRole ?? "")));
 
     const coreItems = filterMenu(CORE_MENU);
     const superAdminItems = filterMenu(SUPER_ADMIN_MENU);
@@ -605,7 +633,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             )}>
                 {items.map((subItem) => {
                     const hasGrandChildren = subItem.subItems && subItem.subItems.length > 0;
-                    const isOpen = openSubmenus[subItem.label];
+                    const isOpen = isSearching || openSubmenus[subItem.label];
                     const isActive = location.pathname === subItem.path ||
                         (hasGrandChildren && isPathActiveRecursive(subItem.subItems!, location.pathname));
 
@@ -672,7 +700,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <nav className="space-y-1">
                     {items.map((item) => {
                         const hasSubItems = item.subItems && item.subItems.length > 0;
-                        const isSubmenuOpen = openSubmenus[item.label];
+                        const isSubmenuOpen = isSearching || openSubmenus[item.label];
                         const isActive = location.pathname === item.path ||
                             (hasSubItems && isPathActiveRecursive(item.subItems!, location.pathname));
 
@@ -789,6 +817,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
             {/* Menu Content */}
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                {/* Search Bar */}
+                <div className="mb-4 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input
+                        type="text"
+                        placeholder="Search menu..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 bg-slate-50 border-transparent rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#009BB0]/30 transition-shadow"
+                    />
+                </div>
                 {renderMenuItems(coreItems, "Core Interface")}
                 {renderMenuItems(superAdminItems, "Platform Control")}
                 {renderMenuItems(adminItems, "System Administration")}

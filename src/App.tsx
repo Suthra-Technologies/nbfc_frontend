@@ -75,8 +75,10 @@ function App() {
               </Route>
 
               {/* System Administration Restricted Routes */}
-              <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN]} />}>
+              <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.MANAGER]} />}>
                 <Route path="/bank-admin/user-rights" element={<UserRights />} />
+              </Route>
+              <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN]} />}>
                 <Route path="/bank-admin/admin" element={<PCPlaceholder title="System Administration" />} />
                 <Route path="/bank-admin/admin/date-lock" element={<PCPlaceholder title="Date Lock & Unlock" />} />
                 <Route path="/bank-admin/admin/audit-logs" element={<PCPlaceholder title="Bank Audit Logs" />} />

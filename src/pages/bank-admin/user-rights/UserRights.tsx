@@ -227,12 +227,20 @@ export function UserRights() {
         setIsLoadingRoles(true);
         try {
             const data = await bankRoleService.getAll();
-            setRoles(data);
+
+            // Fix duplicate role name from database seed
+            const fixedData = data.map(r =>
+                (r.code === 'ASSISTANT_MANAGER' && r.name === 'Branch Manager')
+                    ? { ...r, name: 'Assistant Manager' }
+                    : r
+            );
+
+            setRoles(fixedData);
             const init: DraftMap = {};
-            for (const r of data) init[r._id] = [...(r.permissions ?? [])];
+            for (const r of fixedData) init[r._id] = [...(r.permissions ?? [])];
             setDrafts(init);
             setOriginalDrafts(init);
-            if (data.length > 0 && !activeRoleId) setActiveRoleId(data[0]._id);
+            if (fixedData.length > 0 && !activeRoleId) setActiveRoleId(fixedData[0]._id);
         } catch {
             toast({ title: 'Error', description: 'Failed to load roles', variant: 'destructive' });
         } finally {
@@ -314,259 +322,267 @@ export function UserRights() {
     const openEdit = (u: BankUser) => { setEditingUser(u); setShowModal(true); };
 
     return (
-        <div className="ur-container animate-fade-in">
-            {/* ── Header ── */}
-            <div className="ur-header">
-                <div className="ur-header-left">
-                    <h1>Staff Management &amp; User Rights</h1>
-                    <p>Onboard staff, assign roles, and define permissions across the bank.</p>
-                    <span className="ur-header-badge"><ShieldCheck size={12} /> Role-Based Access Control</span>
-                </div>
-            </div>
-
-            {/* ── Page Tabs ── */}
-            <div className="ur-page-tabs">
-                <button className={`ur-page-tab ${activeTab === 'staff' ? 'active' : ''}`} onClick={() => setActiveTab('staff')}>
-                    <Users size={15} /> Staff Management
-                    <span className="ur-page-tab-count">{staff.length}</span>
-                </button>
-                <button className={`ur-page-tab ${activeTab === 'rights' ? 'active' : ''}`} onClick={() => setActiveTab('rights')}>
-                    <ShieldCheck size={15} /> User Rights
-                    {isDirty && <span className="ur-dirty-dot" title="Unsaved changes" />}
-                </button>
-            </div>
-
-            {/* ════════════════ STAFF MANAGEMENT TAB ════════════════ */}
-            {activeTab === 'staff' && (
-                <>
-                    <div className="ur-staff-toolbar">
-                        <div className="ur-search-wrap">
-                            <Search size={15} className="ur-search-icon" />
-                            <input className="ur-search-input" placeholder="Search by name, email or role…"
-                                value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
-                            {searchQuery && <button className="ur-search-clear" onClick={() => setSearchQuery('')}><X size={14} /></button>}
-                        </div>
-                        <button className="ur-btn-add" onClick={openAdd}>
-                            <UserPlus size={15} /> Add Staff Member
-                        </button>
+        <>
+            <div className="ur-container animate-fade-in">
+                {/* ── Header ── */}
+                <div className="ur-header">
+                    <div className="ur-header-left">
+                        <h1>Staff Management &amp; User Rights</h1>
+                        <p>Onboard staff, assign roles, and define permissions across the bank.</p>
+                        <span className="ur-header-badge"><ShieldCheck size={12} /> Role-Based Access Control</span>
                     </div>
+                </div>
 
-                    {isLoadingStaff ? (
-                        <div className="ur-loading"><div className="ur-loading-spinner" /><p style={{ fontSize: 13, fontWeight: 600 }}>Loading staff…</p></div>
-                    ) : filteredStaff.length === 0 ? (
-                        <div className="ur-empty">
-                            <Users size={40} />
-                            <p>{searchQuery ? 'No staff match your search.' : 'No staff members yet. Add your first employee!'}</p>
-                            {!searchQuery && <button className="ur-btn-add" onClick={openAdd}><UserPlus size={14} /> Add First Staff</button>}
+                {/* ── Page Tabs ── */}
+                <div className="ur-page-tabs">
+                    <button className={`ur-page-tab ${activeTab === 'staff' ? 'active' : ''}`} onClick={() => setActiveTab('staff')}>
+                        <Users size={15} /> Staff Management
+                        <span className="ur-page-tab-count">{staff.length}</span>
+                    </button>
+                    <button className={`ur-page-tab ${activeTab === 'rights' ? 'active' : ''}`} onClick={() => setActiveTab('rights')}>
+                        <ShieldCheck size={15} /> User Rights
+                        {isDirty && <span className="ur-dirty-dot" title="Unsaved changes" />}
+                    </button>
+                </div>
+
+                {/* ════════════════ STAFF MANAGEMENT TAB ════════════════ */}
+                {activeTab === 'staff' && (
+                    <>
+                        <div className="ur-staff-toolbar">
+                            <div className="ur-search-wrap">
+                                <Search size={15} className="ur-search-icon" />
+                                <input className="ur-search-input" placeholder="Search by name, email or role…"
+                                    value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                                {searchQuery && <button className="ur-search-clear" onClick={() => setSearchQuery('')}><X size={14} /></button>}
+                            </div>
+                            <button className="ur-btn-add" onClick={openAdd} disabled={isLoadingRoles}>
+                                {isLoadingRoles ? <Loader2 size={15} className="spin" /> : <UserPlus size={15} />}
+                                {isLoadingRoles ? 'Initializing...' : 'Add Staff Member'}
+                            </button>
                         </div>
-                    ) : (
-                        <div className="ur-staff-table-wrap">
-                            <table className="ur-staff-table">
-                                <thead>
-                                    <tr>
-                                        <th>Staff Member</th>
-                                        <th>Contact</th>
-                                        <th>Assigned Role</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredStaff.map(user => {
-                                        const RoleIcon = roleIcon(user.roleId?.code ?? '');
-                                        const initials = user.fullName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
-                                        return (
-                                            <tr key={user._id}>
-                                                <td>
-                                                    <div className="ur-staff-name-cell">
-                                                        <div className="ur-avatar">{initials}</div>
-                                                        <div>
-                                                            <p className="ur-staff-name">{user.fullName}</p>
-                                                            <p className="ur-staff-id">ID: {user.userId || '—'}</p>
+
+                        {isLoadingStaff ? (
+                            <div className="ur-loading"><div className="ur-loading-spinner" /><p style={{ fontSize: 13, fontWeight: 600 }}>Loading staff…</p></div>
+                        ) : filteredStaff.length === 0 ? (
+                            <div className="ur-empty">
+                                <Users size={40} />
+                                <p>{searchQuery ? 'No staff match your search.' : 'No staff members yet. Add your first employee!'}</p>
+                                {!searchQuery && (
+                                    <button className="ur-btn-add" onClick={openAdd} disabled={isLoadingRoles}>
+                                        {isLoadingRoles ? <Loader2 size={14} className="spin" /> : <UserPlus size={14} />}
+                                        {isLoadingRoles ? 'Initializing...' : 'Add First Staff'}
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="ur-staff-table-wrap">
+                                <table className="ur-staff-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Staff Member</th>
+                                            <th>Contact</th>
+                                            <th>Assigned Role</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredStaff.map(user => {
+                                            const RoleIcon = roleIcon(user.roleId?.code ?? '');
+                                            const initials = user.fullName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+                                            return (
+                                                <tr key={user._id}>
+                                                    <td>
+                                                        <div className="ur-staff-name-cell">
+                                                            <div className="ur-avatar">{initials}</div>
+                                                            <div>
+                                                                <p className="ur-staff-name">{user.fullName}</p>
+                                                                <p className="ur-staff-id">ID: {user.userId || '—'}</p>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div className="ur-staff-contact">
-                                                        <span><Mail size={12} /> {user.email}</span>
-                                                        <span><Phone size={12} /> {user.mobile || '—'}</span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    {user.roleId ? (
-                                                        <span className="ur-role-pill">
-                                                            <RoleIcon size={11} />
-                                                            {user.roleId.name}
+                                                    </td>
+                                                    <td>
+                                                        <div className="ur-staff-contact">
+                                                            <span><Mail size={12} /> {user.email}</span>
+                                                            <span><Phone size={12} /> {user.mobile || '—'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        {user.roleId ? (
+                                                            <span className="ur-role-pill">
+                                                                <RoleIcon size={11} />
+                                                                {user.roleId.name}
+                                                            </span>
+                                                        ) : <span className="ur-no-role">No role</span>}
+                                                    </td>
+                                                    <td>
+                                                        <span className={`ur-status-badge ${user.isActive ? 'active' : 'inactive'}`}>
+                                                            {user.isActive ? <CheckCircle size={11} /> : <XCircle size={11} />}
+                                                            {user.isActive ? 'Active' : 'Inactive'}
                                                         </span>
-                                                    ) : <span className="ur-no-role">No role</span>}
-                                                </td>
-                                                <td>
-                                                    <span className={`ur-status-badge ${user.isActive ? 'active' : 'inactive'}`}>
-                                                        {user.isActive ? <CheckCircle size={11} /> : <XCircle size={11} />}
-                                                        {user.isActive ? 'Active' : 'Inactive'}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <div className="ur-actions-cell">
-                                                        <button className="ur-action-icon" title="Edit" onClick={() => openEdit(user)}>
-                                                            <Edit2 size={14} />
-                                                        </button>
-                                                        <button
-                                                            className={`ur-action-icon ${user.isActive ? 'danger' : 'success'}`}
-                                                            title={user.isActive ? 'Deactivate' : 'Activate'}
-                                                            onClick={() => handleToggleActive(user)}
-                                                            disabled={togglingId === user._id}
-                                                        >
-                                                            {togglingId === user._id
-                                                                ? <Loader2 size={14} className="spin" />
-                                                                : <Power size={14} />
-                                                            }
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                                    </td>
+                                                    <td>
+                                                        <div className="ur-actions-cell">
+                                                            <button className="ur-action-icon" title="Edit" onClick={() => openEdit(user)}>
+                                                                <Edit2 size={14} />
+                                                            </button>
+                                                            <button
+                                                                className={`ur-action-icon ${user.isActive ? 'danger' : 'success'}`}
+                                                                title={user.isActive ? 'Deactivate' : 'Activate'}
+                                                                onClick={() => handleToggleActive(user)}
+                                                                disabled={togglingId === user._id}
+                                                            >
+                                                                {togglingId === user._id
+                                                                    ? <Loader2 size={14} className="spin" />
+                                                                    : <Power size={14} />
+                                                                }
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {/* ════════════════ USER RIGHTS TAB ════════════════ */}
+                {activeTab === 'rights' && (
+                    <>
+                        {isLoadingRoles ? (
+                            <div className="ur-loading"><div className="ur-loading-spinner" /><p style={{ fontSize: 13, fontWeight: 600 }}>Loading role definitions…</p></div>
+                        ) : (
+                            <>
+                                {/* Role Tabs */}
+                                <div className="ur-tabs">
+                                    {roles.map(role => {
+                                        const Icon = roleIcon(role.code);
+                                        const isActive = role._id === activeRoleId;
+                                        const hasDirty = JSON.stringify([...(drafts[role._id] ?? [])].sort()) !== JSON.stringify([...(originalDrafts[role._id] ?? [])].sort());
+                                        return (
+                                            <button key={role._id} className={`ur-tab ${isActive ? 'active' : ''}`} onClick={() => setActiveRoleId(role._id)}>
+                                                <Icon size={14} /> {role.name}
+                                                {hasDirty && <span className="ur-dirty-dot" title="Unsaved changes" />}
+                                            </button>
                                         );
                                     })}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </>
-            )}
+                                </div>
 
-            {/* ════════════════ USER RIGHTS TAB ════════════════ */}
-            {activeTab === 'rights' && (
-                <>
-                    {isLoadingRoles ? (
-                        <div className="ur-loading"><div className="ur-loading-spinner" /><p style={{ fontSize: 13, fontWeight: 600 }}>Loading role definitions…</p></div>
-                    ) : (
-                        <>
-                            {/* Role Tabs */}
-                            <div className="ur-tabs">
-                                {roles.map(role => {
-                                    const Icon = roleIcon(role.code);
-                                    const isActive = role._id === activeRoleId;
-                                    const hasDirty = JSON.stringify([...(drafts[role._id] ?? [])].sort()) !== JSON.stringify([...(originalDrafts[role._id] ?? [])].sort());
-                                    return (
-                                        <button key={role._id} className={`ur-tab ${isActive ? 'active' : ''}`} onClick={() => setActiveRoleId(role._id)}>
-                                            <Icon size={14} /> {role.name}
-                                            {hasDirty && <span className="ur-dirty-dot" title="Unsaved changes" />}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Permission Matrix */}
-                            {activeRole && (
-                                <div className="ur-card">
-                                    <div className="ur-card-header">
-                                        <div className="ur-role-badge">
-                                            <div className="ur-role-icon">{(() => { const Icon = roleIcon(activeRole.code); return <Icon size={20} />; })()}</div>
-                                            <div>
-                                                <p className="ur-role-name">{activeRole.name}</p>
-                                                <p className="ur-role-code">{activeRole.code}</p>
-                                            </div>
-                                        </div>
-                                        <span className="ur-perm-count">{activePerms.length} / {ALL_PERMISSIONS.length} permissions active</span>
-                                    </div>
-
-                                    {/* ── Assigned Staff strip ── */}
-                                    {(() => {
-                                        const assigned = staff.filter(u => u.roleId?._id === activeRole._id);
-                                        return (
-                                            <div className="ur-assigned-staff-bar">
-                                                <span className="ur-assigned-label">
-                                                    <Users size={13} />
-                                                    Assigned Staff
-                                                    <span className="ur-assigned-count">{assigned.length}</span>
-                                                </span>
-                                                <div className="ur-assigned-list">
-                                                    {assigned.length === 0 ? (
-                                                        <span className="ur-assigned-empty">No staff assigned to this role yet.</span>
-                                                    ) : (
-                                                        assigned.map(u => {
-                                                            const initials = u.fullName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
-                                                            return (
-                                                                <div key={u._id} className="ur-assigned-chip" title={u.email}>
-                                                                    <div className="ur-assigned-avatar">{initials}</div>
-                                                                    <div className="ur-assigned-info">
-                                                                        <span className="ur-assigned-name">{u.fullName}</span>
-                                                                        <span className={`ur-assigned-status ${u.isActive ? 'on' : 'off'}`}>
-                                                                            {u.isActive ? 'Active' : 'Inactive'}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        })
-                                                    )}
+                                {/* Permission Matrix */}
+                                {activeRole && (
+                                    <div className="ur-card">
+                                        <div className="ur-card-header">
+                                            <div className="ur-role-badge">
+                                                <div className="ur-role-icon">{(() => { const Icon = roleIcon(activeRole.code); return <Icon size={20} />; })()}</div>
+                                                <div>
+                                                    <p className="ur-role-name">{activeRole.name}</p>
+                                                    <p className="ur-role-code">{activeRole.code}</p>
                                                 </div>
                                             </div>
-                                        );
-                                    })()}
+                                            <span className="ur-perm-count">{activePerms.length} / {ALL_PERMISSIONS.length} permissions active</span>
+                                        </div>
 
-                                    <div className="ur-groups">
-                                        {GROUPS.map(group => {
-                                            const GroupIcon = GROUP_ICONS[group] ?? Key;
-                                            const groupPerms = ALL_PERMISSIONS.filter(p => p.group === group);
-                                            if (!groupPerms.length) return null;
+                                        {/* ── Assigned Staff strip ── */}
+                                        {(() => {
+                                            const assigned = staff.filter(u => u.roleId?._id === activeRole._id);
                                             return (
-                                                <div className="ur-group" key={group}>
-                                                    <div className="ur-group-title">
-                                                        <GroupIcon size={13} /> {group} Management
-                                                        <div className="ur-group-line" />
-                                                        <span style={{ fontSize: 10, fontWeight: 700, color: '#009BB0', whiteSpace: 'nowrap' }}>
-                                                            {groupPerms.filter(p => activePerms.includes(p.code)).length}/{groupPerms.length}
-                                                        </span>
-                                                    </div>
-                                                    <div className="ur-permissions-grid">
-                                                        {groupPerms.map(perm => {
-                                                            const enabled = activePerms.includes(perm.code);
-                                                            return (
-                                                                <div key={perm.code}
-                                                                    className={`ur-perm-row ${enabled ? 'enabled' : ''}`}
-                                                                    onClick={() => togglePermission(perm.code)}
-                                                                    role="checkbox" aria-checked={enabled} tabIndex={0}
-                                                                    onKeyDown={e => e.key === 'Enter' && togglePermission(perm.code)}>
-                                                                    <div className="ur-perm-info">
-                                                                        <span className="ur-perm-label">{perm.label}</span>
-                                                                        <span className="ur-perm-desc">{perm.description}</span>
+                                                <div className="ur-assigned-staff-bar">
+                                                    <span className="ur-assigned-label">
+                                                        <Users size={13} />
+                                                        Assigned Staff
+                                                        <span className="ur-assigned-count">{assigned.length}</span>
+                                                    </span>
+                                                    <div className="ur-assigned-list">
+                                                        {assigned.length === 0 ? (
+                                                            <span className="ur-assigned-empty">No staff assigned to this role yet.</span>
+                                                        ) : (
+                                                            assigned.map(u => {
+                                                                const initials = u.fullName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+                                                                return (
+                                                                    <div key={u._id} className="ur-assigned-chip" title={u.email}>
+                                                                        <div className="ur-assigned-avatar">{initials}</div>
+                                                                        <div className="ur-assigned-info">
+                                                                            <span className="ur-assigned-name">{u.fullName}</span>
+                                                                            <span className={`ur-assigned-status ${u.isActive ? 'on' : 'off'}`}>
+                                                                                {u.isActive ? 'Active' : 'Inactive'}
+                                                                            </span>
+                                                                        </div>
                                                                     </div>
-                                                                    <div className={`ur-toggle ${enabled ? 'on' : ''}`}>
-                                                                        <div className="ur-toggle-knob" />
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        })}
+                                                                );
+                                                            })
+                                                        )}
                                                     </div>
                                                 </div>
                                             );
-                                        })}
+                                        })()}
+
+                                        <div className="ur-groups">
+                                            {GROUPS.map(group => {
+                                                const GroupIcon = GROUP_ICONS[group] ?? Key;
+                                                const groupPerms = ALL_PERMISSIONS.filter(p => p.group === group);
+                                                if (!groupPerms.length) return null;
+                                                return (
+                                                    <div className="ur-group" key={group}>
+                                                        <div className="ur-group-title">
+                                                            <GroupIcon size={13} /> {group} Management
+                                                            <div className="ur-group-line" />
+                                                            <span style={{ fontSize: 10, fontWeight: 700, color: '#009BB0', whiteSpace: 'nowrap' }}>
+                                                                {groupPerms.filter(p => activePerms.includes(p.code)).length}/{groupPerms.length}
+                                                            </span>
+                                                        </div>
+                                                        <div className="ur-permissions-grid">
+                                                            {groupPerms.map(perm => {
+                                                                const enabled = activePerms.includes(perm.code);
+                                                                return (
+                                                                    <div key={perm.code}
+                                                                        className={`ur-perm-row ${enabled ? 'enabled' : ''}`}
+                                                                        onClick={() => togglePermission(perm.code)}
+                                                                        role="checkbox" aria-checked={enabled} tabIndex={0}
+                                                                        onKeyDown={e => e.key === 'Enter' && togglePermission(perm.code)}>
+                                                                        <div className="ur-perm-info">
+                                                                            <span className="ur-perm-label">{perm.label}</span>
+                                                                            <span className="ur-perm-desc">{perm.description}</span>
+                                                                        </div>
+                                                                        <div className={`ur-toggle ${enabled ? 'on' : ''}`}>
+                                                                            <div className="ur-toggle-knob" />
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Sticky Action Bar */}
+                                <div className="ur-action-bar">
+                                    <div className="ur-action-info">
+                                        <strong>{isDirty ? '⚠ Unsaved changes detected' : 'All changes saved'}</strong>
+                                        <span>
+                                            {isDirty
+                                                ? `You have pending permission changes for "${activeRole?.name}". Click Save to apply.`
+                                                : 'Role permissions are up-to-date with the system.'}
+                                        </span>
+                                    </div>
+                                    <div className="ur-action-btns">
+                                        <button className="ur-btn-reset" onClick={handleReset} disabled={!isDirty}><RotateCcw size={14} style={{ display: 'inline', marginRight: 6 }} />Reset</button>
+                                        <button className="ur-btn-save" onClick={handleSave} disabled={!isDirty || saving}>
+                                            {saving ? <Loader2 size={15} style={{ animation: 'spin 0.7s linear infinite' }} /> : <Save size={15} />}
+                                            {saving ? 'Saving…' : 'Save Changes'}
+                                        </button>
                                     </div>
                                 </div>
-                            )}
-
-                            {/* Sticky Action Bar */}
-                            <div className="ur-action-bar">
-                                <div className="ur-action-info">
-                                    <strong>{isDirty ? '⚠ Unsaved changes detected' : 'All changes saved'}</strong>
-                                    <span>
-                                        {isDirty
-                                            ? `You have pending permission changes for "${activeRole?.name}". Click Save to apply.`
-                                            : 'Role permissions are up-to-date with the system.'}
-                                    </span>
-                                </div>
-                                <div className="ur-action-btns">
-                                    <button className="ur-btn-reset" onClick={handleReset} disabled={!isDirty}><RotateCcw size={14} style={{ display: 'inline', marginRight: 6 }} />Reset</button>
-                                    <button className="ur-btn-save" onClick={handleSave} disabled={!isDirty || saving}>
-                                        {saving ? <Loader2 size={15} style={{ animation: 'spin 0.7s linear infinite' }} /> : <Save size={15} />}
-                                        {saving ? 'Saving…' : 'Save Changes'}
-                                    </button>
-                                </div>
-                            </div>
-                        </>
-                    )}
-                </>
-            )}
+                            </>
+                        )}
+                    </>
+                )}
+            </div>
 
             {/* ── Staff Modal ── */}
             {showModal && (
@@ -577,6 +593,6 @@ export function UserRights() {
                     onSaved={fetchStaff}
                 />
             )}
-        </div>
+        </>
     );
 }
