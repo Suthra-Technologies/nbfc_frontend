@@ -68,7 +68,7 @@ const SUPER_ADMIN_MENU: MenuItem[] = [
 
 const ADMIN_MENU: MenuItem[] = [
     {
-        label: "1. Admin",
+        label: "Admin",
         path: "/admin",
         icon: ShieldCheck,
         roles: [UserRole.SUPER_ADMIN, UserRole.BANK_ADMIN],
@@ -88,7 +88,7 @@ const ADMIN_MENU: MenuItem[] = [
 
 const PRODUCER_COMPANY_MENU: MenuItem[] = [
     {
-        label: "2. Producer Company",
+        label: "Producer Company",
         path: "/bank-admin/producer-company",
         icon: Coins,
         roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER],
@@ -191,7 +191,7 @@ const PRODUCER_COMPANY_MENU: MenuItem[] = [
 
 const PRODUCER_REPORTS_MENU: MenuItem[] = [
     {
-        label: "3. Producer Company Reports",
+        label: "Producer Company Reports",
         path: "/bank-admin/producer-company-reports",
         icon: PieChart,
         roles: [UserRole.BANK_ADMIN, UserRole.ACCOUNTANT],
@@ -244,7 +244,7 @@ const PRODUCER_REPORTS_MENU: MenuItem[] = [
 
 const LOAN_MANAGEMENT_MENU: MenuItem[] = [
     {
-        label: "4. Loan Management",
+        label: "Loan Management",
         path: "/bank-admin/loans",
         icon: Briefcase,
         roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER],
@@ -293,7 +293,7 @@ const LOAN_MANAGEMENT_MENU: MenuItem[] = [
 
 const DMS_MENU: MenuItem[] = [
     {
-        label: "5. Document Management System",
+        label: "Document Management System",
         path: "/bank-admin/dms",
         icon: FileText,
         roles: [UserRole.BANK_ADMIN, UserRole.STAFF],
@@ -321,7 +321,7 @@ const DMS_MENU: MenuItem[] = [
 
 const APPROVALS_MENU: MenuItem[] = [
     {
-        label: "6. Approvals",
+        label: "Approvals",
         path: "/bank-admin/approvals",
         icon: CalendarCheck,
         roles: [UserRole.BANK_ADMIN, UserRole.MANAGER],
@@ -333,7 +333,7 @@ const APPROVALS_MENU: MenuItem[] = [
 
 const DISBURSAL_MENU: MenuItem[] = [
     {
-        label: "7. Loan Disbursal / EMI Receipt",
+        label: "Loan Disbursal / EMI Receipt",
         path: "/bank-admin/disbursal-emi",
         icon: CreditCard,
         roles: [UserRole.BANK_ADMIN, UserRole.CASHIER],
@@ -357,7 +357,7 @@ const DISBURSAL_MENU: MenuItem[] = [
 
 const FINANCE_ACCOUNTS_MENU: MenuItem[] = [
     {
-        label: "8. Financial Accounting",
+        label: "Financial Accounting",
         path: "/bank-admin/accounting",
         icon: IndianRupee,
         roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.ACCOUNTANT],
@@ -419,7 +419,7 @@ const FINANCE_ACCOUNTS_MENU: MenuItem[] = [
 
 const COLLECTION_MENU: MenuItem[] = [
     {
-        label: "9. Collection Management System",
+        label: "Collection Management System",
         path: "/bank-admin/collection-mgmt",
         icon: Activity,
         roles: [UserRole.BANK_ADMIN, UserRole.MANAGER, UserRole.ACCOUNTANT],
@@ -446,7 +446,7 @@ const COLLECTION_MENU: MenuItem[] = [
 
 const NOTICES_MENU: MenuItem[] = [
     {
-        label: "10. Notices And Letters",
+        label: "Notices And Letters",
         path: "/bank-admin/notices-letters",
         icon: Mail,
         roles: [UserRole.BANK_ADMIN, UserRole.MANAGER],
@@ -467,7 +467,7 @@ const NOTICES_MENU: MenuItem[] = [
 
 const ANALYTICAL_REPORTS_MENU: MenuItem[] = [
     {
-        label: "11. Analytical Reports",
+        label: "Analytical Reports",
         path: "/bank-admin/analytical-reports",
         icon: LayoutDashboard,
         roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.ACCOUNTANT],
@@ -616,10 +616,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                     variant="ghost"
                                     onClick={() => toggleSubmenu(subItem.label)}
                                     className={cn(
-                                        "w-full justify-start h-9 px-3 text-xs transition-all duration-200",
+                                        "w-full justify-start h-9 px-3 text-xs transition-all duration-200 flex items-center",
                                         isActive ? "text-[#009BB0] font-bold bg-[#009BB0]/5" : "text-slate-500 hover:text-[#009BB0]"
                                     )}
                                 >
+                                    <div className={cn(
+                                        "flex-shrink-0 mr-2.5 transition-all duration-200",
+                                        level === 0
+                                            ? "w-1.5 h-1.5 rounded-full bg-current opacity-60"
+                                            : "w-1.5 h-1.5 rounded-full border-[1.5px] border-current opacity-50 bg-transparent"
+                                    )} />
                                     <span className="flex-1 text-left truncate">{subItem.label}</span>
                                     <ChevronDown className={cn(
                                         "ml-auto h-3 w-3 transition-transform duration-200",
@@ -627,16 +633,22 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                     )} />
                                 </Button>
                             ) : (
-                                <Link to={subItem.path} onClick={onClose}>
+                                <Link to={subItem.path} onClick={onClose} className="block w-full">
                                     <Button
                                         variant="ghost"
                                         className={cn(
-                                            "w-full justify-start h-9 px-3 text-xs transition-all duration-200",
+                                            "w-full justify-start h-9 px-3 text-xs transition-all duration-200 flex items-center",
                                             isActive
                                                 ? "text-[#009BB0] font-bold bg-[#009BB0]/5"
                                                 : "text-slate-500 hover:text-[#009BB0] hover:bg-[#009BB0]/5"
                                         )}
                                     >
+                                        <div className={cn(
+                                            "flex-shrink-0 mr-2.5 transition-all duration-200",
+                                            level === 0
+                                                ? "w-1.5 h-1.5 rounded-full bg-current opacity-60"
+                                                : "w-1.5 h-1.5 rounded-full border-[1.5px] border-current opacity-50 bg-transparent"
+                                        )} />
                                         <span className="truncate">{subItem.label}</span>
                                     </Button>
                                 </Link>
@@ -743,7 +755,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     return (
         <aside
             className={cn(
-                "border-r bg-white w-64 flex flex-col h-screen fixed left-0 top-0 z-50 transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.04)]",
+                "border-r bg-white w-80 flex flex-col h-screen fixed left-0 top-0 z-50 transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.04)]",
                 "animate-slide-in-left lg:translate-x-0",
                 isOpen ? "translate-x-0" : "-translate-x-full"
             )}

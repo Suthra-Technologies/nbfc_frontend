@@ -1,17 +1,18 @@
 // SuperAdminLogin.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Shield, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  AlertCircle, 
-  Loader2 
+import {
+  Shield,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/services/auth.service';
+import loginImage from '@/assets/images/user login 8.jpg';
 import './SuperAdminAuth.css';
 
 export function SuperAdminAuth() {
@@ -57,87 +58,97 @@ export function SuperAdminAuth() {
     <div className="super-admin-login-page">
       <div className="background-layer" />
 
-      <div className="login-card-wrapper">
-        <div className="login-card animate-fade-in">
-          <div className="login-header">
-            <div className="shield-wrapper">
-              <Shield size={32} strokeWidth={1.8} />
-            </div>
-            <h1>Super Admin Portal</h1>
-            <p>Restricted access — Banking Core Systems</p>
+      <div className="super-login-split-wrapper animate-fade-in">
+        <div className="login-image-side">
+          <img src={loginImage} alt="Core Systems Gateway" />
+          <div className="login-image-overlay">
+            <h2>Finware Finance Software Simplified </h2>
+            <p>Authorized access portal. Monitor and manage institutional nodes securely.</p>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="login-form">
-            {error && (
-              <div className="error-alert animate-shake">
-                <AlertCircle size={18} />
-                <span>{error}</span>
+        <div className="login-form-side">
+          <div className="login-card">
+            <div className="login-header">
+              <div className="shield-wrapper">
+                <Shield size={32} strokeWidth={1.8} />
               </div>
-            )}
-
-            <div className="form-field">
-              <label>Email</label>
-              <div className="input-wrapper">
-                <Mail className="field-icon" size={18} />
-                <input
-                  type="email"
-                  placeholder="admin@bank.in"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoFocus
-                  autoComplete="username"
-                />
-              </div>
+              <h1>Super Admin Portal</h1>
+              <p>Restricted access — Banking Core Systems</p>
             </div>
 
-            <div className="form-field">
-              <label>Passphrase</label>
-              <div className="input-wrapper">
-                <Lock className="field-icon" size={18} />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  className="toggle-password"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="submit-btn"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" />
-                  Verifying...
-                </>
-              ) : (
-                'Secure Access'
+            <form onSubmit={handleSubmit} className="login-form">
+              {error && (
+                <div className="error-alert animate-shake">
+                  <AlertCircle size={18} />
+                  <span>{error}</span>
+                </div>
               )}
-            </button>
-          </form>
 
-          <div className="security-footer">
-            <div className="security-badge">
-              <Shield size={14} />
-              <span>End-to-end encrypted</span>
+              <div className="form-field">
+                <label>Email</label>
+                <div className="input-wrapper">
+                  <Mail className="field-icon" size={18} />
+                  <input
+                    type="email"
+                    placeholder="admin@bank.in"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoFocus
+                    autoComplete="username"
+                  />
+                </div>
+              </div>
+
+              <div className="form-field">
+                <label>Passphrase</label>
+                <div className="input-wrapper">
+                  <Lock className="field-icon" size={18} />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    className="toggle-password"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  'Secure Access'
+                )}
+              </button>
+            </form>
+
+            <div className="security-footer">
+              <div className="security-badge">
+                <Shield size={14} />
+                <span>End-to-end encrypted</span>
+              </div>
+              <p className="security-note">
+                All access attempts are logged and monitored. Unauthorized use is prohibited.
+              </p>
             </div>
-            <p className="security-note">
-              All access attempts are logged and monitored. Unauthorized use is prohibited.
-            </p>
           </div>
         </div>
       </div>
