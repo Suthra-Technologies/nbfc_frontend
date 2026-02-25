@@ -163,6 +163,13 @@
     resize: vertical;
 }
 
+.pc-input::placeholder,
+.pc-textarea::placeholder {
+    color: #94a3b8;
+    opacity: 1;
+    /* Override default opacity in some browsers */
+}
+
 .pc-grid-full {
     grid-column: 1 / -1;
 }
