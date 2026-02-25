@@ -15,6 +15,7 @@ import {
 import { useTenant } from '@/hooks/useTenant';
 import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/services/auth.service';
+import loginImage from '@/assets/images/user login 8.jpg';
 import './BankAdminAuth.css';
 
 export function BankAdminAuth() {
@@ -140,97 +141,107 @@ export function BankAdminAuth() {
         );
     }
 
-    // 3. Main Login Interface
+    // 4. Main Login Interface
     return (
         <div className="bank-admin-login-container">
-            <div className="bank-login-card animate-fade-in">
-                <div className="bank-brand-header">
-                    <div className="bank-brand-logo">
-                        {bank?.logo ? (
-                            <img src={bank.logo} alt={bankName} className="w-10 h-10 object-contain" />
-                        ) : (
-                            <Building2 size={32} />
-                        )}
+            <div className="bank-login-wrapper animate-fade-in">
+                <div className="bank-login-image-side">
+                    <img src={loginImage} alt="Secure Banking Gateway" />
+                    <div className="bank-login-image-overlay">
+                        <h2>Finware Finance Software Simplified</h2>
+                        <p>Experience seamless and secure institution management with our advanced enterprise banking platform.</p>
                     </div>
-                    <h1>{bankName || 'Institution Login'}</h1>
-                    <p>Secure Operations & Management Portal</p>
                 </div>
 
-                <form onSubmit={handleSubmit}>
-                    {error && (
-                        <div className="login-error-alert animate-shake">
-                            <AlertCircle size={18} />
-                            <span>{error}</span>
+                <div className="bank-login-form-side">
+                    <div className="bank-brand-header">
+                        <div className="bank-brand-logo">
+                            {bank?.logo ? (
+                                <img src={bank.logo} alt={bankName} className="w-10 h-10 object-contain" />
+                            ) : (
+                                <Building2 size={32} />
+                            )}
                         </div>
-                    )}
-
-                    <div className="login-form-group">
-                        <label>Operator ID</label>
-                        <div className="input-wrapper">
-                            <Mail size={20} />
-                            <input
-                                type="email"
-                                placeholder="operator@bank.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                disabled={isLoading}
-                                required
-                                autoFocus
-                            />
-                        </div>
+                        <h1>{bankName || 'Institution Login'}</h1>
+                        <p>Secure Operations & Management Portal</p>
                     </div>
 
-                    <div className="login-form-group">
-                        <div className="flex justify-between items-center mb-2">
-                            <label style={{ marginBottom: 0 }}>Security Key</label>
-                            <a href="#" className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold uppercase tracking-wider">Forgot Key?</a>
-                        </div>
-                        <div className="input-wrapper">
-                            <Lock size={20} />
-                            <input
-                                type={showPassword ? 'text' : 'password'}
-                                placeholder="••••••••"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                disabled={isLoading}
-                                required
-                            />
-                            <button
-                                type="button"
-                                className="password-toggle"
-                                onClick={() => setShowPassword(!showPassword)}
-                            >
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
-                        </div>
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="bank-login-btn"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <>
-                                <Loader2 className="login-spinner" />
-                                <span>Authenticating Instance...</span>
-                            </>
-                        ) : (
-                            <>
-                                <span>Initialize Session</span>
-                                <ArrowRight size={20} />
-                            </>
+                    <form onSubmit={handleSubmit}>
+                        {error && (
+                            <div className="login-error-alert animate-shake">
+                                <AlertCircle size={18} />
+                                <span>{error}</span>
+                            </div>
                         )}
-                    </button>
-                </form>
 
-                <div className="security-footer">
-                    <p>
-                        <ShieldCheck size={14} className="text-emerald-500" />
-                        End-to-End Encrypted Node Connection
-                    </p>
-                    <div className="mt-4 text-[10px] text-slate-500 font-mono tracking-widest uppercase">
-                        NODE-ID: {bank?.subdomain || 'SCANNING...'}
+                        <div className="login-form-group">
+                            <label>Operator ID</label>
+                            <div className="input-wrapper">
+                                <Mail size={20} />
+                                <input
+                                    type="email"
+                                    placeholder="operator@bank.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    disabled={isLoading}
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+                        </div>
+
+                        <div className="login-form-group">
+                            <div className="flex justify-between items-center mb-2">
+                                <label style={{ marginBottom: 0 }}>Security Key</label>
+                                <a href="#" className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold uppercase tracking-wider">Forgot Key?</a>
+                            </div>
+                            <div className="input-wrapper">
+                                <Lock size={20} />
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    disabled={isLoading}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="password-toggle"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="bank-login-btn"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="login-spinner" />
+                                    <span>Authenticating Instance...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span>Initialize Session</span>
+                                    <ArrowRight size={20} />
+                                </>
+                            )}
+                        </button>
+                    </form>
+
+                    <div className="security-footer">
+                        <p>
+                            <ShieldCheck size={14} className="text-emerald-500" />
+                            End-to-End Encrypted Node Connection
+                        </p>
+                        <div className="mt-4 text-[10px] text-slate-500 font-mono tracking-widest uppercase">
+                            NODE-ID: {bank?.subdomain || 'SCANNING...'}
+                        </div>
                     </div>
                 </div>
             </div>

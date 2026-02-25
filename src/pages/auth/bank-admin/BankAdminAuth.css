@@ -5,7 +5,7 @@
     --bank-bg: #0f172a;
     --bank-surface: rgba(255, 255, 255, 0.03);
     --bank-border: rgba(255, 255, 255, 0.08);
-    --bank-text: #f1f5f9;
+    --bank-text: #1c1d1e;
     --bank-text-muted: #94a3b8;
 }
 
@@ -63,6 +63,89 @@
     transform: translateY(-5px);
     border-color: rgba(0, 155, 176, 0.3);
 }
+
+.bank-login-wrapper {
+    display: flex;
+    width: 100%;
+
+    max-width: 1200px;
+    height: calc(100vh - 4rem);
+    max-height: 800px;
+    background: var(--bank-surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--bank-border);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    transition: transform 0.3s ease;
+}
+
+.bank-login-wrapper:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 155, 176, 0.3);
+}
+
+.bank-login-image-side {
+    flex: 1;
+    position: relative;
+    display: none;
+}
+
+@media (min-width: 900px) {
+    .bank-login-image-side {
+        display: block;
+    }
+}
+
+.bank-login-image-side img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: left center;
+    /* 👈 This moves image focus to right */
+
+}
+
+.bank-login-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 30%, rgba(0, 0, 0, 0.9));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 3rem;
+    color: white;
+}
+
+.bank-login-image-overlay h2 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    color: white;
+}
+
+.bank-login-image-overlay p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 100%;
+    margin: 0;
+}
+
+.bank-login-form-side {
+    flex: 1;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 500px;
+    width: 100%;
+    overflow-y: auto;
+}
+
 
 .bank-brand-header {
     text-align: center;
@@ -149,7 +232,7 @@
 
 .password-toggle {
     position: absolute;
-    right: 1.25rem;
+    right: 3.4rem;
     background: none;
     border: none;
     color: var(--bank-text-muted);
