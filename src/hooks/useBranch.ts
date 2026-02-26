@@ -23,7 +23,7 @@ export const useBranch = () => {
     
     // All Branches
     branches,
-    hasMult ipleBranches: branches.length > 1,
+    hasMultipleBranches: branches.length > 1,
     branchCount: branches.length,
     
     // Actions
