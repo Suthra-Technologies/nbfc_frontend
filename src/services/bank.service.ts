@@ -16,6 +16,8 @@ export interface CreateBankDTO {
   adminEmail: string;
   adminMobile: string;
   adminPassword?: string;
+  branchName: string;
+  branchCode: string;
 }
 
 export interface Bank {
