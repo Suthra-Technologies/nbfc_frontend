@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { UserPlus, Save, RotateCcw, Image, FileText, MapPin, Phone, Users, ShieldCheck, CheckCircle, AlertCircle, Loader2, Camera, X } from 'lucide-react';
+import { UserPlus, Save, RotateCcw, Image as ImageIcon, FileText, MapPin, Phone, Users, ShieldCheck, CheckCircle, AlertCircle, Loader2, Camera, X } from 'lucide-react';
 import './producer.css';
 import { memberService } from '@/services/member.service';
 import { uploadService } from '@/services/upload.service';
@@ -101,6 +101,15 @@ export default function MemberDetails() {
     const showToast = (type: 'success' | 'error', message: string) => {
         setToast({ type, message });
         setTimeout(() => setToast(null), 4000);
+    };
+
+    // Use a callback ref to assign the stream exactly when the video element mounts
+    const videoCallbackRef = (node: HTMLVideoElement | null) => {
+        videoRef.current = node;
+        if (node && streamRef.current && node.srcObject !== streamRef.current) {
+            node.srcObject = streamRef.current;
+            node.play().catch(e => console.error('Camera play error:', e));
+        }
     };
 
     // Handle nested field updates
@@ -253,22 +262,17 @@ export default function MemberDetails() {
 
     const startCamera = async (field: string) => {
         setCaptureField(field);
-        setShowCamera(true);
         setCameraLoading(true);
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' },
+                video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
                 audio: false
             });
             streamRef.current = stream;
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-            }
+            setShowCamera(true); // mount video element AFTER stream is ready
         } catch (err) {
             console.error("Error accessing camera:", err);
             showToast('error', 'Could not access camera. Please check permissions.');
-            setShowCamera(false);
-        } finally {
             setCameraLoading(false);
         }
     };
@@ -280,23 +284,26 @@ export default function MemberDetails() {
         }
         setShowCamera(false);
         setCaptureField(null);
+        setCameraLoading(false);
     };
 
     const capturePhoto = () => {
         if (videoRef.current && canvasRef.current && captureField) {
             const video = videoRef.current;
             const canvas = canvasRef.current;
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
             const ctx = canvas.getContext('2d');
             if (ctx) {
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                // Show preview immediately via data URL
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                setPreviews(prev => ({ ...prev, [captureField]: dataUrl }));
+                stopCamera();
+                // Also upload in background
                 canvas.toBlob((blob) => {
-                    if (blob) {
-                        uploadFile(blob, captureField);
-                        stopCamera();
-                    }
-                }, 'image/jpeg', 0.82);
+                    if (blob) uploadFile(blob, captureField);
+                }, 'image/jpeg', 0.9);
             }
         }
     };
@@ -413,6 +420,102 @@ export default function MemberDetails() {
                     {toast.message}
                 </div>
             )}
+
+            {/* Camera Capture Dialog */}
+            {showCamera && (
+                <div style={{
+                    position: 'fixed', inset: 0, zIndex: 10000,
+                    background: 'rgba(0,0,0,0.75)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    backdropFilter: 'blur(4px)'
+                }}>
+                    <div style={{
+                        background: 'white', borderRadius: '12px',
+                        padding: '1.5rem', width: '480px', maxWidth: '95vw',
+                        boxShadow: '0 25px 50px rgba(0,0,0,0.3)'
+                    }}>
+                        {/* Dialog Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <div style={{ width: 32, height: 32, background: '#009BB0', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Camera size={16} color="white" />
+                                </div>
+                                <div>
+                                    <p style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
+                                        {captureField === 'photo' ? 'Take Customer Photo' : 'Capture Signature'}
+                                    </p>
+                                    <p style={{ fontSize: '0.65rem', color: '#94a3b8', margin: 0 }}>Position and click Capture</p>
+                                </div>
+                            </div>
+                            <button type="button" onClick={stopCamera} style={{ background: '#f1f5f9', border: 'none', borderRadius: '6px', padding: '0.4rem', cursor: 'pointer', color: 'rgba(100, 116, 139, 1)' }}>
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* Video Feed */}
+                        <div style={{ position: 'relative', background: '#0f172a', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem', aspectRatio: '4/3' }}>
+                            {cameraLoading && (
+                                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white', gap: '0.75rem' }}>
+                                    <Loader2 size={32} className="animate-spin" />
+                                    <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>Initializing camera...</span>
+                                </div>
+                            )}
+                            <video
+                                ref={videoCallbackRef}
+                                autoPlay
+                                playsInline
+                                muted
+                                onLoadedMetadata={() => setCameraLoading(false)}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: cameraLoading ? 0 : 1, transition: 'opacity 0.2s' }}
+                            />
+                            {/* Capture guide overlay */}
+                            {!cameraLoading && captureField === 'photo' && (
+                                <div style={{
+                                    position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                                    width: '140px', height: '170px',
+                                    border: '2px solid rgba(255,255,255,0.6)',
+                                    borderRadius: '4px',
+                                    pointerEvents: 'none'
+                                }} />
+                            )}
+                        </div>
+
+                        {/* Hidden canvas for capture */}
+                        <canvas ref={canvasRef} style={{ display: 'none' }} />
+
+                        {/* Action Buttons */}
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                            <button
+                                type="button"
+                                onClick={stopCamera}
+                                style={{
+                                    flex: 1, padding: '0.6rem', background: 'white',
+                                    border: '1px solid #e2e8f0', borderRadius: '8px',
+                                    fontSize: '0.8rem', fontWeight: 700, color: '#64748b', cursor: 'pointer'
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={capturePhoto}
+                                disabled={cameraLoading}
+                                style={{
+                                    flex: 2, padding: '0.6rem', background: cameraLoading ? '#94a3b8' : '#009BB0',
+                                    border: 'none', borderRadius: '8px',
+                                    fontSize: '0.8rem', fontWeight: 700, color: 'white', cursor: cameraLoading ? 'not-allowed' : 'pointer',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                                    boxShadow: '0 4px 12px rgba(0,155,176,0.3)'
+                                }}
+                            >
+                                <Camera size={16} />
+                                {captureField === 'photo' ? 'Capture Photo' : 'Capture Signature'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             <div className="pc-header">
                 <div className="pc-header-left">
@@ -554,38 +657,54 @@ export default function MemberDetails() {
                                 />
                                 {panError && <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600 }}>{panError}</span>}
                             </div>
-                            <div className="pc-field">
+                            <div className="pc-field" style={{ gridColumn: '1 / span 2' }}>
                                 <label className="pc-label">Customer Photo :</label>
-                                <div className="pc-file-wrapper">
-                                    <label className={`pc-file-btn ${uploading.photo ? 'uploading' : ''}`}>
-                                        {uploading.photo ? (
-                                            <><Loader2 size={14} className="animate-spin" /> Uploading...</>
+                                <div className="pc-photo-upload-area">
+                                    <div className="pc-photo-frame">
+                                        {previews.photo ? (
+                                            <img src={previews.photo} alt="Preview" />
                                         ) : (
-                                            <><Image size={14} /> Browse...</>
+                                            <div className="pc-photo-placeholder">
+                                                <ImageIcon size={28} />
+                                                <span>PHOTO</span>
+                                            </div>
                                         )}
-                                        <input type="file" className="pc-file-input" accept="image/*" onChange={e => handleFileChange(e, 'photo')} disabled={uploading.photo} />
-                                    </label>
-                                    <button type="button" className="pc-camera-btn" onClick={() => startCamera('photo')} disabled={uploading.photo}>
-                                        <Camera size={14} /> Take Photo
-                                    </button>
-                                    {previews.photo && <img src={previews.photo} alt="Preview" style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover', opacity: uploading.photo ? 0.5 : 1 }} />}
+                                        {uploading.photo && <div className="pc-photo-overlay"><Loader2 size={24} className="animate-spin" /></div>}
+                                    </div>
+                                    <div className="pc-photo-actions">
+                                        <button type="button" className="pc-action-btn primary" onClick={() => startCamera('photo')} disabled={uploading.photo}>
+                                            <Camera size={14} /> Take Photo
+                                        </button>
+                                        <label className={`pc-action-btn secondary ${uploading.photo ? 'disabled' : ''}`}>
+                                            <ImageIcon size={14} /> Browse Gallery
+                                            <input type="file" className="pc-file-input" accept="image/*" onChange={e => handleFileChange(e, 'photo')} disabled={uploading.photo} />
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="pc-field">
+                            <div className="pc-field" style={{ gridColumn: '3 / span 2' }}>
                                 <label className="pc-label">Customer Signature :</label>
-                                <div className="pc-file-wrapper">
-                                    <label className={`pc-file-btn ${uploading.signature ? 'uploading' : ''}`}>
-                                        {uploading.signature ? (
-                                            <><Loader2 size={14} className="animate-spin" /> Uploading...</>
+                                <div className="pc-photo-upload-area">
+                                    <div className="pc-sig-frame">
+                                        {previews.signature ? (
+                                            <img src={previews.signature} alt="Preview" />
                                         ) : (
-                                            <><FileText size={14} /> Browse...</>
+                                            <div className="pc-photo-placeholder">
+                                                <FileText size={28} />
+                                                <span>SIGNATURE</span>
+                                            </div>
                                         )}
-                                        <input type="file" className="pc-file-input" accept="image/*" onChange={e => handleFileChange(e, 'signature')} disabled={uploading.signature} />
-                                    </label>
-                                    <button type="button" className="pc-camera-btn" onClick={() => startCamera('signature')} disabled={uploading.signature}>
-                                        <Camera size={14} /> Capture
-                                    </button>
-                                    {previews.signature && <img src={previews.signature} alt="Preview" style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover', opacity: uploading.signature ? 0.5 : 1 }} />}
+                                        {uploading.signature && <div className="pc-photo-overlay"><Loader2 size={24} className="animate-spin" /></div>}
+                                    </div>
+                                    <div className="pc-photo-actions">
+                                        <button type="button" className="pc-action-btn primary" onClick={() => startCamera('signature')} disabled={uploading.signature}>
+                                            <Camera size={14} /> Capture
+                                        </button>
+                                        <label className={`pc-action-btn secondary ${uploading.signature ? 'disabled' : ''}`}>
+                                            <FileText size={14} /> Browse Gallery
+                                            <input type="file" className="pc-file-input" accept="image/*" onChange={e => handleFileChange(e, 'signature')} disabled={uploading.signature} />
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -657,12 +776,18 @@ export default function MemberDetails() {
                     </div>
                     <div className="pc-form">
                         <div className="pc-checkbox-group">
-                            <input type="checkbox" className="pc-checkbox" checked={form.sameAsPermanent} onChange={e => updateField('sameAsPermanent', e.target.checked)} />
+                            <input type="checkbox" className="pc-checkbox" checked={form.sameAsPermanent} onChange={e => {
+                                setForm(prev => ({
+                                    ...prev,
+                                    sameAsPermanent: e.target.checked,
+                                    correspondenceAddress: e.target.checked ? { ...prev.permanentAddress } : { ...INITIAL_ADDRESS }
+                                }));
+                            }} />
                             <label className="pc-label" style={{ margin: 0 }}>Same As Above</label>
                         </div>
                         {!form.sameAsPermanent && renderAddressFields('correspondenceAddress')}
                         {form.sameAsPermanent && (
-                            <div className="pc-grid opacity-50 pointer-events-none">
+                            <div className="opacity-50 pointer-events-none">
                                 {renderAddressFields('correspondenceAddress')}
                             </div>
                         )}
@@ -715,12 +840,21 @@ export default function MemberDetails() {
                         </div>
 
                         <div className="pc-checkbox-group">
-                            <input type="checkbox" className="pc-checkbox" checked={form.nominee.sameAsPermanent} onChange={e => updateField('nominee.sameAsPermanent', e.target.checked)} />
+                            <input type="checkbox" className="pc-checkbox" checked={form.nominee.sameAsPermanent} onChange={e => {
+                                setForm(prev => ({
+                                    ...prev,
+                                    nominee: {
+                                        ...prev.nominee,
+                                        sameAsPermanent: e.target.checked,
+                                        address: e.target.checked ? { ...prev.permanentAddress } : { ...INITIAL_ADDRESS }
+                                    }
+                                }));
+                            }} />
                             <label className="pc-label" style={{ margin: 0 }}>Same As Above</label>
                         </div>
                         {!form.nominee.sameAsPermanent && renderAddressFields('nominee.address')}
                         {form.nominee.sameAsPermanent && (
-                            <div className="pc-grid opacity-50 pointer-events-none">
+                            <div className="opacity-50 pointer-events-none">
                                 {renderAddressFields('nominee.address')}
                             </div>
                         )}

@@ -30,10 +30,19 @@ import { IntroducedDetails } from "@/pages/bank-admin/producer-company/Introduce
 import { FixedDeposits } from "@/pages/bank-admin/producer-company/FixedDeposits"
 import { RecurringDeposits } from "@/pages/bank-admin/producer-company/RecurringDeposits"
 import { Insurance } from "@/pages/bank-admin/producer-company/Insurance"
+import { SavingsCurrentCreation } from "@/pages/bank-admin/producer-company/SavingsCurrentCreation"
 // import { CashDeposit } from "@/pages/bank-admin/producer-company/CashDeposit"
 // import { Withdrawal } from "@/pages/bank-admin/producer-company/Withdrawal"
 import MemberDetails from "./pages/bank-admin/producer-company/MemberDetails";
 import { PCPlaceholder } from "@/pages/bank-admin/producer-company/PCPlaceholder"
+import { MemberWiseReport } from "@/pages/bank-admin/producer-company/reports/MemberWiseReport"
+import { MemberDetailsReport } from "@/pages/bank-admin/producer-company/reports/MemberDetailsReport"
+import Receipts from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/Receipts';
+import RDReceipt from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/RDReceipt';
+import PassbookCancellation from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/PassbookCancellation';
+import FDMonthlyPayment from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/FDMonthlyPayment';
+import TrimMobileAppReceipts from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/TrimMobileAppReceipts';
+import ShareCapitalWithdrawal from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/ShareCapitalWithdrawal';
 
 import { DashboardDispatcher } from "@/pages/dashboard/DashboardDispatcher"
 
@@ -95,46 +104,46 @@ function App() {
                   <Route path="/bank-admin/profile" element={<BankProfile />} />
                 </Route>
 
-                {/* Producer Company - Focused Administrative Routes */}
-                <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER]} />}>
-                  <Route path="/bank-admin/producer-company" element={<PCPlaceholder title="Producer Company Operations" />} />
-                  <Route path="/bank-admin/producer-company/member-details" element={<MemberDetails />} />
-                  <Route path="/bank-admin/producer-company/share-capital" element={<ShareCapital />} />
-                  <Route path="/bank-admin/producer-company/introduced-details" element={<IntroducedDetails />} />
-                  <Route path="/bank-admin/producer-company/bank-creation" element={<PCPlaceholder title="Savings/Current Account Creation" />} />
-                  <Route path="/bank-admin/producer-company/fixed-deposits" element={<FixedDeposits />} />
-                  <Route path="/bank-admin/producer-company/recurring-deposits" element={<RecurringDeposits />} />
-                  <Route path="/bank-admin/producer-company/insurance" element={<Insurance />} />
-                  <Route path="/bank-admin/producer-company/group-entry" element={<PCPlaceholder title="Group Entry" />} />
-                  <Route path="/bank-admin/producer-company/surrenders" element={<PCPlaceholder title="Surrenders & Maturities" />} />
-                  <Route path="/bank-admin/producer-company/passbook" element={<PCPlaceholder title="Passbook & Regeneration" />} />
-                  <Route path="/bank-admin/producer-company/bonds" element={<PCPlaceholder title="Share & Bonds Prints" />} />
+              {/* Producer Company - Focused Administrative Routes */}
+              <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER]} />}>
+                <Route path="/bank-admin/producer-company" element={<PCPlaceholder title="Producer Company Operations" />} />
+                <Route path="/bank-admin/producer-company/member-details" element={<MemberDetails />} />
+                <Route path="/bank-admin/producer-company/share-capital" element={<ShareCapital />} />
+                <Route path="/bank-admin/producer-company/introduced-details" element={<IntroducedDetails />} />
+                <Route path="/bank-admin/producer-company/bank-creation" element={<PCPlaceholder title="Savings/Current Account Creation" />} />
+                <Route path="/bank-admin/producer-company/fixed-deposits" element={<FixedDeposits />} />
+                <Route path="/bank-admin/producer-company/recurring-deposits" element={<RecurringDeposits />} />
+                <Route path="/bank-admin/producer-company/insurance" element={<Insurance />} />
+                <Route path="/bank-admin/producer-company/group-entry" element={<PCPlaceholder title="Group Entry" />} />
+                <Route path="/bank-admin/producer-company/surrenders" element={<PCPlaceholder title="Surrenders & Maturities" />} />
+                <Route path="/bank-admin/producer-company/passbook" element={<PCPlaceholder title="Passbook & Regeneration" />} />
+                <Route path="/bank-admin/producer-company/bonds" element={<PCPlaceholder title="Share & Bonds Prints" />} />
 
-                  {/* PC Cash/Receipts for Bank Admin, Manager, Cashier */}
-                  <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.MANAGER, UserRole.CASHIER]} />}>
-                    <Route path="/bank-admin/producer-company/cash-operations" element={<PCPlaceholder title="Cash Deposit / Withdrawal" />} />
-                    <Route path="/bank-admin/producer-company/receipts" element={<PCPlaceholder title="Receipts & Vouchers" />} />
-                    <Route path="/bank-admin/producer-company/rd-receipt" element={<PCPlaceholder title="Recurring Deposit Receipt" />} />
-                    <Route path="/bank-admin/producer-company/passbook-cancel" element={<PCPlaceholder title="Passbook Cancellation" />} />
-                    <Route path="/bank-admin/producer-company/fd-monthly" element={<PCPlaceholder title="FD Monthly Payment" />} />
-                    <Route path="/bank-admin/producer-company/app-receipts" element={<PCPlaceholder title="Trim or Mobile App Receipts" />} />
-                    <Route path="/bank-admin/producer-company/share-withdrawal" element={<PCPlaceholder title="Share Capital Withdrawal" />} />
-                    <Route path="/bank-admin/producer-company/bonds/print" element={<PCPlaceholder title="Bonds Print" />} />
-                    <Route path="/bank-admin/producer-company/bonds/duplicate" element={<PCPlaceholder title="Duplicate Bonds Print" />} />
-                    <Route path="/bank-admin/producer-company/cash-deposit" element={<PCPlaceholder title="Cash Deposit" />} />
-                    <Route path="/bank-admin/producer-company/withdrawal" element={<PCPlaceholder title="Withdrawal" />} />
-                  </Route>
+                {/* PC Cash/Receipts for Bank Admin, Manager, Cashier */}
+                <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.MANAGER, UserRole.CASHIER]} />}>
+                  <Route path="/bank-admin/producer-company/cash-operations" element={<PCPlaceholder title="Cash Deposit / Withdrawal" />} />
+                  <Route path="/bank-admin/producer-company/receipts" element={<PCPlaceholder title="Receipts & Vouchers" />} />
+                  <Route path="/bank-admin/producer-company/rd-receipt" element={<PCPlaceholder title="Recurring Deposit Receipt" />} />
+                  <Route path="/bank-admin/producer-company/passbook-cancel" element={<PCPlaceholder title="Passbook Cancellation" />} />
+                  <Route path="/bank-admin/producer-company/fd-monthly" element={<PCPlaceholder title="FD Monthly Payment" />} />
+                  <Route path="/bank-admin/producer-company/app-receipts" element={<PCPlaceholder title="Trim or Mobile App Receipts" />} />
+                  <Route path="/bank-admin/producer-company/share-withdrawal" element={<PCPlaceholder title="Share Capital Withdrawal" />} />
+                  <Route path="/bank-admin/producer-company/bonds/print" element={<PCPlaceholder title="Bonds Print" />} />
+                  <Route path="/bank-admin/producer-company/bonds/duplicate" element={<PCPlaceholder title="Duplicate Bonds Print" />} />
+                  <Route path="/bank-admin/producer-company/cash-deposit" element={<PCPlaceholder title="Cash Deposit" />} />
+                  <Route path="/bank-admin/producer-company/withdrawal" element={<PCPlaceholder title="Withdrawal" />} />
+                </Route>
 
-                  {/* PC Reports for Bank Admin, Accountant */}
-                  <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.ACCOUNTANT]} />}>
-                    <Route path="/bank-admin/reports/producer/members" element={<PCPlaceholder title="PC Member Reports" />} />
-                    <Route path="/bank-admin/reports/producer/members/wise" element={<PCPlaceholder title="Member Wise Details Report" />} />
-                    <Route path="/bank-admin/reports/producer/members/details" element={<PCPlaceholder title="Member Details Report" />} />
-                    <Route path="/bank-admin/reports/producer/members/search" element={<PCPlaceholder title="Member Details Search" />} />
-                    <Route path="/bank-admin/reports/producer/members/group" element={<PCPlaceholder title="Group Details Report" />} />
-                    <Route path="/bank-admin/reports/producer/members/statement" element={<PCPlaceholder title="Member Account Statement" />} />
-                    <Route path="/bank-admin/reports/producer/members/maturity" element={<PCPlaceholder title="Monthly Maturity Details" />} />
-                    <Route path="/bank-admin/reports/producer/members/passbook-cancel" element={<PCPlaceholder title="Passbook Cancellation" />} />
+                {/* PC Reports for Bank Admin, Accountant */}
+                <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.ACCOUNTANT]} />}>
+                  <Route path="/bank-admin/reports/producer/members" element={<PCPlaceholder title="PC Member Reports" />} />
+                  <Route path="/bank-admin/reports/producer/members/wise" element={<PCPlaceholder title="Member Wise Details Report" />} />
+                  <Route path="/bank-admin/reports/producer/members/details" element={<PCPlaceholder title="Member Details Report" />} />
+                  <Route path="/bank-admin/reports/producer/members/search" element={<PCPlaceholder title="Member Details Search" />} />
+                  <Route path="/bank-admin/reports/producer/members/group" element={<PCPlaceholder title="Group Details Report" />} />
+                  <Route path="/bank-admin/reports/producer/members/statement" element={<PCPlaceholder title="Member Account Statement" />} />
+                  <Route path="/bank-admin/reports/producer/members/maturity" element={<PCPlaceholder title="Monthly Maturity Details" />} />
+                  <Route path="/bank-admin/reports/producer/members/passbook-cancel" element={<PCPlaceholder title="Passbook Cancellation" />} />
 
                     <Route path="/bank-admin/reports/producer/deposits" element={<PCPlaceholder title="PC Deposit Reports" />} />
                     <Route path="/bank-admin/reports/producer/deposits/rd-installments" element={<PCPlaceholder title="RD Instalments Report" />} />
