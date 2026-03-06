@@ -5,10 +5,11 @@ import {
     ChevronDown,
     Search,
     Building2,
-    Users,
     Plus,
     Menu,
+    Calculator,
 } from "lucide-react";
+import { EMICalculator } from "@/components/banking/EMICalculator";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,6 +91,8 @@ export function Header({ onMenuClick }: HeaderProps) {
         return () => clearInterval(interval);
     }, [isSuperAdmin]);
 
+    const [isEmiOpen, setIsEmiOpen] = useState(false);
+
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchQuery.trim()) {
@@ -124,11 +127,11 @@ export function Header({ onMenuClick }: HeaderProps) {
     } else if (isManager) {
         actionButton = (
             <Button
-                onClick={() => navigate("/manager/customers/new")}
+                onClick={() => setIsEmiOpen(true)}
                 className="gap-1.5 bg-[#009BB0] hover:bg-[#008da0] text-white shadow-sm transition-all"
             >
-                <Users className="h-4 w-4" />
-                Add Customer
+                <Calculator className="h-4 w-4" />
+                EMI Calculator
             </Button>
         );
     }
@@ -212,7 +215,11 @@ export function Header({ onMenuClick }: HeaderProps) {
                         )}
                     </Button>
 
+
+
                     {actionButton}
+
+                    <EMICalculator open={isEmiOpen} onOpenChange={setIsEmiOpen} />
 
                     {/* User Menu */}
                     <DropdownMenu>
