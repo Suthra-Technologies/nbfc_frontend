@@ -43,6 +43,9 @@ import PassbookCancellation from './pages/bank-admin/producer-company/ReceiptsAn
 import FDMonthlyPayment from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/FDMonthlyPayment';
 import TrimMobileAppReceipts from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/TrimMobileAppReceipts';
 import ShareCapitalWithdrawal from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/ShareCapitalWithdrawal';
+import DOManagement from './pages/bank-admin/loan-management/client-master/DOManagement';
+import ApplicationForm from './pages/bank-admin/loan-management/loan-management/ApplicationForm';
+import ApplicantDetails from './pages/bank-admin/loan-management/loan-management/ApplicantDetails';
 
 import { DashboardDispatcher } from "@/pages/dashboard/DashboardDispatcher"
 
@@ -165,9 +168,12 @@ function App() {
               {/* Loan Management Lifecycle - Admin, Manager, etc. */}
               <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER]} />}>
                 <Route path="/bank-admin/loans" element={<Loans />} />
+                <Route path="/bank-admin/loans/application-form" element={<ApplicationForm />} />
+                <Route path="/bank-admin/loans/applicant-details" element={<ApplicantDetails />} />
                 <Route path="/bank-admin/loans/applications" element={<PCPlaceholder title="Loan Applications" />} />
                 <Route path="/bank-admin/loans/applicants" element={<PCPlaceholder title="Applicant Registry" />} />
                 <Route path="/bank-admin/loans/guarantors" element={<PCPlaceholder title="Guarantor Details" />} />
+                <Route path="/bank-admin/loans/do-management" element={<DOManagement />} />
                 <Route path="/bank-admin/loans/vehicle-mgmt" element={<PCPlaceholder title="DO & Vehicle Management" />} />
                 <Route path="/bank-admin/loans/approvals" element={<PCPlaceholder title="Approvals & Processing" />} />
                 <Route path="/bank-admin/loans/disbursal" element={<PCPlaceholder title="Disbursal / EMI Receipt" />} />

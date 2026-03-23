@@ -253,17 +253,17 @@ const LOAN_MANAGEMENT_MENU: MenuItem[] = [
             {
                 label: "Client Masters",
                 path: "/bank-admin/loans/masters",
-                roles: [UserRole.BANK_ADMIN],
+                roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER],
                 subItems: [
-                    { label: "DO Management", path: "/bank-admin/loans/do-mgmt", roles: [UserRole.BANK_ADMIN] },
+                    { label: "DO Management", path: "/bank-admin/loans/do-management", roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER] },
                 ]
             },
             {
                 label: "Loan Management",
                 path: "/bank-admin/loans/mgmt",
-                roles: [UserRole.BANK_ADMIN],
+                roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER],
                 subItems: [
-                    { label: "Application Form", path: "/bank-admin/loans/app-form", roles: [UserRole.BANK_ADMIN] },
+                    { label: "Application Form", path: "/bank-admin/loans/application-form", roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER] },
                     { label: "Applicant Details", path: "/bank-admin/loans/applicant-details", roles: [UserRole.BANK_ADMIN] },
                     { label: "CoApplicant Details", path: "/bank-admin/loans/co-applicant", roles: [UserRole.BANK_ADMIN] },
                     { label: "Savings & EMI Receipt", path: "/bank-admin/loans/emi-receipt", roles: [UserRole.BANK_ADMIN] },
