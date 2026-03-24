@@ -343,19 +343,19 @@ const DISBURSAL_MENU: MenuItem[] = [
         icon: CreditCard,
         roles: [UserRole.BANK_ADMIN, UserRole.CASHIER],
         subItems: [
-            {
-                label: "Daily Entries",
-                path: "/bank-admin/disbursal-emi/section",
-                roles: [UserRole.BANK_ADMIN],
-                subItems: [
-                    { label: "Loan Disbursal / EMI Receipt", path: "/bank-admin/loans/disbursal", roles: [UserRole.BANK_ADMIN] },
-                    { label: "Processing Charges Receipt", path: "/bank-admin/loans/processing-receipt", roles: [UserRole.BANK_ADMIN] },
-                    { label: "Loan Disbursal", path: "/bank-admin/loans/disburse", roles: [UserRole.BANK_ADMIN] },
-                    { label: "EMI Date Change", path: "/bank-admin/loans/emi-date-change", roles: [UserRole.BANK_ADMIN] },
-                    { label: "EMI Calculator", path: "/bank-admin/loans/calculator", roles: [UserRole.BANK_ADMIN] },
-                    { label: "Pre Closure", path: "/bank-admin/loans/pre-closure", roles: [UserRole.BANK_ADMIN] },
-                ]
-            }
+            // {
+            // label: "Daily Entries",
+            // path: "/bank-admin/disbursal-emi/section",
+            // roles: [UserRole.BANK_ADMIN],
+            // subItems: [
+            // { label: "Loan Disbursal / EMI Receipt", path: "", roles: [UserRole.BANK_ADMIN] },
+            { label: "Processing Charges Receipt", path: "/bank-admin/loan-disbursal-emi-receipt-charges", roles: [UserRole.BANK_ADMIN] },
+            { label: "Loan Disbursal", path: "/bank-admin/loan-disbursal-emi-receipt", roles: [UserRole.BANK_ADMIN] },
+            { label: "EMI Date Change", path: "/bank-admin/loan-disbursal-emi-date-change", roles: [UserRole.BANK_ADMIN] },
+            { label: "EMI Calculator", path: "/bank-admin/loan-disbursal-emi-calculator", roles: [UserRole.BANK_ADMIN] },
+            { label: "Pre Closure", path: "/bank-admin/loan-disbursal-pre-closure", roles: [UserRole.BANK_ADMIN] },
+            // ]
+            // }
         ]
     }
 ];
