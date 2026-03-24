@@ -497,3 +497,9 @@
     cursor: not-allowed;
     transform: none !important;
 }
+
+/* Notifications & Alerts */
+.pc-alert {
+    z-index: 9999 !important;
+    pointer-events: auto;
+}

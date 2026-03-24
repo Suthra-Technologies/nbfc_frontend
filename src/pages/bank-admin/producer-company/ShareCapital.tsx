@@ -68,8 +68,8 @@ export function ShareCapital() {
                                 <label className="pc-label">Membership No. / ID *</label>
                                 <select className="pc-select" value={form.membershipId} onChange={e => set('membershipId', e.target.value)} required>
                                     <option value="">Select</option>
-                                    <option value="MBR-001">MBR-001</option>
-                                    <option value="MBR-002">MBR-002</option>
+                                    <option value="MBR-001">MBR-0012</option>
+                                    <option value="MBR-002">MBR-0013</option>
                                 </select>
                             </div>
                             <div className="pc-field">

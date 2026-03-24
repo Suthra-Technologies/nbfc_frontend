@@ -43,6 +43,16 @@ import PassbookCancellation from './pages/bank-admin/producer-company/ReceiptsAn
 import FDMonthlyPayment from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/FDMonthlyPayment';
 import TrimMobileAppReceipts from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/TrimMobileAppReceipts';
 import ShareCapitalWithdrawal from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/ShareCapitalWithdrawal';
+import MaturityBonds from './pages/bank-admin/producer-company/surrenders/MaturityBonds';
+import CustomerPayment from './pages/bank-admin/producer-company/surrenders/CustomerPayment';
+import FDRenewal from './pages/bank-admin/producer-company/surrenders/FDRenewal';
+import EditCustomer from './pages/bank-admin/producer-company/EditCustomer';
+import ChangePassword from './pages/bank-admin/producer-company/ChangePassword';
+
+
+
+
+
 
 import { DashboardDispatcher } from "@/pages/dashboard/DashboardDispatcher"
 
@@ -116,8 +126,18 @@ function App() {
                 <Route path="/bank-admin/producer-company/insurance" element={<Insurance />} />
                 <Route path="/bank-admin/producer-company/group-entry" element={<PCPlaceholder title="Group Entry" />} />
                 <Route path="/bank-admin/producer-company/surrenders" element={<PCPlaceholder title="Surrenders & Maturities" />} />
+                <Route path="/bank-admin/producer-company/surrenders/bonds" element={<MaturityBonds />} />
+                <Route path="/bank-admin/producer-company/surrenders/payment" element={<CustomerPayment />} />
+                <Route path="/bank-admin/producer-company/surrenders/renewal" element={<FDRenewal />} />
+
+
+
                 <Route path="/bank-admin/producer-company/passbook" element={<PCPlaceholder title="Passbook & Regeneration" />} />
                 <Route path="/bank-admin/producer-company/bonds" element={<PCPlaceholder title="Share & Bonds Prints" />} />
+                <Route path="/bank-admin/producer-company/customer-edit" element={<EditCustomer />} />
+                <Route path="/bank-admin/producer-company/password-change" element={<ChangePassword />} />
+
+
 
                 {/* PC Cash/Receipts for Bank Admin, Manager, Cashier */}
                 <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.MANAGER, UserRole.CASHIER]} />}>

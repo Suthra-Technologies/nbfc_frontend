@@ -751,7 +751,7 @@ export default function MemberDetails() {
                     </div>
                 </div>
 
-                {/* Permanent Address */}
+                {/* Permanent Address c*/}
                 <div className="pc-card">
                     <div className="pc-card-header">
                         <div className="pc-card-icon"><MapPin size={18} /></div>
