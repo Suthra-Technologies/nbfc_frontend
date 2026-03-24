@@ -60,6 +60,10 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { initializeTenant } from "@/store/tenantStore"
 import { UserRole } from "@/constants/roles"
 import ErrorBoundary from "@/components/common/ErrorBoundary"
+import DMS from "./pages/bank-admin/DMS/DMS";
+import OnlineDO from "./pages/bank-admin/DMS/online";
+import PrintDO from "./pages/bank-admin/DMS/duplicate-online";
+
 
 
 function App() {
@@ -197,7 +201,9 @@ function App() {
                   <Route path="/bank-admin/loans/disbursal" element={<PCPlaceholder title="Disbursal / EMI Receipt" />} />
                   <Route path="/bank-admin/loans/pre-closure" element={<PCPlaceholder title="Loan Pre-Closure" />} />
                   <Route path="/bank-admin/loans/notices" element={<PCPlaceholder title="Notices & Letters" />} />
-                  <Route path="/bank-admin/loans/dms" element={<PCPlaceholder title="Document Management (DMS)" />} />
+                  <Route path="/bank-admin/dms/extra-info" element={<DMS />} />
+                  <Route path="/bank-admin/dms/online-do" element={<OnlineDO />} />
+                  <Route path="/bank-admin/dms/reports/duplicate-do" element={<PrintDO />} />
                   <Route path="/bank-admin/loans/dms/tx" element={<PCPlaceholder title="Document Transactions" />} />
                   <Route path="/bank-admin/loans/calculator" element={<PCPlaceholder title="EMI Calculator" />} />
                   <Route path="/bank-admin/loans/gold-loan" element={<PCPlaceholder title="Gold Loan Performance" />} />
