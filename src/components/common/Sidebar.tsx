@@ -166,7 +166,11 @@ const PRODUCER_COMPANY_MENU: MenuItem[] = [
                 path: "/bank-admin/producer-company/group-entry-section",
                 roles: [UserRole.BANK_ADMIN, UserRole.STAFF],
                 subItems: [
-                    { label: "Group Entry", path: "/bank-admin/producer-company/group-entry", roles: [UserRole.BANK_ADMIN] },
+                    {
+                        label: "Single/Bulk Entry",
+                        path: "/bank-admin/producer-company/group-entry",
+                        roles: [UserRole.BANK_ADMIN],
+                    },
                 ]
             },
             {
@@ -259,7 +263,7 @@ const LOAN_MANAGEMENT_MENU: MenuItem[] = [
                 ]
             },
             {
-                label: "Loan Management",
+                label: "Operations",
                 path: "/bank-admin/loans/mgmt",
                 roles: [UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER],
                 subItems: [
@@ -340,7 +344,7 @@ const DISBURSAL_MENU: MenuItem[] = [
         roles: [UserRole.BANK_ADMIN, UserRole.CASHIER],
         subItems: [
             {
-                label: "Loan Disbursal / EMI Receipt",
+                label: "Daily Entries",
                 path: "/bank-admin/disbursal-emi/section",
                 roles: [UserRole.BANK_ADMIN],
                 subItems: [
@@ -453,7 +457,7 @@ const NOTICES_MENU: MenuItem[] = [
         roles: [UserRole.BANK_ADMIN, UserRole.MANAGER],
         subItems: [
             {
-                label: "Notices And Letters",
+                label: "Templates",
                 path: "/bank-admin/notices-letters/section",
                 roles: [UserRole.BANK_ADMIN],
                 subItems: [
@@ -628,10 +632,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     const renderSubItems = (items: SubMenuItem[], level: number = 0) => {
         return (
             <div className={cn(
-                "mt-1 space-y-1 border-l-2 border-slate-100 pl-2",
-                level === 0 ? "ml-9" : "ml-4"
+                "mt-0.5 space-y-0.5 pl-4",
+                level === 0 ? "ml-6" : "ml-3"
             )}>
-                {items.map((subItem) => {
+                {items.map((subItem, index) => {
                     const hasGrandChildren = subItem.subItems && subItem.subItems.length > 0;
                     const isOpen = isSearching || openSubmenus[subItem.label];
                     const isActive = location.pathname === subItem.path ||
@@ -644,15 +648,19 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                     variant="ghost"
                                     onClick={() => toggleSubmenu(subItem.label)}
                                     className={cn(
-                                        "w-full justify-start h-9 px-3 text-xs transition-all duration-200 flex items-center",
+                                        "w-full justify-start h-8 px-2 text-[11px] transition-all duration-200 flex items-center relative",
                                         isActive ? "text-[#009BB0] font-bold bg-[#009BB0]/5" : "text-slate-500 hover:text-[#009BB0]"
                                     )}
                                 >
+                                    <div className="absolute -left-4 top-0 h-1/2 w-4 border-l border-b border-slate-400 rounded-bl-lg" />
+                                    {index !== items.length - 1 && (
+                                        <div className="absolute -left-4 top-1/2 h-1/2 border-l border-slate-400" />
+                                    )}
                                     <div className={cn(
-                                        "flex-shrink-0 mr-2.5 transition-all duration-200",
+                                        "flex-shrink-0 mr-2 transition-all duration-200",
                                         level === 0
                                             ? "w-1.5 h-1.5 rounded-full bg-current opacity-60"
-                                            : "w-1.5 h-1.5 rounded-full border-[1.5px] border-current opacity-50 bg-transparent"
+                                            : "w-1 h-1 rounded-full border-[1.5px] border-current opacity-50 bg-transparent"
                                     )} />
                                     <span className="flex-1 text-left truncate">{subItem.label}</span>
                                     <ChevronDown className={cn(
@@ -665,17 +673,21 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                     <Button
                                         variant="ghost"
                                         className={cn(
-                                            "w-full justify-start h-9 px-3 text-xs transition-all duration-200 flex items-center",
+                                            "w-full justify-start h-8 px-2 text-[11px] transition-all duration-200 flex items-center relative",
                                             isActive
                                                 ? "text-[#009BB0] font-bold bg-[#009BB0]/5"
                                                 : "text-slate-500 hover:text-[#009BB0] hover:bg-[#009BB0]/5"
                                         )}
                                     >
+                                        <div className="absolute -left-4 top-0 h-1/2 w-4 border-l border-b border-slate-400 rounded-bl-lg" />
+                                        {index !== items.length - 1 && (
+                                            <div className="absolute -left-4 top-1/2 h-1/2 border-l border-slate-400" />
+                                        )}
                                         <div className={cn(
-                                            "flex-shrink-0 mr-2.5 transition-all duration-200",
+                                            "flex-shrink-0 mr-2 transition-all duration-200",
                                             level === 0
                                                 ? "w-1.5 h-1.5 rounded-full bg-current opacity-60"
-                                                : "w-1.5 h-1.5 rounded-full border-[1.5px] border-current opacity-50 bg-transparent"
+                                                : "w-1 h-1 rounded-full border-[1.5px] border-current opacity-50 bg-transparent"
                                         )} />
                                         <span className="truncate">{subItem.label}</span>
                                     </Button>
@@ -689,15 +701,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         );
     };
 
-    const renderMenuItems = (items: MenuItem[], title: string) => {
+    const renderMenuItems = (items: MenuItem[]) => {
         if (items.length === 0) return null;
 
         return (
-            <div className="mb-6 animate-fade-in">
-                <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
-                    {title}
-                </p>
-                <nav className="space-y-1">
+            <div className="mb-2 animate-fade-in">
+                <nav className="space-y-0.5">
                     {items.map((item) => {
                         const hasSubItems = item.subItems && item.subItems.length > 0;
                         const isSubmenuOpen = isSearching || openSubmenus[item.label];
@@ -714,7 +723,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                         variant="ghost"
                                         onClick={() => toggleSubmenu(item.label)}
                                         className={cn(
-                                            "group relative w-full justify-start h-11 px-3 transition-all duration-250 ease-out",
+                                            "group relative w-full justify-start h-9 px-3 transition-all duration-250 ease-out",
                                             isActive
                                                 ? "bg-[#009BB0]/10 text-[#009BB0] border-r-4 border-[#009BB0] rounded-r-none shadow-sm"
                                                 : "text-slate-600 hover:bg-[#009BB0]/5 hover:text-[#009BB0] hover:shadow-sm hover:translate-x-1"
@@ -728,7 +737,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                                     : "group-hover:scale-110 group-hover:text-[#009BB0]"
                                             )}
                                         />
-                                        <span className="font-medium text-sm flex-1 text-left truncate">{item.label}</span>
+                                        <span className="font-semibold text-xs flex-1 text-left truncate">{item.label}</span>
                                         <ChevronDown className={cn(
                                             "ml-auto h-4 w-4 transition-transform duration-200",
                                             isSubmenuOpen && "rotate-180"
@@ -742,7 +751,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                         <Button
                                             variant="ghost"
                                             className={cn(
-                                                "group relative w-full justify-start h-11 px-3 transition-all duration-250 ease-out",
+                                                "group relative w-full justify-start h-9 px-3 transition-all duration-250 ease-out",
                                                 isActive
                                                     ? "bg-[#009BB0]/10 text-[#009BB0] border-r-4 border-[#009BB0] rounded-r-none shadow-sm"
                                                     : "text-slate-600 hover:bg-[#009BB0]/5 hover:text-[#009BB0] hover:shadow-sm hover:translate-x-1"
@@ -756,7 +765,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                                         : "group-hover:scale-110 group-hover:text-[#009BB0]"
                                                 )}
                                             />
-                                            <span className="font-medium text-sm truncate">{item.label}</span>
+                                            <span className="font-semibold text-xs truncate">{item.label}</span>
 
                                             {badgeCount > 0 && (
                                                 <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-[#F18422] text-[10px] font-bold text-white px-1.5 shadow-sm">
@@ -783,7 +792,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     return (
         <aside
             className={cn(
-                "border-r bg-white w-80 flex flex-col h-screen fixed left-0 top-0 z-50 transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.04)]",
+                "border-r bg-white w-72 flex flex-col h-screen fixed left-0 top-0 z-50 transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.04)]",
                 "animate-slide-in-left lg:translate-x-0",
                 isOpen ? "translate-x-0" : "-translate-x-full"
             )}
@@ -815,7 +824,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </Button>
             </div>
 
-            {/* Menu Content */}
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                 {/* Search Bar */}
                 <div className="mb-6 relative group">
@@ -830,19 +838,19 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                         className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100/50 rounded-xl text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#009BB0]/10 focus:border-[#009BB0]/30 transition-all shadow-inner"
                     />
                 </div>
-                {renderMenuItems(coreItems, "Core Interface")}
-                {renderMenuItems(superAdminItems, "Platform Control")}
-                {renderMenuItems(adminItems, "System Administration")}
-                {renderMenuItems(pcItems, "Producer Company Operations")}
-                {renderMenuItems(pcReportItems, "Producer Company Reports")}
-                {renderMenuItems(loanItems, "Loan Management")}
-                {renderMenuItems(dmsItems, "Document Management")}
-                {renderMenuItems(approvalItems, "Approvals")}
-                {renderMenuItems(disbursalItems, "Loan Disbursal / EMI")}
-                {renderMenuItems(financeItems, "Financial Accounting")}
-                {renderMenuItems(collectionItems, "Collection Management")}
-                {renderMenuItems(noticeItems, "Notices And Letters")}
-                {renderMenuItems(analyticalItems, "Analytical Reports")}
+                {renderMenuItems(coreItems)}
+                {renderMenuItems(superAdminItems)}
+                {renderMenuItems(adminItems)}
+                {renderMenuItems(pcItems)}
+                {renderMenuItems(pcReportItems)}
+                {renderMenuItems(loanItems)}
+                {renderMenuItems(dmsItems)}
+                {renderMenuItems(approvalItems)}
+                {renderMenuItems(disbursalItems)}
+                {renderMenuItems(financeItems)}
+                {renderMenuItems(collectionItems)}
+                {renderMenuItems(noticeItems)}
+                {renderMenuItems(analyticalItems)}
             </div>
 
             {/* Footer / User Info */}

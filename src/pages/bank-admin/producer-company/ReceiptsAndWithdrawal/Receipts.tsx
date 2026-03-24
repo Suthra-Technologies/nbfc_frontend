@@ -23,11 +23,11 @@ export default function Receipts() {
         chequeDate: new Date().toISOString().split('T')[0]
     });
 
-    const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+    const set = (k: string, v: string | number) => setForm(f => ({ ...f, [k]: v }));
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        alert('Saved successfully!');
+        alert('Receipt saved successfully!');
     };
 
     const needsBankDetails = ['Cheque', 'Transfer'].includes(form.paymentMode);
@@ -45,7 +45,8 @@ export default function Receipts() {
                 <div className="pc-card">
                     <div className="pc-form">
 
-                        <div className="pc-grid">
+                        {/* Top Section */}
+                        <div className="pc-grid" style={{ marginBottom: '1rem' }}>
                             <div className="pc-field">
                                 <label className="pc-label">Payment Type: *</label>
                                 <select className="pc-select" value={form.paymentType} onChange={e => set('paymentType', e.target.value)} required>
@@ -60,8 +61,8 @@ export default function Receipts() {
                             </div>
                         </div>
 
-                        <div className="pc-divider"></div>
-                        <h3 className="pc-section-title">Member Details</h3>
+                        <div className="pc-divider-h"></div>
+                        <h3 className="pc-dark-sub-header">Member Details</h3>
                         <div className="pc-grid">
                             <div className="pc-field">
                                 <label className="pc-label">Member Type : *</label>
@@ -109,8 +110,8 @@ export default function Receipts() {
                             </div>
                         </div>
 
-                        <div className="pc-divider"></div>
-                        <h3 className="pc-section-title">Entries</h3>
+                        <div className="pc-divider-h"></div>
+                        <h3 className="pc-dark-sub-header">Entries</h3>
                         <div className="pc-grid">
                             <div className="pc-field">
                                 <label className="pc-label">Received amount:*</label>
@@ -124,14 +125,14 @@ export default function Receipts() {
                             </div>
                         </div>
 
-                        <div className="pc-divider"></div>
-                        <h3 className="pc-section-title">Payment Details</h3>
+                        <div className="pc-divider-h"></div>
+                        <h3 className="pc-dark-sub-header">Payment Details</h3>
 
-                        <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
-                            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Mode of payment :</div>
+                        <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
+                            <div className="pc-label">Mode of payment :</div>
                             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                                 {['Cash', 'Cheque', 'Transfer', 'Direct'].map(mode => (
-                                    <label key={mode} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', fontWeight: 600, color: '#334155', cursor: 'pointer' }}>
+                                    <label key={mode} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 600, color: '#334155', cursor: 'pointer' }}>
                                         <input
                                             type="radio"
                                             name="paymentMode"
@@ -147,7 +148,7 @@ export default function Receipts() {
                         </div>
 
                         {needsBankDetails && (
-                            <div className="pc-grid" style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                            <div className="pc-grid" style={{ background: '#f8fafc', padding: '1rem', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
                                 <div className="pc-field">
                                     <label className="pc-label">Bank name:</label>
                                     <input className="pc-input" placeholder="Enter Bank name" value={form.bankName} onChange={e => set('bankName', e.target.value)} />
@@ -170,12 +171,12 @@ export default function Receipts() {
                     </div>
                 </div>
 
-                <div className="pc-actions">
-                    <button type="submit" className="pc-btn primary">
-                        <Save size={16} /> Save & Process
+                <div className="pc-submit-bar" style={{ justifyContent: 'flex-start', gap: '1rem', borderTop: 'none' }}>
+                    <button type="submit" className="pc-btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Save size={14} /> Save
                     </button>
-                    <button type="button" className="pc-btn secondary" onClick={() => window.location.reload()}>
-                        <RefreshCcw size={16} /> Reset
+                    <button type="button" className="pc-btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => window.location.reload()}>
+                        <RefreshCcw size={14} /> Refresh
                     </button>
                 </div>
             </form>
