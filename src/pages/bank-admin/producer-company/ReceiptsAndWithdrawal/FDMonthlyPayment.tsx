@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { Save, RefreshCcw, Landmark, CreditCard, Info, Table, CheckSquare, Square } from 'lucide-react';
 import '../producer.css';
 
 interface InterestPayment {
@@ -28,6 +27,10 @@ export default function FDMonthlyPayment() {
     const [paymentMode, setPaymentMode] = useState('Cash');
     const [paidDate, setPaidDate] = useState(new Date().toISOString().split('T')[0]);
     const [fdId, setFdId] = useState('');
+    const [bankName, setBankName] = useState('');
+    const [branch, setBranch] = useState('');
+    const [chequeNo, setChequeNo] = useState('');
+    const [chequeDate, setChequeDate] = useState('');
 
     const totalPayable = useMemo(() => {
         return MOCK_DATA
@@ -58,160 +61,189 @@ export default function FDMonthlyPayment() {
         alert(`Payment of ₹${totalPayable.toFixed(2)} processed successfully!`);
     };
 
-    const needsBankInfo = ['Cheque', 'Neft', 'Transfer'].includes(paymentMode);
+    const isNonCash = ['Cheque', 'Neft', 'Transfer'].includes(paymentMode);
+
+    const tealColor = '#008B9B';
 
     return (
-        <div className="pc-container" style={{ minHeight: '100vh', padding: '1.5rem', background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}>
-
+        <div className="pc-container" style={{ minHeight: '100vh', padding: '10px', background: '#e2e8f0', fontFamily: 'Arial, sans-serif' }}>
+            
             {/* Header / Selection Area */}
-            <div className="pc-card" style={{ padding: '1rem 1.5rem', marginBottom: '1.5rem', background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div className="pc-card-icon" style={{ background: 'linear-gradient(45deg, #009BB0, #00a3ad)', width: '40px', height: '40px' }}>
-                        <Table size={20} color="white" />
-                    </div>
-                    <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>FD Monthly Payment</h1>
-                </div>
-
-                <div style={{ flex: 1, maxWidth: '400px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Select FD ID:</label>
-                    <select className="pc-select" style={{ height: '38px', borderRadius: '8px' }} value={fdId} onChange={e => setFdId(e.target.value)}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px', padding: '15px 0', marginBottom: '10px' }}>
+                <label style={{ fontSize: '0.6rem', fontWeight: 'bold', color: '#000', whiteSpace: 'nowrap' }}>FD ID.:</label>
+                <div style={{ position: 'relative', width: '250px' }}>
+                    <select 
+                        className="pc-select" 
+                        style={{ width: '100%', height: '28px', padding: '0 5px', border: '1px solid #999', fontSize: '0.75rem', color: '#000', backgroundColor: '#fff' }}
+                        value={fdId} 
+                        onChange={e => setFdId(e.target.value)}
+                    >
                         <option value="">Select FD ID.</option>
                         <option value="FD00123">FD00123 - John Doe</option>
                     </select>
                 </div>
             </div>
 
-            {/* Interest Payments Data Table */}
-            <div className="pc-card" style={{ borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', overflow: 'hidden', marginBottom: '1.5rem' }}>
-                <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#334155', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Info size={16} className="text-teal-600" /> Pending Interest Installments
-                    </span>
-                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{selectedIds.length} items selected</span>
-                </div>
-
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+            {/* Interest Payments Data Table Section */}
+            <div style={{ background: 'white', border: '1px solid #999', padding: '2px', marginBottom: '15px' }}>
+                <div style={{ overflowX: 'auto', maxHeight: '300px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
-                            <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
-                                <th style={{ padding: '0.75rem', textAlign: 'center', width: '40px' }}>
-                                    <button type="button" onClick={toggleSelectAll} style={{ background: 'none', border: 'none', color: '#009BB0', cursor: 'pointer' }}>
-                                        {selectedIds.length === MOCK_DATA.length ? <CheckSquare size={18} /> : <Square size={18} />}
-                                    </button>
+                            <tr style={{ background: '#cbd5e1', borderBottom: '1px solid #999' }}>
+                                <th style={{ padding: '6px', border: '1px solid #999', width: '30px', textAlign: 'center' }}>
+                                    <input type="checkbox" checked={selectedIds.length === MOCK_DATA.length && MOCK_DATA.length > 0} onChange={toggleSelectAll} />
                                 </th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 800 }}>DATE</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 800 }}>CUSTOMER NAME</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 800 }}>FD ID</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 800 }}>DEP. DATE</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 800 }}>MODE</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'right', fontWeight: 800 }}>DEP. AMOUNT</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'right', fontWeight: 800, color: '#009BB0' }}>PAYABLE INT.</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 800 }}>SAVINGS AC</th>
+                                {['Date', 'Customer Name', 'FD ID', 'Deposit Date', 'Payment Mode', 'Period', 'Deposit Amount', 'Payable Interest', 'Introducer Code', 'Saving Account no', 'Joint Account no'].map(h => (
+                                    <th key={h} style={{ padding: '6px', border: '1px solid #999', textAlign: 'left', color: '#000', fontWeight: 'bold', fontSize: '0.65rem' }}>{h}</th>
+                                ))}
                             </tr>
                         </thead>
-                        <tbody>
-                            {MOCK_DATA.map((item) => (
-                                <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9', background: selectedIds.includes(item.id) ? '#f0fdfa' : 'transparent', transition: 'background 0.2s' }}>
-                                    <td style={{ padding: '0.75rem', textAlign: 'center' }}>
-                                        <button type="button" onClick={() => toggleSelect(item.id)} style={{ background: 'none', border: 'none', color: selectedIds.includes(item.id) ? '#009BB0' : '#cbd5e1', cursor: 'pointer' }}>
-                                            {selectedIds.includes(item.id) ? <CheckSquare size={18} /> : <Square size={18} />}
-                                        </button>
+                        <tbody style={{ fontSize: '0.75rem', color: '#000' }}>
+                            {MOCK_DATA.length > 0 ? MOCK_DATA.map((item) => (
+                                <tr key={item.id}>
+                                    <td style={{ padding: '4px', border: '1px solid #999', textAlign: 'center' }}>
+                                        <input type="checkbox" checked={selectedIds.includes(item.id)} onChange={() => toggleSelect(item.id)} />
                                     </td>
-                                    <td style={{ padding: '0.75rem' }}>{item.date}</td>
-                                    <td style={{ padding: '0.75rem', fontWeight: 700 }}>{item.customerName}</td>
-                                    <td style={{ padding: '0.75rem' }}>{item.fdId}</td>
-                                    <td style={{ padding: '0.75rem' }}>{item.depositDate}</td>
-                                    <td style={{ padding: '0.75rem' }}>{item.mode}</td>
-                                    <td style={{ padding: '0.75rem', textAlign: 'right' }}>₹ {item.amount.toLocaleString()}</td>
-                                    <td style={{ padding: '0.75rem', textAlign: 'right', fontWeight: 800, color: '#009BB0' }}>₹ {item.interest.toFixed(2)}</td>
-                                    <td style={{ padding: '0.75rem' }}>{item.savingsAc}</td>
+                                    <td style={{ padding: '4px', border: '1px solid #999' }}>{item.date}</td>
+                                    <td style={{ padding: '4px', border: '1px solid #999' }}>{item.customerName}</td>
+                                    <td style={{ padding: '4px', border: '1px solid #999' }}>{item.fdId}</td>
+                                    <td style={{ padding: '4px', border: '1px solid #999' }}>{item.depositDate}</td>
+                                    <td style={{ padding: '4px', border: '1px solid #999' }}>{item.mode}</td>
+                                    <td style={{ padding: '4px', border: '1px solid #999' }}>{item.period}</td>
+                                    <td style={{ padding: '4px', border: '1px solid #999', textAlign: 'right' }}>{item.amount}</td>
+                                    <td style={{ padding: '4px', border: '1px solid #999', textAlign: 'right' }}>{item.interest.toFixed(2)}</td>
+                                    <td style={{ padding: '4px', border: '1px solid #999' }}>{item.introducer}</td>
+                                    <td style={{ padding: '4px', border: '1px solid #999' }}>{item.savingsAc}</td>
+                                    <td style={{ padding: '4px', border: '1px solid #999' }}>{item.jointAc}</td>
                                 </tr>
-                            ))}
+                            )) : (
+                                <tr>
+                                    <td colSpan={12} style={{ padding: '40px', textAlign: 'center', color: '#666' }}>No data available</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
+            </div>
 
-                <div style={{ padding: '1rem 1.5rem', background: '#f8fafc', borderTop: '2px solid #e2e8f0', textAlign: 'right' }}>
-                    <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.85rem', marginRight: '1rem' }}>TOTAL PAYABLE AMOUNT:</span>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#009BB0', letterSpacing: '0.05em' }}>₹ {totalPayable.toFixed(2)}</span>
+            {/* Total Amount Label */}
+            <div style={{ textAlign: 'center', marginBottom: '15px', fontSize: '0.75rem', fontWeight: 'bold', color: '#000' }}>
+                Total Amount: {totalPayable}
+            </div>
+
+            {/* Payment Details Box */}
+            <div style={{ background: 'white', border: '1px solid #999', borderRadius: '2px', padding: '20px', position: 'relative', marginTop: '10px' }}>
+                <span style={{ position: 'absolute', top: '-10px', left: '15px', background: 'white', padding: '0 8px', fontSize: '0.75rem', fontWeight: 'bold', color: '#000', border: '1px solid #999', borderRadius: '4px' }}>Payment Details</span>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '15px' }}>
+                    <label style={{ fontSize: '0.6rem', fontWeight: 'bold', color: '#000' }}>Mode of payment :</label>
+                    {['Cash', 'Cheque', 'Neft', 'Transfer'].map(mode => (
+                        <label key={mode} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem', cursor: 'pointer', color: '#000' }}>
+                            <input type="radio" value={mode} checked={paymentMode === mode} onChange={e => setPaymentMode(e.target.value)} /> {mode}
+                        </label>
+                    ))}
+                </div>
+
+                <div style={{ border: '1px solid #999', padding: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 30px', backgroundColor: '#f8fafc' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <label style={{ width: '80px', fontSize: '0.6rem', textAlign: 'right', color: '#000', fontWeight: 'bold' }}>Bank name:</label>
+                        <select 
+                            className="pc-select"
+                            style={{ flex: 1, height: '28px', border: '1px solid #999', color: '#000', backgroundColor: '#fff', padding: '0 5px', fontSize: '0.75rem' }}
+                            value={bankName}
+                            onChange={e => setBankName(e.target.value)}
+                            disabled={!isNonCash}
+                        >
+                            <option value="">Select Bank name</option>
+                            <option value="HDFC">HDFC Bank</option>
+                            <option value="SBI">SBI Bank</option>
+                        </select>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <label style={{ width: '80px', fontSize: '0.6rem', textAlign: 'right', color: '#000', fontWeight: 'bold' }}>Branch:</label>
+                        <input 
+                            type="text" 
+                            placeholder="Enter Branch" 
+                            style={{ flex: 1, height: '28px', border: '1px solid #999', padding: '0 8px', color: '#000', backgroundColor: '#fff', fontSize: '0.75rem' }}
+                            value={branch}
+                            onChange={e => setBranch(e.target.value)}
+                            disabled={!isNonCash}
+                        />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <label style={{ width: '80px', fontSize: '0.6rem', textAlign: 'right', color: '#000', fontWeight: 'bold' }}>Cheque No.:</label>
+                        <select 
+                            className="pc-select"
+                            style={{ flex: 1, height: '28px', border: '1px solid #999', color: '#000', backgroundColor: '#fff', padding: '0 5px', fontSize: '0.75rem' }}
+                            value={chequeNo}
+                            onChange={e => setChequeNo(e.target.value)}
+                            disabled={!isNonCash}
+                        >
+                            <option value="">Select Cheque No.</option>
+                            <option value="CHQ001">CHQ001</option>
+                        </select>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <label style={{ width: '80px', fontSize: '0.6rem', textAlign: 'right', color: '#000', fontWeight: 'bold' }}>Date:</label>
+                        <input 
+                            type="date" 
+                            style={{ flex: 1, height: '28px', border: '1px solid #999', padding: '0 8px', color: '#000', backgroundColor: '#fff', fontSize: '0.75rem' }}
+                            value={chequeDate}
+                            onChange={e => setChequeDate(e.target.value)}
+                            disabled={!isNonCash}
+                        />
+                    </div>
                 </div>
             </div>
 
-            {/* Payment Processing Section */}
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.5rem' }}>
-                <div className="pc-card" style={{ gridColumn: 'span 8', padding: '1.5rem', background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '0.75rem' }}>
-                        <Landmark size={18} className="text-teal-600" />
-                        <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#334155', textTransform: 'uppercase' }}>Payment Details</h3>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
-                        <div className="pc-field">
-                            <label className="pc-label" style={{ fontWeight: 800 }}>Mode of Payment:</label>
-                            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
-                                {['Cash', 'Cheque', 'Neft', 'Transfer'].map(mode => (
-                                    <label key={mode} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}>
-                                        <input type="radio" value={mode} checked={paymentMode === mode} onChange={e => setPaymentMode(e.target.value)} style={{ accentColor: '#009BB0' }} /> {mode}
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        {needsBankInfo && (
-                            <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', animation: 'fadeIn 0.3s ease' }}>
-                                <div className="pc-field">
-                                    <label className="pc-label">Bank Name / Ref.</label>
-                                    <input className="pc-input" placeholder="Enter bank name or NEFT ID" style={{ height: '36px' }} />
-                                </div>
-                                <div className="pc-field">
-                                    <label className="pc-label">Branch</label>
-                                    <input className="pc-input" placeholder="Enter branch" style={{ height: '36px' }} />
-                                </div>
-                                <div className="pc-field">
-                                    <label className="pc-label">Cheque / Ref No.</label>
-                                    <input className="pc-input" placeholder="Ref No." style={{ height: '36px' }} />
-                                </div>
-                                <div className="pc-field">
-                                    <label className="pc-label">Ref Date</label>
-                                    <input type="date" className="pc-input" style={{ height: '36px' }} defaultValue={new Date().toISOString().split('T')[0]} />
-                                </div>
-                            </div>
-                        )}
-                    </div>
+            {/* Bottom Actions */}
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '20px', padding: '15px 0', borderTop: '1px solid #999', backgroundColor: '#cbd5e1' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <label style={{ fontSize: '0.6rem', fontWeight: 'bold', color: '#000' }}>Paid Date:</label>
+                    <input 
+                        type="date" 
+                        style={{ height: '28px', border: '1px solid #999', padding: '0 8px', color: '#000', backgroundColor: '#fff', fontSize: '0.75rem' }}
+                        value={paidDate} 
+                        onChange={e => setPaidDate(e.target.value)} 
+                    />
                 </div>
-
-                <div className="pc-card" style={{ gridColumn: 'span 4', padding: '1.5rem', background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '0.75rem' }}>
-                        <CreditCard size={18} className="text-teal-600" />
-                        <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#334155', textTransform: 'uppercase' }}>Complete Payment</h3>
+                <button 
+                    onClick={handleSubmit}
+                    style={{ 
+                        background: tealColor, 
+                        color: 'white', 
+                        border: 'none', 
+                        padding: '6px 20px', 
+                        fontSize: '0.75rem', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        fontWeight: 'bold'
+                    }}
+                >
+                    <div style={{ background: 'white', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ color: tealColor, fontSize: '12px', fontWeight: 'bold' }}>+</span>
                     </div>
-
-                    <div className="pc-field" style={{ marginBottom: '1.5rem' }}>
-                        <label className="pc-label">Paid Date:</label>
-                        <input type="date" className="pc-input" style={{ height: '40px', borderRadius: '8px', fontSize: '1rem', fontWeight: 700 }} value={paidDate} onChange={e => setPaidDate(e.target.value)} />
-                    </div>
-
-                    <button type="submit" className="pc-action-btn primary" style={{ width: '100%', height: '48px', borderRadius: '10px', fontSize: '1rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', background: 'linear-gradient(to right, #009BB0, #00a3ad)', boxShadow: '0 4px 12px rgba(0, 155, 176, 0.2)' }}>
-                        <Save size={20} /> PROCESS PAYMENT
-                    </button>
-
-                    <button type="button" onClick={() => window.location.reload()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.75rem', marginTop: '1rem', cursor: 'pointer' }}>
-                        <RefreshCcw size={12} /> Reset Form
-                    </button>
-                </div>
-            </form>
+                    Payment
+                </button>
+            </div>
 
             <style>{`
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(5px); }
-                    to { opacity: 1; transform: translateY(0); }
+                .pc-select {
+                    appearance: auto !important;
                 }
-                .pc-input:focus, .pc-select:focus {
-                    border-color: #009BB0 !important;
-                    box-shadow: 0 0 0 3px rgba(0, 155, 176, 0.1) !important;
+                table thead th {
+                    font-weight: normal;
+                    color: #333;
                 }
-                table tbody tr:hover {
-                    background-color: #f8fafc !important;
+                input[type="radio"] {
+                    accent-color: ${tealColor};
+                }
+                input::placeholder {
+                    font-size: 0.6rem !important;
+                    color: #94a3b8 !important;
                 }
             `}</style>
         </div>

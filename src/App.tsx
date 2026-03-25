@@ -38,6 +38,8 @@ import Receipts from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/
 import RDReceipt from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/RDReceipt';
 import PassbookCancellation from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/PassbookCancellation';
 import FDMonthlyPayment from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/FDMonthlyPayment';
+import TrimMobileAppReceipts from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/TrimMobileAppReceipts';
+import ShareCapitalWithdrawal from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/ShareCapitalWithdrawal';
 import DOManagement from './pages/bank-admin/loan-management/client-master/DOManagement';
 import ApplicationForm from './pages/bank-admin/loan-management/loan-management/ApplicationForm';
 import ApplicantDetails from './pages/bank-admin/loan-management/loan-management/ApplicantDetails';
@@ -124,8 +126,8 @@ function App() {
                     <Route path="/bank-admin/producer-company/rd-receipt" element={<RDReceipt />} />
                     <Route path="/bank-admin/producer-company/passbook-cancel" element={<PassbookCancellation />} />
                     <Route path="/bank-admin/producer-company/fd-monthly" element={<FDMonthlyPayment />} />
-                    <Route path="/bank-admin/producer-company/app-receipts" element={<PCPlaceholder title="Trim or Mobile App Receipts" />} />
-                    <Route path="/bank-admin/producer-company/share-withdrawal" element={<PCPlaceholder title="Share Capital Withdrawal" />} />
+                    <Route path="/bank-admin/producer-company/app-receipts" element={<TrimMobileAppReceipts />} />
+                    <Route path="/bank-admin/producer-company/share-withdrawal" element={<ShareCapitalWithdrawal />} />
                     <Route path="/bank-admin/producer-company/bonds/print" element={<PCPlaceholder title="Bonds Print" />} />
                     <Route path="/bank-admin/producer-company/bonds/duplicate" element={<PCPlaceholder title="Duplicate Bonds Print" />} />
                     <Route path="/bank-admin/producer-company/cash-deposit" element={<PCPlaceholder title="Cash Deposit" />} />
