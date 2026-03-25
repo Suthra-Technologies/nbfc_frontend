@@ -60,6 +60,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { initializeTenant } from "@/store/tenantStore"
 import { UserRole } from "@/constants/roles"
 import ErrorBoundary from "@/components/common/ErrorBoundary"
+import { NotificationProvider } from "@/components/common/NotificationProvider"
 
 
 function App() {
@@ -71,7 +72,8 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <BrowserRouter>
+        <NotificationProvider>
+          <BrowserRouter>
           <Routes>
             {/* Public Routes */}
             <Route path="/auth/super-admin" element={<SuperAdminAuth />} />
@@ -295,7 +297,8 @@ function App() {
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
-        </BrowserRouter>
+          </BrowserRouter>
+        </NotificationProvider>
       </ThemeProvider>
     </ErrorBoundary>
   )

@@ -21,7 +21,15 @@ export interface MemberNominee {
     relation?: string;
     age?: number | string;
     mobileNo?: string;
-    address?: MemberAddress;
+    houseNo?: string;
+    area?: string;
+    rural?: string;
+    country?: string;
+    state?: string;
+    district?: string;
+    mandal?: string;
+    city?: string;
+    pincode?: string;
     sameAsPermanent?: boolean;
 }
 
@@ -36,6 +44,8 @@ export interface MemberKYC {
 
 export interface Member {
     _id?: string;
+    bankId?: string;
+    branchId?: string;
     memberId?: string;
     memberType: 'MEMBER' | 'ASSOCIATE';
     registrationDate?: string;

@@ -7,9 +7,12 @@ import {
     Briefcase,
     Shield,
     Users,
-    Save
+    Save,
+    RotateCcw,
+    Loader2
 } from 'lucide-react';
 import './producer.css';
+import { useNotification } from '@/components/common/NotificationProvider';
 
 const INITIAL_FORM = {
     // Header Info...
@@ -98,14 +101,20 @@ const INITIAL_FORM = {
 
 export function SavingsCurrentCreation() {
     const [form, setForm] = useState(INITIAL_FORM);
-    const [saved, setSaved] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { success } = useNotification();
 
     const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
+        setIsSubmitting(true);
+        // Simulate API call
+        setTimeout(() => {
+            success('Account Successfully Created!', `Savings/Current account registered for ${form.customerName || 'customer'}`);
+            setForm(INITIAL_FORM);
+            setIsSubmitting(false);
+        }, 1200);
     };
 
     return (
@@ -368,12 +377,16 @@ export function SavingsCurrentCreation() {
                     </div>
                 </div>
 
-                <div className="pc-submit-bar" style={{ marginTop: '0.5rem', background: '#f8fafc', padding: '1rem', borderRadius: '4px' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>{saved ? '✅ Account Successfully Created!' : '* Please ensure all mandatory fields are filled'}</span>
+                {/* Submit Actions */}
+                <div className="pc-submit-bar">
+                    <span className="pc-submit-info">* Ensure all mandatory fields marked with asterisk are filled.</span>
                     <div className="pc-submit-actions">
-                        <button type="button" className="pc-btn-ghost" onClick={() => setForm(INITIAL_FORM)}>Reset Form</button>
-                        <button type="submit" className="pc-btn-primary" style={{ minWidth: '150px' }}>
-                            <Save size={14} style={{ marginRight: '8px' }} /> Save & Create Account
+                        <button type="button" className="pc-btn-ghost" onClick={() => setForm(INITIAL_FORM)} disabled={isSubmitting}>
+                            <RotateCcw size={14} /> Reset Form
+                        </button>
+                        <button type="submit" className="pc-btn-primary" disabled={isSubmitting}>
+                            {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                            {isSubmitting ? 'Processing...' : 'Save & Create Account'}
                         </button>
                     </div>
                 </div>
