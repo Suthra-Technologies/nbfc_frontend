@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { UserPlus, Save, RotateCcw, Image as ImageIcon, FileText, MapPin, Phone, Users, ShieldCheck, CheckCircle, AlertCircle, Loader2, Camera, X } from 'lucide-react';
+import { UserPlus, Save, RotateCcw, Image as ImageIcon, FileText, MapPin, Phone, Users, ShieldCheck, CheckCircle, Loader2, Camera, X } from 'lucide-react';
 import './producer.css';
 import { memberService } from '@/services/member.service';
 import { uploadService } from '@/services/upload.service';
+import { useNotification } from '@/components/common/NotificationProvider';
 
 const INITIAL_ADDRESS = {
     houseNo: '',
@@ -66,7 +67,7 @@ const EMPTY_FORM = {
         relation: '',
         age: '',
         mobileNo: '',
-        address: { ...INITIAL_ADDRESS },
+        ...INITIAL_ADDRESS,
         sameAsPermanent: false
     },
     // KYC
@@ -84,7 +85,6 @@ export default function MemberDetails() {
     const [form, setForm] = useState(EMPTY_FORM);
     const [previews, setPreviews] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [dobError, setDobError] = useState<string | null>(null);
     const [showOccupationList, setShowOccupationList] = useState(false);
     const [aadharError, setAadharError] = useState<string | null>(null);
@@ -94,14 +94,13 @@ export default function MemberDetails() {
     const [showCamera, setShowCamera] = useState(false);
     const [captureField, setCaptureField] = useState<string | null>(null);
     const [cameraLoading, setCameraLoading] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [lastRegisteredMember, setLastRegisteredMember] = useState<any>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
+    const { error: notifyError, success: notifySuccess } = useNotification();
 
-    const showToast = (type: 'success' | 'error', message: string) => {
-        setToast({ type, message });
-        setTimeout(() => setToast(null), 4000);
-    };
 
     // Use a callback ref to assign the stream exactly when the video element mounts
     const videoCallbackRef = (node: HTMLVideoElement | null) => {
@@ -217,7 +216,13 @@ export default function MemberDetails() {
     // Handle "Same as Above" for Nominee Address
     useEffect(() => {
         if (form.nominee.sameAsPermanent) {
-            updateField('nominee.address', { ...form.permanentAddress });
+            setForm(prev => ({
+                ...prev,
+                nominee: {
+                    ...prev.nominee,
+                    ...prev.permanentAddress
+                }
+            }));
         }
     }, [form.nominee.sameAsPermanent, form.permanentAddress]);
 
@@ -251,10 +256,10 @@ export default function MemberDetails() {
             else if (key === 'addressProof') updateField('kyc.addressProofUrl', s3Url);
             else if (key === 'otherDoc') updateField('kyc.otherDocumentUrl', s3Url);
 
-            showToast('success', `${key.charAt(0).toUpperCase() + key.slice(1)} uploaded successfully`);
+            notifySuccess('Upload Successful', `${key.charAt(0).toUpperCase() + key.slice(1)} uploaded successfully`);
         } catch (error: any) {
             console.error('File upload failed:', error);
-            showToast('error', `Failed to upload ${key}. Please try again.`);
+            notifyError('Upload Failed', `Failed to upload ${key}. Please try again.`);
         } finally {
             setUploading(prev => ({ ...prev, [key]: false }));
         }
@@ -272,7 +277,7 @@ export default function MemberDetails() {
             setShowCamera(true); // mount video element AFTER stream is ready
         } catch (err) {
             console.error("Error accessing camera:", err);
-            showToast('error', 'Could not access camera. Please check permissions.');
+            notifyError('Camera Error', 'Could not access camera. Please check permissions.');
             setCameraLoading(false);
         }
     };
@@ -312,7 +317,7 @@ export default function MemberDetails() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await memberService.createMember({
+            const result = await memberService.createMember({
                 ...form,
                 memberType: form.memberType as 'MEMBER' | 'ASSOCIATE',
                 gender: form.gender as 'MALE' | 'FEMALE' | 'OTHER',
@@ -323,41 +328,46 @@ export default function MemberDetails() {
                     age: Number(form.nominee.age)
                 }
             });
-            showToast('success', 'Member registered successfully! Member ID assigned.');
+            setLastRegisteredMember(result);
+            setShowSuccessModal(true);
             setForm(EMPTY_FORM);
             setPreviews({});
         } catch (err: any) {
             const msg = err?.response?.data?.message || 'Failed to save member. Please try again.';
-            showToast('error', msg);
+            notifyError('Registration Failed', msg);
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const getValueByPath = (obj: any, path: string) => {
+        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
     };
 
     const renderAddressFields = (prefix: string) => (
         <div className="pc-grid">
             <div className="pc-field">
                 <label className="pc-label">House No. / Street</label>
-                <input className="pc-input" value={prefix === 'permanentAddress' ? form.permanentAddress.houseNo : prefix === 'correspondenceAddress' ? form.correspondenceAddress.houseNo : form.nominee.address.houseNo} onChange={e => updateField(`${prefix}.houseNo`, e.target.value)} placeholder="Enter House No." />
+                <input className="pc-input" value={getValueByPath(form, `${prefix}.houseNo`)} onChange={e => updateField(`${prefix}.houseNo`, e.target.value)} placeholder="Enter House No." />
             </div>
             <div className="pc-field">
                 <label className="pc-label">Area</label>
-                <input className="pc-input" value={prefix === 'permanentAddress' ? form.permanentAddress.area : prefix === 'correspondenceAddress' ? form.correspondenceAddress.area : form.nominee.address.area} onChange={e => updateField(`${prefix}.area`, e.target.value)} placeholder="Enter Street" />
+                <input className="pc-input" value={getValueByPath(form, `${prefix}.area`)} onChange={e => updateField(`${prefix}.area`, e.target.value)} placeholder="Enter Street" />
             </div>
             <div className="pc-field">
                 <label className="pc-label">Rural / Village</label>
-                <input className="pc-input" value={prefix === 'permanentAddress' ? form.permanentAddress.rural : prefix === 'correspondenceAddress' ? form.correspondenceAddress.rural : form.nominee.address.rural} onChange={e => updateField(`${prefix}.rural`, e.target.value)} placeholder="Enter Village" />
+                <input className="pc-input" value={getValueByPath(form, `${prefix}.rural`)} onChange={e => updateField(`${prefix}.rural`, e.target.value)} placeholder="Enter Village" />
             </div>
             <div className="pc-field">
                 <label className="pc-label">Country</label>
-                <select className="pc-select" value={prefix === 'permanentAddress' ? form.permanentAddress.country : prefix === 'correspondenceAddress' ? form.correspondenceAddress.country : form.nominee.address.country} onChange={e => updateField(`${prefix}.country`, e.target.value)}>
+                <select className="pc-select" value={getValueByPath(form, `${prefix}.country`)} onChange={e => updateField(`${prefix}.country`, e.target.value)}>
                     <option>India</option>
                     <option>Other</option>
                 </select>
             </div>
             <div className="pc-field">
                 <label className="pc-label">State *</label>
-                <select className="pc-select" value={prefix === 'permanentAddress' ? form.permanentAddress.state : prefix === 'correspondenceAddress' ? form.correspondenceAddress.state : form.nominee.address.state} onChange={e => updateField(`${prefix}.state`, e.target.value)}>
+                <select className="pc-select" value={getValueByPath(form, `${prefix}.state`)} onChange={e => updateField(`${prefix}.state`, e.target.value)}>
                     <option>ANDHRA PRADESH</option>
                     <option>TELANGANA</option>
                     <option>TAMIL NADU</option>
@@ -366,7 +376,7 @@ export default function MemberDetails() {
             </div>
             <div className="pc-field">
                 <label className="pc-label">District</label>
-                <select className="pc-select" value={prefix === 'permanentAddress' ? form.permanentAddress.district : prefix === 'correspondenceAddress' ? form.correspondenceAddress.district : form.nominee.address.district} onChange={e => updateField(`${prefix}.district`, e.target.value)}>
+                <select className="pc-select" value={getValueByPath(form, `${prefix}.district`)} onChange={e => updateField(`${prefix}.district`, e.target.value)}>
                     <option value="">Select District</option>
                     <option>Kurnool</option>
                     <option>Guntur</option>
@@ -375,51 +385,35 @@ export default function MemberDetails() {
             </div>
             <div className="pc-field">
                 <label className="pc-label">Mandal</label>
-                <select className="pc-select" value={prefix === 'permanentAddress' ? form.permanentAddress.mandal : prefix === 'correspondenceAddress' ? form.correspondenceAddress.mandal : form.nominee.address.mandal} onChange={e => updateField(`${prefix}.mandal`, e.target.value)}>
+                <select className="pc-select" value={getValueByPath(form, `${prefix}.mandal`)} onChange={e => updateField(`${prefix}.mandal`, e.target.value)}>
                     <option value="">Select Mandal</option>
                 </select>
             </div>
             <div className="pc-field">
                 <label className="pc-label">City *</label>
-                <input className="pc-input" value={prefix === 'permanentAddress' ? form.permanentAddress.city : prefix === 'correspondenceAddress' ? form.correspondenceAddress.city : form.nominee.address.city} onChange={e => updateField(`${prefix}.city`, e.target.value)} placeholder="Enter City" />
+                <input className="pc-input" value={getValueByPath(form, `${prefix}.city`)} onChange={e => updateField(`${prefix}.city`, e.target.value)} placeholder="Enter City" />
             </div>
             <div className="pc-field">
                 <label className="pc-label">Land Mark</label>
-                <input className="pc-input" value={prefix === 'permanentAddress' ? form.permanentAddress.landmark : prefix === 'correspondenceAddress' ? form.correspondenceAddress.landmark : form.nominee.address.landmark} onChange={e => updateField(`${prefix}.landmark`, e.target.value)} placeholder="Enter Land Mark" />
+                <input className="pc-input" value={getValueByPath(form, `${prefix}.landmark`)} onChange={e => updateField(`${prefix}.landmark`, e.target.value)} placeholder="Enter Land Mark" />
             </div>
             <div className="pc-field">
                 <label className="pc-label">Rural Area</label>
-                <input className="pc-input" value={prefix === 'permanentAddress' ? form.permanentAddress.ruralArea : prefix === 'correspondenceAddress' ? form.correspondenceAddress.ruralArea : form.nominee.address.ruralArea} onChange={e => updateField(`${prefix}.ruralArea`, e.target.value)} placeholder="Enter Rural Area" />
+                <input className="pc-input" value={getValueByPath(form, `${prefix}.ruralArea`)} onChange={e => updateField(`${prefix}.ruralArea`, e.target.value)} placeholder="Enter Rural Area" />
             </div>
             <div className="pc-field">
                 <label className="pc-label">City Area</label>
-                <input className="pc-input" value={prefix === 'permanentAddress' ? form.permanentAddress.cityArea : prefix === 'correspondenceAddress' ? form.correspondenceAddress.cityArea : form.nominee.address.cityArea} onChange={e => updateField(`${prefix}.cityArea`, e.target.value)} placeholder="Enter City Area" />
+                <input className="pc-input" value={getValueByPath(form, `${prefix}.cityArea`)} onChange={e => updateField(`${prefix}.cityArea`, e.target.value)} placeholder="Enter City Area" />
             </div>
             <div className="pc-field">
                 <label className="pc-label">Pincode *</label>
-                <input className="pc-input" value={prefix === 'permanentAddress' ? form.permanentAddress.pincode : prefix === 'correspondenceAddress' ? form.correspondenceAddress.pincode : form.nominee.address.pincode} onChange={e => updateField(`${prefix}.pincode`, e.target.value)} placeholder="Enter Pincode" />
+                <input className="pc-input" value={getValueByPath(form, `${prefix}.pincode`)} onChange={e => updateField(`${prefix}.pincode`, e.target.value)} placeholder="Enter Pincode" />
             </div>
         </div>
     );
 
     return (
         <div className="pc-container">
-            {/* Toast Notification */}
-            {toast && (
-                <div style={{
-                    position: 'fixed', top: '1.5rem', right: '1.5rem', zIndex: 9999,
-                    display: 'flex', alignItems: 'center', gap: '0.75rem',
-                    padding: '1rem 1.5rem', borderRadius: '0.75rem',
-                    background: toast.type === 'success' ? '#f0fdf4' : '#fef2f2',
-                    border: `1px solid ${toast.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
-                    color: toast.type === 'success' ? '#166534' : '#991b1b',
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
-                    fontWeight: 600, fontSize: '0.925rem'
-                }}>
-                    {toast.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-                    {toast.message}
-                </div>
-            )}
 
             {/* Camera Capture Dialog */}
             {showCamera && (
@@ -751,7 +745,7 @@ export default function MemberDetails() {
                     </div>
                 </div>
 
-                {/* Permanent Address */}
+                {/* Permanent Address c*/}
                 <div className="pc-card">
                     <div className="pc-card-header">
                         <div className="pc-card-icon"><MapPin size={18} /></div>
@@ -846,16 +840,16 @@ export default function MemberDetails() {
                                     nominee: {
                                         ...prev.nominee,
                                         sameAsPermanent: e.target.checked,
-                                        address: e.target.checked ? { ...prev.permanentAddress } : { ...INITIAL_ADDRESS }
+                                        ...(e.target.checked ? prev.permanentAddress : INITIAL_ADDRESS)
                                     }
                                 }));
                             }} />
                             <label className="pc-label" style={{ margin: 0 }}>Same As Above</label>
                         </div>
-                        {!form.nominee.sameAsPermanent && renderAddressFields('nominee.address')}
+                        {!form.nominee.sameAsPermanent && renderAddressFields('nominee')}
                         {form.nominee.sameAsPermanent && (
                             <div className="opacity-50 pointer-events-none">
-                                {renderAddressFields('nominee.address')}
+                                {renderAddressFields('nominee')}
                             </div>
                         )}
                     </div>
@@ -948,9 +942,12 @@ export default function MemberDetails() {
                 <div className="pc-submit-bar">
                     <span className="pc-submit-info">* Ensure all mandatory fields marked with asterisk are filled.</span>
                     <div className="pc-submit-actions">
-                        <button type="button" className="pc-btn-ghost" onClick={() => setForm(EMPTY_FORM)}><RotateCcw size={14} style={{ display: 'inline', marginRight: 6 }} /> Reset Form</button>
+                        <button type="button" className="pc-btn-ghost" onClick={() => setForm(EMPTY_FORM)}>
+                            <RotateCcw size={14} /> Reset Form
+                        </button>
                         <button type="submit" className="pc-btn-primary" disabled={isSubmitting || !!dobError || !!aadharError || !!panError || Object.values(phoneErrors).some(err => !!err)}>
-                            {isSubmitting ? 'Saving...' : <><Save size={14} /> Save Member Details</>}
+                            {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                            {isSubmitting ? 'Saving...' : 'Save Member Details'}
                         </button>
                     </div>
                 </div>
@@ -985,6 +982,75 @@ export default function MemberDetails() {
                                 Capture Photo
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Success Success Modal */}
+            {showSuccessModal && lastRegisteredMember && (
+                <div style={{
+                    position: 'fixed', inset: 0, zIndex: 10001,
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    backdropFilter: 'blur(8px)', animation: 'fadeIn 0.3s ease-out'
+                }}>
+                    <div style={{
+                        background: 'white', borderRadius: '24px',
+                        padding: '2.5rem', width: '420px', maxWidth: '90vw',
+                        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                        textAlign: 'center', position: 'relative', overflow: 'hidden'
+                    }}>
+                        {/* Decorative background element */}
+                        <div style={{
+                            position: 'absolute', top: '-50px', right: '-50px',
+                            width: '150px', height: '150px', borderRadius: '50%',
+                            background: 'rgba(16, 185, 129, 0.05)', zIndex: 0
+                        }}></div>
+
+                        <div style={{
+                            width: '80px', height: '80px', background: '#ecfdf5',
+                            borderRadius: '50%', display: 'flex', alignItems: 'center',
+                            justifyContent: 'center', margin: '0 auto 1.5rem',
+                            color: '#10b981', border: '4px solid #f0fdf4',
+                            position: 'relative', zIndex: 1
+                        }}>
+                            <CheckCircle size={40} />
+                        </div>
+                        
+                        <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem', position: 'relative', zIndex: 1 }}>
+                            Success!
+                        </h2>
+                        <p style={{ color: '#64748b', fontSize: '1rem', marginBottom: '2rem', lineHeight: 1.5, position: 'relative', zIndex: 1 }}>
+                            Member has been registered successfully in the system.
+                        </p>
+
+                        <div style={{
+                            background: '#f8fafc', borderRadius: '16px',
+                            padding: '1.25rem', marginBottom: '2rem', border: '1px solid #f1f5f9',
+                            position: 'relative', zIndex: 1
+                        }}>
+                            <p style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, marginBottom: '0.5rem' }}>
+                                Assigned Member ID
+                            </p>
+                            <p style={{ fontSize: '2rem', fontWeight: 900, color: '#009BB0', letterSpacing: '1px', margin: 0 }}>
+                                {lastRegisteredMember.memberId}
+                            </p>
+                        </div>
+
+                        <button 
+                            onClick={() => setShowSuccessModal(false)}
+                            style={{
+                                width: '100%', padding: '1rem', background: '#0f172a',
+                                color: 'white', border: 'none', borderRadius: '12px',
+                                fontSize: '1rem', fontWeight: 700, cursor: 'pointer',
+                                transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(15, 23, 42, 0.2)',
+                                position: 'relative', zIndex: 1
+                            }}
+                            onMouseOver={(e) => (e.currentTarget.style.background = '#1e293b')}
+                            onMouseOut={(e) => (e.currentTarget.style.background = '#0f172a')}
+                        >
+                            Done & Close
+                        </button>
                     </div>
                 </div>
             )}

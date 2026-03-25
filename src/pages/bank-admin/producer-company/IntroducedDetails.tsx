@@ -140,7 +140,7 @@ export function IntroducedDetails() {
             streamRef.current = stream;
             setShowCamera(true);
         } catch (err) {
-            console.error("Camera error:", err);
+            console.error("Camera error..:", err);
             alert("Could not access camera");
             setCameraLoading(false);
         }

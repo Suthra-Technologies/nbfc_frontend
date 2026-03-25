@@ -43,6 +43,22 @@ import ShareCapitalWithdrawal from './pages/bank-admin/producer-company/Receipts
 import DOManagement from './pages/bank-admin/loan-management/client-master/DOManagement';
 import ApplicationForm from './pages/bank-admin/loan-management/loan-management/ApplicationForm';
 import ApplicantDetails from './pages/bank-admin/loan-management/loan-management/ApplicantDetails';
+import MaturityBonds from './pages/bank-admin/producer-company/surrenders/MaturityBonds';
+import CustomerPayment from './pages/bank-admin/producer-company/surrenders/CustomerPayment';
+import FDRenewal from './pages/bank-admin/producer-company/surrenders/FDRenewal';
+import EditCustomer from './pages/bank-admin/producer-company/EditCustomer';
+import ChangePassword from './pages/bank-admin/producer-company/ChangePassword';
+// loan-disbursal-emi-receipt pages
+import LoanDisbursal from "./pages/bank-admin/loan-disbursal-emi-receipt/loan-disbursal";
+import ProcessingChargesReceipt from "./pages/bank-admin/loan-disbursal-emi-receipt/processing-charges-receipt";
+import EmiDateChange from "./pages/bank-admin/loan-disbursal-emi-receipt/emi-date-change";
+import EmiCalculator from "./pages/bank-admin/loan-disbursal-emi-receipt/emi-calculator";
+import PreClosure from "./pages/bank-admin/loan-disbursal-emi-receipt/pre-closure";
+
+
+
+
+
 
 import { DashboardDispatcher } from "@/pages/dashboard/DashboardDispatcher"
 
@@ -52,6 +68,11 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { initializeTenant } from "@/store/tenantStore"
 import { UserRole } from "@/constants/roles"
 import ErrorBoundary from "@/components/common/ErrorBoundary"
+import DMS from "./pages/bank-admin/DMS/DMS";
+import OnlineDO from "./pages/bank-admin/DMS/online";
+import PrintDO from "./pages/bank-admin/DMS/duplicate-online";
+
+import { NotificationProvider } from "@/components/common/NotificationProvider"
 
 
 function App() {
@@ -63,7 +84,8 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <BrowserRouter>
+        <NotificationProvider>
+          <BrowserRouter>
           <Routes>
             {/* Public Routes */}
             <Route path="/auth/super-admin" element={<SuperAdminAuth />} />
@@ -116,8 +138,18 @@ function App() {
                   <Route path="/bank-admin/producer-company/insurance" element={<Insurance />} />
                   <Route path="/bank-admin/producer-company/group-entry" element={<PCPlaceholder title="Group Entry" />} />
                   <Route path="/bank-admin/producer-company/surrenders" element={<PCPlaceholder title="Surrenders & Maturities" />} />
+                  <Route path="/bank-admin/producer-company/surrenders/bonds" element={<MaturityBonds />} />
+                  <Route path="/bank-admin/producer-company/surrenders/payment" element={<CustomerPayment />} />
+                  <Route path="/bank-admin/producer-company/surrenders/renewal" element={<FDRenewal />} />
+
+
+
                   <Route path="/bank-admin/producer-company/passbook" element={<PCPlaceholder title="Passbook & Regeneration" />} />
                   <Route path="/bank-admin/producer-company/bonds" element={<PCPlaceholder title="Share & Bonds Prints" />} />
+                  <Route path="/bank-admin/producer-company/customer-edit" element={<EditCustomer />} />
+                  <Route path="/bank-admin/producer-company/password-change" element={<ChangePassword />} />
+
+
 
                   {/* PC Cash/Receipts for Bank Admin, Manager, Cashier */}
                   <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.MANAGER, UserRole.CASHIER]} />}>
@@ -177,9 +209,16 @@ function App() {
                   <Route path="/bank-admin/loans/vehicle-mgmt" element={<PCPlaceholder title="DO & Vehicle Management" />} />
                   <Route path="/bank-admin/loans/approvals" element={<PCPlaceholder title="Approvals & Processing" />} />
                   <Route path="/bank-admin/loans/disbursal" element={<PCPlaceholder title="Disbursal / EMI Receipt" />} />
+                  <Route path="/bank-admin/loan-disbursal-emi-receipt" element={<LoanDisbursal />} />
+                  <Route path="/bank-admin/loan-disbursal-emi-receipt-charges" element={<ProcessingChargesReceipt />} />
+                  <Route path="/bank-admin/loan-disbursal-emi-date-change" element={<EmiDateChange />} />
+                  <Route path="/bank-admin/loan-disbursal-emi-calculator" element={<EmiCalculator />} />
+                  <Route path="/bank-admin/loan-disbursal-pre-closure" element={<PreClosure />} />
                   <Route path="/bank-admin/loans/pre-closure" element={<PCPlaceholder title="Loan Pre-Closure" />} />
                   <Route path="/bank-admin/loans/notices" element={<PCPlaceholder title="Notices & Letters" />} />
-                  <Route path="/bank-admin/loans/dms" element={<PCPlaceholder title="Document Management (DMS)" />} />
+                  <Route path="/bank-admin/dms/extra-info" element={<DMS />} />
+                  <Route path="/bank-admin/dms/online-do" element={<OnlineDO />} />
+                  <Route path="/bank-admin/dms/reports/duplicate-do" element={<PrintDO />} />
                   <Route path="/bank-admin/loans/dms/tx" element={<PCPlaceholder title="Document Transactions" />} />
                   <Route path="/bank-admin/loans/calculator" element={<PCPlaceholder title="EMI Calculator" />} />
                   <Route path="/bank-admin/loans/gold-loan" element={<PCPlaceholder title="Gold Loan Performance" />} />
@@ -277,7 +316,8 @@ function App() {
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
-        </BrowserRouter>
+          </BrowserRouter>
+        </NotificationProvider>
       </ThemeProvider>
     </ErrorBoundary>
   )

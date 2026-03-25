@@ -5,8 +5,8 @@
 @layer base {
   :root {
     /* Corporate Banking Theme */
-    --background: 210 20% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
