@@ -82,6 +82,8 @@ import { LoanWiseDues } from "./pages/bank-admin/Collection-Management-System/Lo
 import { LoanWiseDuesSummary } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-wise-dues-summary";
 import { CollectionDetails } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/collection-details";
 import { InterestCollectionLoans } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/interest-collection-loans";
+import { LoanWiseDayClosingReport } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-wise-day-closing-report";
+import { GoldLoanDueReports } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/gold-loan-due-reports";
 
 
 function App() {
@@ -309,8 +311,8 @@ function App() {
                   <Route path="/bank-admin/reports/collections/details" element={<CollectionDetails />} />
                   <Route path="/bank-admin/reports/collections/vehicle-dues" element={<PCPlaceholder title="Vehicle Loan Dues" />} />
                   <Route path="/bank-admin/reports/collections/interest" element={<InterestCollectionLoans />} />
-                  <Route path="/bank-admin/reports/collections/day-closing" element={<PCPlaceholder title="Loan Wise Day Closing Report" />} />
-                  <Route path="/bank-admin/reports/collections/gold-dues" element={<PCPlaceholder title="Gold Loan Dues Report" />} />
+                  <Route path="/bank-admin/reports/collections/day-closing" element={<LoanWiseDayClosingReport />} />
+                  <Route path="/bank-admin/reports/collections/gold-dues" element={<GoldLoanDueReports />} />
                 </Route>
 
                 {/* Customers & Basic Operations */}
