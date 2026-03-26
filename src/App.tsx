@@ -61,10 +61,10 @@ import EmiDateChange from "./pages/bank-admin/loan-disbursal-emi-receipt/emi-dat
 import EmiCalculator from "./pages/bank-admin/loan-disbursal-emi-receipt/emi-calculator";
 import PreClosure from "./pages/bank-admin/loan-disbursal-emi-receipt/pre-closure";
 
-import ComparisonTB from "./pages/bank-admin/reports/mis-reports/ComparisonTB";
-import ScheduleTB from "./pages/bank-admin/reports/mis-reports/ScheduleTB";
-import BalanceSheet from "./pages/bank-admin/reports/mis-reports/BalanceSheet";
-import ProfitAndLoss from "./pages/bank-admin/reports/mis-reports/ProfitAndLoss";
+import MisComparisonTB from "./pages/bank-admin/reports/mis-reports/ComparisonTB";
+import MisScheduleTB from "./pages/bank-admin/reports/mis-reports/ScheduleTB";
+import MisBalanceSheet from "./pages/bank-admin/reports/mis-reports/BalanceSheet";
+import MisProfitAndLoss from "./pages/bank-admin/reports/mis-reports/ProfitAndLoss";
 import { ChequeManagement } from "./pages/bank-admin/Financial Accounting/Financial-master/ChequeManagement";
 import { DealerIncentiveMaster } from "./pages/bank-admin/Financial Accounting/Financial-master/DealerIncentiveMaster";
 
@@ -301,10 +301,10 @@ function App() {
                   <Route path="/bank-admin/analytics/consolidated" element={<PCPlaceholder title="Consolidated Reports" />} />
                   <Route path="/bank-admin/analytics/performance" element={<div className="p-8"><h1>Performance Analytics</h1><p className="text-muted-foreground">Revenue and growth insights</p></div>} />
                   <Route path="/bank-admin/reports/trial-balance" element={<PCPlaceholder title="Trial Balance" />} />
-                  <Route path="/bank-admin/reports/trial-balance-comp" element={<ComparisonTB />} />
-                  <Route path="/bank-admin/reports/trial-balance-sched" element={<ScheduleTB />} />
-                  <Route path="/bank-admin/reports/balance-sheet" element={<BalanceSheet />} />
-                  <Route path="/bank-admin/reports/profit-loss" element={<ProfitAndLoss />} />
+                  <Route path="/bank-admin/reports/trial-balance-comp" element={<MisComparisonTB />} />
+                  <Route path="/bank-admin/reports/trial-balance-sched" element={<MisScheduleTB />} />
+                  <Route path="/bank-admin/reports/balance-sheet" element={<MisBalanceSheet />} />
+                  <Route path="/bank-admin/reports/profit-loss" element={<MisProfitAndLoss />} />
                   <Route path="/bank-admin/reports/consolidated" element={<PCPlaceholder title="Consolidated Financials" />} />
                   <Route path="/bank-admin/reports/consolidated/trial-balance" element={<TrialBalance />} />
                   <Route path="/bank-admin/reports/consolidated/trial-balance-comp" element={<ComparisonTB />} />
