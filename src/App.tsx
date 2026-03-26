@@ -76,6 +76,12 @@ import PrintDO from "./pages/bank-admin/DMS/duplicate-online";
 
 import { NotificationProvider } from "@/components/common/NotificationProvider"
 import { EmployeeInformation } from "./pages/bank-admin/Financial Accounting/Financial-master/Employee-Information";
+import { LoanReceiptPaidDetails } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-receipt-paid-details";
+import { LoanDisbursedAndClosed } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-disbursed & closed";
+import { LoanWiseDues } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-wise-dues";
+import { LoanWiseDuesSummary } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-wise-dues-summary";
+import { CollectionDetails } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/collection-details";
+import { InterestCollectionLoans } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/interest-collection-loans";
 
 
 function App() {
@@ -296,13 +302,13 @@ function App() {
                   <Route path="/bank-admin/reports/day-closing" element={<PCPlaceholder title="Day Closing Details" />} />
                   <Route path="/bank-admin/reports/documents" element={<PCPlaceholder title="Document Management Reports" />} />
                   <Route path="/bank-admin/reports/collections" element={<PCPlaceholder title="Collection Management" />} />
-                  <Route path="/bank-admin/reports/collections/receipt-paid" element={<PCPlaceholder title="Loan Receipt Paid details" />} />
-                  <Route path="/bank-admin/reports/collections/disbursed-closed" element={<PCPlaceholder title="Loan Disbursed & Closed" />} />
-                  <Route path="/bank-admin/reports/collections/loan-dues" element={<PCPlaceholder title="Loan Wise Dues" />} />
-                  <Route path="/bank-admin/reports/collections/dues-summary" element={<PCPlaceholder title="Loan Wise Dues Summary" />} />
-                  <Route path="/bank-admin/reports/collections/details" element={<PCPlaceholder title="Collection Details" />} />
+                  <Route path="/bank-admin/reports/collections/receipt-paid" element={<LoanReceiptPaidDetails />} />
+                  <Route path="/bank-admin/reports/collections/disbursed-closed" element={<LoanDisbursedAndClosed />} />
+                  <Route path="/bank-admin/reports/collections/loan-dues" element={<LoanWiseDues />} />
+                  <Route path="/bank-admin/reports/collections/dues-summary" element={<LoanWiseDuesSummary />} />
+                  <Route path="/bank-admin/reports/collections/details" element={<CollectionDetails />} />
                   <Route path="/bank-admin/reports/collections/vehicle-dues" element={<PCPlaceholder title="Vehicle Loan Dues" />} />
-                  <Route path="/bank-admin/reports/collections/interest" element={<PCPlaceholder title="Interest Collection Loans" />} />
+                  <Route path="/bank-admin/reports/collections/interest" element={<InterestCollectionLoans />} />
                   <Route path="/bank-admin/reports/collections/day-closing" element={<PCPlaceholder title="Loan Wise Day Closing Report" />} />
                   <Route path="/bank-admin/reports/collections/gold-dues" element={<PCPlaceholder title="Gold Loan Dues Report" />} />
                 </Route>
