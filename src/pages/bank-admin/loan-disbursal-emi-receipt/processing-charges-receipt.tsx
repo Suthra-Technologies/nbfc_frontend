@@ -35,7 +35,7 @@ const ProcessingChargesReceipt = () => {
                     <Card className="flex-1 border-[#e2e8f0] shadow-sm bg-white">
                         <CardContent className="p-6 space-y-4">
                             <div className="flex items-center gap-4">
-                                <Label htmlFor="date" className="w-40 text-[11px] font-bold text-[#64748b] uppercase">Date:</Label>
+                                <Label htmlFor="date" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Date:</Label>
                                 <div className="relative flex-1 group">
                                     <Input id="date" defaultValue="24/03/2026" className="h-10 border-[#e2e8f0] group-hover:border-[#009BB0] transition-colors pr-8 bg-white text-[#1e293b] rounded-sm shadow-none" />
                                     <CalendarIcon className="absolute right-2 top-1.5 h-4 w-4 text-[#64748b]" />
@@ -43,7 +43,7 @@ const ProcessingChargesReceipt = () => {
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <Label htmlFor="nature" className="w-40 text-[11px] font-bold text-[#64748b] uppercase">Nature of loan:</Label>
+                                <Label htmlFor="nature" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Nature of loan:</Label>
                                 <Select>
                                     <SelectTrigger id="nature" className="h-10 border-[#e2e8f0] bg-white text-[#1e293b] rounded-sm shadow-none">
                                         <SelectValue placeholder="Select Nature" />
@@ -56,7 +56,7 @@ const ProcessingChargesReceipt = () => {
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <Label htmlFor="account" className="w-40 text-[11px] font-bold text-[#64748b] uppercase">Loan account No.:</Label>
+                                <Label htmlFor="account" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Loan account No.:</Label>
                                 <Select>
                                     <SelectTrigger id="account" className="h-10 border-[#e2e8f0] bg-white text-[#1e293b] rounded-sm shadow-none">
                                         <SelectValue placeholder="Select Loan account No." />
@@ -68,7 +68,7 @@ const ProcessingChargesReceipt = () => {
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <Label className="w-40 text-[11px] font-bold text-[#64748b] uppercase">Applicant name:</Label>
+                                <Label className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Applicant name:</Label>
                                 <span className="text-sm font-semibold text-[#1e293b]">---</span>
                             </div>
                         </CardContent>
@@ -184,7 +184,7 @@ const ProcessingChargesReceipt = () => {
                             <Input placeholder="Financial Charges" className="h-8 border-[#cbd5e0] bg-white text-[#1e293b] flex-1 text-[13px]" />
                         </div>
                         <div className="flex items-center gap-4">
-                            <Label className="w-36 text-[11px] font-bold text-[#64748b] uppercase">Insurance Charges:</Label>
+                            <Label className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Insurance Charges:</Label>
                             <Input placeholder="Insurance Charges" className="h-10 border-[#e2e8f0] bg-white text-[#1e293b] flex-1 rounded-sm shadow-none" />
                         </div>
                     </div>
@@ -236,21 +236,21 @@ const ProcessingChargesReceipt = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-[#f8fafc] p-4 rounded-md border border-[#e2e8f0] shadow-sm">
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-4">
-                                        <Label className="w-32 text-[11px] font-bold text-[#64748b] uppercase">Bank name:</Label>
+                                        <Label className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Bank name:</Label>
                                         <Input placeholder="Enter Bank name" className="h-10 border-[#e2e8f0] focus:border-[#009bb0] bg-white text-[#1e293b] flex-1 rounded-sm shadow-none" />
                                     </div>
                                     <div className="flex items-center gap-4">
-                                        <Label className="w-32 text-[11px] font-bold text-[#64748b] uppercase">Cheque No.:</Label>
+                                        <Label className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Cheque No.:</Label>
                                         <Input placeholder="Enter ChequeNo" className="h-10 border-[#e2e8f0] focus:border-[#009bb0] bg-white text-[#1e293b] flex-1 rounded-sm shadow-none" />
                                     </div>
                                 </div>
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-4">
-                                        <Label className="w-32 text-[11px] font-bold text-[#64748b] uppercase">Branch:</Label>
+                                        <Label className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Branch:</Label>
                                         <Input placeholder="Enter Branch" className="h-10 border-[#e2e8f0] focus:border-[#009bb0] bg-white text-[#1e293b] flex-1 rounded-sm shadow-none" />
                                     </div>
                                     <div className="flex items-center gap-4">
-                                        <Label className="w-32 text-[11px] font-bold text-[#64748b] uppercase">Date:</Label>
+                                        <Label className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Date:</Label>
                                         <div className="relative flex-1 group">
                                             <Input defaultValue="24/03/2026" className="h-10 border-[#e2e8f0] focus:border-[#009bb0] transition-colors pr-8 bg-white text-[#1e293b] rounded-sm shadow-none" />
                                             <CalendarIcon className="absolute right-2 top-1.5 h-4 w-4 text-[#64748b]" />

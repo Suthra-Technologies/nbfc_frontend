@@ -649,7 +649,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                     onClick={() => toggleSubmenu(subItem.label)}
                                     className={cn(
                                         "w-full justify-start h-8 px-2 text-[11px] transition-all duration-200 flex items-center relative",
-                                        isActive ? "text-[#009BB0] font-bold bg-[#009BB0]/5" : "text-slate-500 hover:text-[#009BB0]"
+                                        isActive ? "text-[#009BB0] font-bold bg-[#009BB0]/5 hover:text-[#009BB0] hover:bg-[#009BB0]/10" : "text-slate-500 hover:text-[#009BB0]"
                                     )}
                                 >
                                     <div className="absolute -left-4 top-0 h-1/2 w-4 border-l border-b border-slate-400 rounded-bl-lg" />
@@ -675,7 +675,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                         className={cn(
                                             "w-full justify-start h-8 px-2 text-[11px] transition-all duration-200 flex items-center relative",
                                             isActive
-                                                ? "text-[#009BB0] font-bold bg-[#009BB0]/5"
+                                                ? "text-[#009BB0] font-bold bg-[#009BB0]/5 hover:text-[#009BB0] hover:bg-[#009BB0]/10"
                                                 : "text-slate-500 hover:text-[#009BB0] hover:bg-[#009BB0]/5"
                                         )}
                                     >
@@ -725,7 +725,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                         className={cn(
                                             "group relative w-full justify-start h-9 px-3 transition-all duration-250 ease-out",
                                             isActive
-                                                ? "bg-[#009BB0]/10 text-[#009BB0] border-r-4 border-[#009BB0] rounded-r-none shadow-sm"
+                                                ? "bg-[#009BB0]/10 text-[#009BB0] border-r-4 border-[#009BB0] rounded-r-none shadow-sm hover:text-[#009BB0] hover:bg-[#009BB0]/20"
                                                 : "text-slate-600 hover:bg-[#009BB0]/5 hover:text-[#009BB0] hover:shadow-sm hover:translate-x-1"
                                         )}
                                     >
@@ -753,7 +753,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                             className={cn(
                                                 "group relative w-full justify-start h-9 px-3 transition-all duration-250 ease-out",
                                                 isActive
-                                                    ? "bg-[#009BB0]/10 text-[#009BB0] border-r-4 border-[#009BB0] rounded-r-none shadow-sm"
+                                                    ? "bg-[#009BB0]/10 text-[#009BB0] border-r-4 border-[#009BB0] rounded-r-none shadow-sm hover:text-[#009BB0] hover:bg-[#009BB0]/20"
                                                     : "text-slate-600 hover:bg-[#009BB0]/5 hover:text-[#009BB0] hover:shadow-sm hover:translate-x-1"
                                             )}
                                         >

@@ -103,7 +103,7 @@ const ApplicationForm: React.FC = () => {
                         {/* Core Applicant Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                             <div className="space-y-2.5">
-                                <Label className="font-bold text-slate-700 text-sm">Nature of Loan :*</Label>
+                                <Label className="font-bold text-slate-700 text-sm">Nature of Loan :<span className="text-red-500 ml-0.5">*</span></Label>
                                 <Select>
                                     <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200">
                                         <SelectValue placeholder="Select Nature Of Loan" />
@@ -116,7 +116,7 @@ const ApplicationForm: React.FC = () => {
                                 </Select>
                             </div>
                             <div className="space-y-2.5">
-                                <Label className="font-bold text-slate-700 text-sm">Applicant Type :*</Label>
+                                <Label className="font-bold text-slate-700 text-sm">Applicant Type :<span className="text-red-500 ml-0.5">*</span></Label>
                                 <Select>
                                     <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200">
                                         <SelectValue placeholder="Select Applicant type" />
@@ -129,7 +129,7 @@ const ApplicationForm: React.FC = () => {
                             </div>
 
                             <div className="space-y-2.5">
-                                <Label className="font-bold text-slate-700 text-sm">Membership ID :*</Label>
+                                <Label className="font-bold text-slate-700 text-sm">Membership ID :<span className="text-red-500 ml-0.5">*</span></Label>
                                 <Select>
                                     <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200">
                                         <SelectValue placeholder="Select Membership ID" />
@@ -141,7 +141,7 @@ const ApplicationForm: React.FC = () => {
                                 </Select>
                             </div>
                             <div className="space-y-2.5">
-                                <Label className="font-bold text-slate-700 text-sm">Service Center :*</Label>
+                                <Label className="font-bold text-slate-700 text-sm">Service Center :<span className="text-red-500 ml-0.5">*</span></Label>
                                 <Select>
                                     <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200">
                                         <SelectValue placeholder="GROUTH CENTER" />
@@ -154,7 +154,7 @@ const ApplicationForm: React.FC = () => {
                             </div>
 
                             <div className="space-y-2.5">
-                                <Label className="font-bold text-slate-700 text-sm">Agent Type :*</Label>
+                                <Label className="font-bold text-slate-700 text-sm">Agent Type :<span className="text-red-500 ml-0.5">*</span></Label>
                                 <Select defaultValue="direct">
                                     <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200">
                                         <SelectValue placeholder="Select Agent Type" />
@@ -166,7 +166,7 @@ const ApplicationForm: React.FC = () => {
                                 </Select>
                             </div>
                             <div className="space-y-2.5">
-                                <Label className="font-bold text-slate-700 text-sm">Company Name :*</Label>
+                                <Label className="font-bold text-slate-700 text-sm">Company Name :<span className="text-red-500 ml-0.5">*</span></Label>
                                 <Select defaultValue="maha">
                                     <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200">
                                         <SelectValue placeholder="Select Company Name" />
@@ -178,11 +178,11 @@ const ApplicationForm: React.FC = () => {
                             </div>
 
                             <div className="space-y-2.5">
-                                <Label className="font-bold text-slate-700 text-sm">Applicant Name :*</Label>
+                                <Label className="font-bold text-slate-700 text-sm">Applicant Name :<span className="text-red-500 ml-0.5">*</span></Label>
                                 <Input placeholder="Enter Applicant Name" className="h-11 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-indigo-500" />
                             </div>
                             <div className="space-y-2.5">
-                                <Label className="font-bold text-slate-700 text-sm">Phone No. :*</Label>
+                                <Label className="font-bold text-slate-700 text-sm">Phone No. :<span className="text-red-500 ml-0.5">*</span></Label>
                                 <div className="relative">
                                     <Smartphone className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
                                     <Input placeholder="Enter MobileNo." className="pl-10 h-11 rounded-xl bg-slate-50 border-slate-200" />
@@ -190,7 +190,7 @@ const ApplicationForm: React.FC = () => {
                             </div>
 
                             <div className="space-y-2.5">
-                                <Label className="font-bold text-slate-700 text-sm">Occupation Type :*</Label>
+                                <Label className="font-bold text-slate-700 text-sm">Occupation Type :<span className="text-red-500 ml-0.5">*</span></Label>
                                 <Select>
                                     <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200">
                                         <SelectValue placeholder="Select" />
@@ -202,7 +202,7 @@ const ApplicationForm: React.FC = () => {
                                 </Select>
                             </div>
                             <div className="space-y-2.5">
-                                <Label className="font-bold text-slate-700 text-sm">Purpose of loan :*</Label>
+                                <Label className="font-bold text-slate-700 text-sm">Purpose of loan :<span className="text-red-500 ml-0.5">*</span></Label>
                                 <Input placeholder="Enter Purpose" className="h-11 rounded-xl bg-slate-50 border-slate-200" />
                             </div>
                         </div>
@@ -222,7 +222,7 @@ const ApplicationForm: React.FC = () => {
                         <CardContent className="p-6 space-y-6">
                             <div className="grid grid-cols-1 gap-5">
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-bold text-slate-500 uppercase">Interest Expected :*</Label>
+                                    <Label className="text-xs font-bold text-slate-500 uppercase">Interest Expected :<span className="text-red-500 ml-0.5">*</span></Label>
                                     <Select>
                                         <SelectTrigger className="h-10 rounded-xl">
                                             <SelectValue placeholder="Select Percentage" />
@@ -236,7 +236,7 @@ const ApplicationForm: React.FC = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold text-slate-500 uppercase">EMI Type :*</Label>
+                                        <Label className="text-xs font-bold text-slate-500 uppercase">EMI Type :<span className="text-red-500 ml-0.5">*</span></Label>
                                         <Select>
                                             <SelectTrigger className="h-10 rounded-xl">
                                                 <SelectValue placeholder="Select" />
@@ -248,7 +248,7 @@ const ApplicationForm: React.FC = () => {
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold text-slate-500 uppercase">Interest Mode :*</Label>
+                                        <Label className="text-xs font-bold text-slate-500 uppercase">Interest Mode :<span className="text-red-500 ml-0.5">*</span></Label>
                                         <Select>
                                             <SelectTrigger className="h-10 rounded-xl">
                                                 <SelectValue placeholder="Select" />
@@ -261,18 +261,18 @@ const ApplicationForm: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-bold text-slate-500 uppercase">Tenure (Months) :*</Label>
+                                    <Label className="text-xs font-bold text-slate-500 uppercase">Tenure (Months) :<span className="text-red-500 ml-0.5">*</span></Label>
                                     <Input placeholder="Enter Tenure" type="number" className="h-10 rounded-xl" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-bold text-slate-500 uppercase">Amount Requested :*</Label>
+                                    <Label className="text-xs font-bold text-slate-500 uppercase">Amount Requested :<span className="text-red-500 ml-0.5">*</span></Label>
                                     <div className="relative">
                                         <span className="absolute left-3 top-2.5 text-slate-400 text-sm font-bold">₹</span>
                                         <Input placeholder="Enter Amount" type="number" className="pl-8 h-10 rounded-xl" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-bold text-slate-500 uppercase">Security Value :*</Label>
+                                    <Label className="text-xs font-bold text-slate-500 uppercase">Security Value :<span className="text-red-500 ml-0.5">*</span></Label>
                                     <Input defaultValue="0" type="number" className="h-10 rounded-xl" />
                                 </div>
                             </div>
