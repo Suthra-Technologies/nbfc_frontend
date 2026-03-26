@@ -48,6 +48,12 @@ import CustomerPayment from './pages/bank-admin/producer-company/surrenders/Cust
 import FDRenewal from './pages/bank-admin/producer-company/surrenders/FDRenewal';
 import EditCustomer from './pages/bank-admin/producer-company/EditCustomer';
 import ChangePassword from './pages/bank-admin/producer-company/ChangePassword';
+import ProfileTB from './pages/bank-admin/reports/consolidated/TrialBalance';
+import ComparisonTB from './pages/bank-admin/reports/consolidated/ComparisonTB';
+import TrialBalance from './pages/bank-admin/reports/consolidated/TrialBalance';
+import ScheduleTB from './pages/bank-admin/reports/consolidated/ScheduleTB';
+import BalanceSheet from './pages/bank-admin/reports/consolidated/BalanceSheet';
+import ProfitLoss from './pages/bank-admin/reports/consolidated/ProfitLoss';
 // loan-disbursal-emi-receipt pages
 import LoanDisbursal from "./pages/bank-admin/loan-disbursal-emi-receipt/loan-disbursal";
 import ProcessingChargesReceipt from "./pages/bank-admin/loan-disbursal-emi-receipt/processing-charges-receipt";
@@ -285,11 +291,11 @@ function App() {
                   <Route path="/bank-admin/reports/balance-sheet" element={<PCPlaceholder title="Balance Sheet" />} />
                   <Route path="/bank-admin/reports/profit-loss" element={<PCPlaceholder title="Profit & Loss" />} />
                   <Route path="/bank-admin/reports/consolidated" element={<PCPlaceholder title="Consolidated Financials" />} />
-                  <Route path="/bank-admin/reports/consolidated/trial-balance" element={<PCPlaceholder title="Trial Balance" />} />
-                  <Route path="/bank-admin/reports/consolidated/trial-balance-comp" element={<PCPlaceholder title="Comparison TB" />} />
-                  <Route path="/bank-admin/reports/consolidated/trial-balance-sched" element={<PCPlaceholder title="Schedule TB" />} />
-                  <Route path="/bank-admin/reports/consolidated/balance-sheet" element={<PCPlaceholder title="Balance Sheet" />} />
-                  <Route path="/bank-admin/reports/consolidated/profit-loss" element={<PCPlaceholder title="Profit & Loss" />} />
+                  <Route path="/bank-admin/reports/consolidated/trial-balance" element={<TrialBalance />} />
+                  <Route path="/bank-admin/reports/consolidated/trial-balance-comp" element={<ComparisonTB />} />
+                  <Route path="/bank-admin/reports/consolidated/trial-balance-sched" element={<ScheduleTB />} />
+                  <Route path="/bank-admin/reports/consolidated/balance-sheet" element={<BalanceSheet />} />
+                  <Route path="/bank-admin/reports/consolidated/profit-loss" element={<ProfitLoss />} />
                   <Route path="/bank-admin/reports/day-closing" element={<PCPlaceholder title="Day Closing Details" />} />
                   <Route path="/bank-admin/reports/documents" element={<PCPlaceholder title="Document Management Reports" />} />
                   <Route path="/bank-admin/reports/collections" element={<PCPlaceholder title="Collection Management" />} />
