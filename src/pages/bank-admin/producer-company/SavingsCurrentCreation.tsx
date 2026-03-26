@@ -195,11 +195,11 @@ export function SavingsCurrentCreation() {
                     </div>
                 </div>
 
-                {/* Permanet Address */}
+                {/* Permanent Address */}
                 <div className="pc-card">
                     <div className="pc-card-header">
                         <div className="pc-card-icon"><MapPin size={14} /></div>
-                        <p className="pc-card-title">Permanet Address</p>
+                        <p className="pc-card-title">Permanent Address</p>
                     </div>
                     <div className="pc-form">
                         <div className="pc-grid">
@@ -239,7 +239,7 @@ export function SavingsCurrentCreation() {
                 <div className="pc-card">
                     <div className="pc-card-header">
                         <div className="pc-card-icon"><Heart size={14} /></div>
-                        <p className="pc-card-title">Nomnee Details</p>
+                        <p className="pc-card-title">Nominee Details</p>
                     </div>
                     <div className="pc-form">
                         <div className="pc-grid">

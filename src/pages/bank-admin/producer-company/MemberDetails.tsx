@@ -4,13 +4,17 @@ import './producer.css';
 import { memberService } from '@/services/member.service';
 import { uploadService } from '@/services/upload.service';
 import { useNotification } from '@/components/common/NotificationProvider';
+import locations from '@/data/locations.json';
+
+type LocationsType = Record<string, Record<string, string[]>>;
+const locationData = locations as LocationsType;
 
 const INITIAL_ADDRESS = {
     houseNo: '',
     area: '',
     rural: '',
     country: 'India',
-    state: 'ANDHRA PRADESH',
+    state: '',
     district: '',
     mandal: '',
     city: '',
@@ -367,26 +371,52 @@ export default function MemberDetails() {
             </div>
             <div className="pc-field">
                 <label className="pc-label">State *</label>
-                <select className="pc-select" value={getValueByPath(form, `${prefix}.state`)} onChange={e => updateField(`${prefix}.state`, e.target.value)}>
-                    <option>ANDHRA PRADESH</option>
-                    <option>TELANGANA</option>
-                    <option>TAMIL NADU</option>
-                    <option>KARNATAKA</option>
+                <select className="pc-select" value={getValueByPath(form, `${prefix}.state`)} onChange={e => {
+                    const state = e.target.value;
+                    const newForm = { ...form };
+                    let current = newForm as any;
+                    const parts = prefix.split('.');
+                    for(let i=0; i<parts.length; i++) current = current[parts[i]];
+                    current.state = state;
+                    current.district = '';
+                    current.mandal = '';
+                    setForm(newForm);
+                }}>
+                    <option value="">Select State</option>
+                    {Object.keys(locationData).map(st => (
+                        <option key={st} value={st}>{st}</option>
+                    ))}
                 </select>
             </div>
             <div className="pc-field">
                 <label className="pc-label">District</label>
-                <select className="pc-select" value={getValueByPath(form, `${prefix}.district`)} onChange={e => updateField(`${prefix}.district`, e.target.value)}>
+                <select className="pc-select" value={getValueByPath(form, `${prefix}.district`)} onChange={e => {
+                    const district = e.target.value;
+                    const newForm = { ...form };
+                    let current = newForm as any;
+                    const parts = prefix.split('.');
+                    for(let i=0; i<parts.length; i++) current = current[parts[i]];
+                    current.district = district;
+                    current.mandal = '';
+                    setForm(newForm);
+                }}>
                     <option value="">Select District</option>
-                    <option>Kurnool</option>
-                    <option>Guntur</option>
-                    <option>Nellore</option>
+                    {getValueByPath(form, `${prefix}.state`) && locationData[getValueByPath(form, `${prefix}.state`)] ? (
+                        Object.keys(locationData[getValueByPath(form, `${prefix}.state`)]).map(dist => (
+                            <option key={dist} value={dist}>{dist}</option>
+                        ))
+                    ) : null}
                 </select>
             </div>
             <div className="pc-field">
                 <label className="pc-label">Mandal</label>
                 <select className="pc-select" value={getValueByPath(form, `${prefix}.mandal`)} onChange={e => updateField(`${prefix}.mandal`, e.target.value)}>
                     <option value="">Select Mandal</option>
+                    {getValueByPath(form, `${prefix}.state`) && getValueByPath(form, `${prefix}.district`) && locationData[getValueByPath(form, `${prefix}.state`)]?.[getValueByPath(form, `${prefix}.district`)] ? (
+                        locationData[getValueByPath(form, `${prefix}.state`)][getValueByPath(form, `${prefix}.district`)].map((man: string) => (
+                            <option key={man} value={man}>{man}</option>
+                        ))
+                    ) : null}
                 </select>
             </div>
             <div className="pc-field">

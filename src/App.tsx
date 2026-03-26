@@ -27,6 +27,7 @@ import { UserRights } from "@/pages/bank-admin/user-rights/UserRights"
 import { ShareCapital } from "@/pages/bank-admin/producer-company/ShareCapital"
 import { IntroducedDetails } from "@/pages/bank-admin/producer-company/IntroducedDetails"
 // import { AccountCreation } from "@/pages/bank-admin/producer-company/AccountCreation"
+import { SavingsCurrentCreation } from "@/pages/bank-admin/producer-company/SavingsCurrentCreation"
 import { FixedDeposits } from "@/pages/bank-admin/producer-company/FixedDeposits"
 import { RecurringDeposits } from "@/pages/bank-admin/producer-company/RecurringDeposits"
 import { Insurance } from "@/pages/bank-admin/producer-company/Insurance"
@@ -59,6 +60,11 @@ import ProcessingChargesReceipt from "./pages/bank-admin/loan-disbursal-emi-rece
 import EmiDateChange from "./pages/bank-admin/loan-disbursal-emi-receipt/emi-date-change";
 import EmiCalculator from "./pages/bank-admin/loan-disbursal-emi-receipt/emi-calculator";
 import PreClosure from "./pages/bank-admin/loan-disbursal-emi-receipt/pre-closure";
+
+import ComparisonTB from "./pages/bank-admin/reports/mis-reports/ComparisonTB";
+import ScheduleTB from "./pages/bank-admin/reports/mis-reports/ScheduleTB";
+import BalanceSheet from "./pages/bank-admin/reports/mis-reports/BalanceSheet";
+import ProfitAndLoss from "./pages/bank-admin/reports/mis-reports/ProfitAndLoss";
 import { ChequeManagement } from "./pages/bank-admin/Financial Accounting/Financial-master/ChequeManagement";
 import { DealerIncentiveMaster } from "./pages/bank-admin/Financial Accounting/Financial-master/DealerIncentiveMaster";
 
@@ -147,7 +153,7 @@ function App() {
                     <Route path="/bank-admin/producer-company/member-details" element={<MemberDetails />} />
                     <Route path="/bank-admin/producer-company/share-capital" element={<ShareCapital />} />
                     <Route path="/bank-admin/producer-company/introduced-details" element={<IntroducedDetails />} />
-                    <Route path="/bank-admin/producer-company/bank-creation" element={<PCPlaceholder title="Savings/Current Account Creation" />} />
+                    <Route path="/bank-admin/producer-company/bank-creation" element={<SavingsCurrentCreation />} />
                     <Route path="/bank-admin/producer-company/fixed-deposits" element={<FixedDeposits />} />
                     <Route path="/bank-admin/producer-company/recurring-deposits" element={<RecurringDeposits />} />
                     <Route path="/bank-admin/producer-company/insurance" element={<Insurance />} />
@@ -295,10 +301,10 @@ function App() {
                   <Route path="/bank-admin/analytics/consolidated" element={<PCPlaceholder title="Consolidated Reports" />} />
                   <Route path="/bank-admin/analytics/performance" element={<div className="p-8"><h1>Performance Analytics</h1><p className="text-muted-foreground">Revenue and growth insights</p></div>} />
                   <Route path="/bank-admin/reports/trial-balance" element={<PCPlaceholder title="Trial Balance" />} />
-                  <Route path="/bank-admin/reports/trial-balance-comp" element={<PCPlaceholder title="Comparison TB" />} />
-                  <Route path="/bank-admin/reports/trial-balance-sched" element={<PCPlaceholder title="Schedule TB" />} />
-                  <Route path="/bank-admin/reports/balance-sheet" element={<PCPlaceholder title="Balance Sheet" />} />
-                  <Route path="/bank-admin/reports/profit-loss" element={<PCPlaceholder title="Profit & Loss" />} />
+                  <Route path="/bank-admin/reports/trial-balance-comp" element={<ComparisonTB />} />
+                  <Route path="/bank-admin/reports/trial-balance-sched" element={<ScheduleTB />} />
+                  <Route path="/bank-admin/reports/balance-sheet" element={<BalanceSheet />} />
+                  <Route path="/bank-admin/reports/profit-loss" element={<ProfitAndLoss />} />
                   <Route path="/bank-admin/reports/consolidated" element={<PCPlaceholder title="Consolidated Financials" />} />
                   <Route path="/bank-admin/reports/consolidated/trial-balance" element={<TrialBalance />} />
                   <Route path="/bank-admin/reports/consolidated/trial-balance-comp" element={<ComparisonTB />} />

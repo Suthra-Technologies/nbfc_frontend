@@ -1,19 +1,9 @@
-import { useState, useRef } from 'react';
-import {
-    UserPlus,
-    ChevronRight,
-    Briefcase,
-    Layout,
-    Heart,
-    UserCheck,
-    ChevronLeft,
-    Image as ImageIcon,
-    Camera,
-    FileText,
-    Loader2,
-    X
-} from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { UserPlus, ChevronRight, Briefcase, Layout, Heart, UserCheck, ChevronLeft, Image as ImageIcon, Camera, FileText, Loader2, X } from 'lucide-react';
 import './producer.css';
+import { introducerService } from '@/services/introducer.service';
+import { uploadService } from '@/services/upload.service';
+import { useNotification } from '@/components/common/NotificationProvider';
 
 
 const TABS = [
@@ -48,31 +38,38 @@ const INITIAL_FORM = {
     // Family Details
     fatherHusbandName: '',
     motherMaidenName: '',
-    nomineeName: '',
-    familyRelation: '',
     familyRuralArea: '',
     familyState: 'Select',
     familyMandal: '',
-    nomineeHouseNo: '',
-    nomineeRural: '',
-    nomineeDistrict: '',
-    nomineeCityArea: '',
-    nomineeCountry: 'Select',
-    nomineeMobileNo: '',
-    nomineeArea: '',
-    nomineePoSubCity: '',
-    nomineePincode: '',
-    nomineeLandMark: '',
-    nomineeAge: '',
-
+    nominee: {
+        name: '',
+        relation: '',
+        age: '',
+        mobileNo: '',
+        address: {
+            houseNo: '',
+            area: '',
+            rural: '',
+            country: 'Select',
+            state: 'Select',
+            district: '',
+            cityArea: '',
+            landMark: '',
+            poSubCity: '',
+            pincode: ''
+        }
+    },
+    
     // Other Details
-    bankName: '',
-    branch: '',
-    branchCode: '',
-    accountNo: '',
+    bankAccount: {
+        bankName: '',
+        branch: '',
+        branchCode: '',
+        accountNo: '',
+        bankAddress: '',
+        ifscCode: '',
+    },
     idProofType: 'Select',
-    bankAddress: '',
-    ifscCode: '',
     relateCode: '',
     proposedArea: '',
     introducerName: 'Select',
@@ -85,19 +82,22 @@ const INITIAL_FORM = {
     introducerAadhar: '',
 
     // Past Experience
-    prevCompanyName: '',
-    joiningDate: '',
-    currentGrade: '',
-    operationArea: '',
-    joiningGrade: '',
+    experience: {
+        companyName: '',
+        joiningDate: '',
+        currentGrade: '',
+        operationArea: '',
+        joiningGrade: '',
+    }
 };
 
 export function IntroducedDetails() {
     const [activeTab, setActiveTab] = useState(0);
     const [form, setForm] = useState(INITIAL_FORM);
-    const [saved, setSaved] = useState(false);
-    const [uploading, setUploading] = useState({ photo: false, signature: false });
-    const [previews, setPreviews] = useState({ photo: '', signature: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [uploading, setUploading] = useState<Record<string, boolean>>({});
+    const [previews, setPreviews] = useState<Record<string, string>>({});
+    const { success: notifySuccess, error: notifyError } = useNotification();
 
     // Camera State
     const [showCamera, setShowCamera] = useState(false);
@@ -115,19 +115,65 @@ export function IntroducedDetails() {
         }
     };
 
-    const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+    const updateField = (path: string, value: any) => {
+        setForm(prev => {
+            const newForm = JSON.parse(JSON.stringify(prev));
+            const parts = path.split('.');
+            let current = newForm;
+            for (let i = 0; i < parts.length - 1; i++) {
+                if (!current[parts[i]]) current[parts[i]] = {};
+                current = current[parts[i]];
+            }
+            current[parts[parts.length - 1]] = value;
+            return newForm;
+        });
+    };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'photo' | 'signature') => {
+
+
+    // Age calculation
+    useEffect(() => {
+        if (form.dob) {
+            const birth = new Date(form.dob);
+            const today = new Date();
+            let age = today.getFullYear() - birth.getFullYear();
+            const m = today.getMonth() - birth.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            updateField('age', age > 0 ? age.toString() : '0');
+        }
+    }, [form.dob]);
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        uploadFile(file, key);
+    };
 
-        setUploading(prev => ({ ...prev, [type]: true }));
+    const uploadFile = async (file: File | Blob, key: string) => {
+        // Local preview
         const reader = new FileReader();
         reader.onloadend = () => {
-            setPreviews(prev => ({ ...prev, [type]: reader.result as string }));
-            setUploading(prev => ({ ...prev, [type]: false }));
+            setPreviews(prev => ({ ...prev, [key]: reader.result as string }));
         };
         reader.readAsDataURL(file);
+
+        // Upload to S3
+        setUploading(prev => ({ ...prev, [key]: true }));
+        try {
+            const fileToUpload = file instanceof File ? file : new File([file], `${key}_${Date.now()}.jpg`, { type: 'image/jpeg' });
+            const data = await uploadService.uploadSingle(fileToUpload);
+            
+            if (key === 'photo') updateField('photoUrl', data.url);
+            else if (key === 'signature') updateField('signatureUrl', data.url);
+            
+            notifySuccess('Upload Successful', `${key} uploaded successfully`);
+        } catch (error) {
+            notifyError('Upload Failed', `Failed to upload ${key}.`);
+        } finally {
+            setUploading(prev => ({ ...prev, [key]: false }));
+        }
     };
 
     const startCamera = async (type: 'photo' | 'signature') => {
@@ -168,17 +214,31 @@ export function IntroducedDetails() {
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
                 setPreviews(prev => ({ ...prev, [captureField]: dataUrl }));
                 stopCamera();
+                canvas.toBlob((blob) => {
+                    if (blob) uploadFile(blob, captureField);
+                }, 'image/jpeg', 0.9);
             }
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (activeTab < TABS.length - 1) {
             setActiveTab(activeTab + 1);
         } else {
-            setSaved(true);
-            setTimeout(() => setSaved(false), 3000);
+            setIsSubmitting(true);
+            try {
+                await introducerService.createIntroducer(form as any);
+                notifySuccess('Registration Successful', 'Freelance Employee registered successfully');
+                setForm(INITIAL_FORM);
+                setPreviews({});
+                setActiveTab(0);
+            } catch (err: any) {
+                const msg = err?.response?.data?.message || 'Failed to save details';
+                notifyError('Error', msg);
+            } finally {
+                setIsSubmitting(false);
+            }
         }
     };
 
@@ -304,7 +364,7 @@ export function IntroducedDetails() {
                                 <select
                                     className="pc-select"
                                     value={form.postAppliedFor}
-                                    onChange={e => set('postAppliedFor', e.target.value)}
+                                    onChange={e => updateField('postAppliedFor', e.target.value)}
                                 >
                                     <option>Select</option>
                                     <option>If any Others</option>
@@ -338,77 +398,77 @@ export function IntroducedDetails() {
                             <div className="pc-grid">
                                 <div className="pc-field">
                                     <label className="pc-label">Name: *</label>
-                                    <input className="pc-input" placeholder="Enter Full Name" value={form.employeeName} onChange={e => set('employeeName', e.target.value)} required />
+                                    <input className="pc-input" placeholder="Enter Full Name" value={form.employeeName} onChange={e => updateField('employeeName', e.target.value)} required />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Rural :</label>
-                                    <input className="pc-input" placeholder="Enter Village" value={form.rural} onChange={e => set('rural', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter Village" value={form.rural} onChange={e => updateField('rural', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Country: *</label>
-                                    <select className="pc-select" value={form.country} onChange={e => set('country', e.target.value)}>
+                                    <select className="pc-select" value={form.country} onChange={e => updateField('country', e.target.value)}>
                                         <option>Select</option><option>India</option>
                                     </select>
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Gender: *</label>
-                                    <select className="pc-select" value={form.gender} onChange={e => set('gender', e.target.value)}>
+                                    <select className="pc-select" value={form.gender} onChange={e => updateField('gender', e.target.value)}>
                                         <option>Select</option><option>Male</option><option>Female</option>
                                     </select>
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Sub-City: *</label>
-                                    <input className="pc-input" placeholder="Enter Post Office" value={form.poSubCity} onChange={e => set('poSubCity', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter Post Office" value={form.poSubCity} onChange={e => updateField('poSubCity', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Pincode:</label>
-                                    <input className="pc-input" placeholder="Enter Pincode" value={form.pincode} onChange={e => set('pincode', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter Pincode" value={form.pincode} onChange={e => updateField('pincode', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">House No:</label>
-                                    <input className="pc-input" placeholder="Enter House No" value={form.houseNo} onChange={e => set('houseNo', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter House No" value={form.houseNo} onChange={e => updateField('houseNo', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">District:</label>
-                                    <input className="pc-input" placeholder="Enter District" value={form.district} onChange={e => set('district', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter District" value={form.district} onChange={e => updateField('district', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Res No.:</label>
-                                    <input className="pc-input" placeholder="Enter Residence No." value={form.residenceNo} onChange={e => set('residenceNo', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter Residence No." value={form.residenceNo} onChange={e => updateField('residenceNo', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Area:</label>
-                                    <input className="pc-input" placeholder="Enter Street" value={form.area} onChange={e => set('area', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter Street" value={form.area} onChange={e => updateField('area', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">State: *</label>
-                                    <select className="pc-select" value={form.state} onChange={e => set('state', e.target.value)}>
+                                    <select className="pc-select" value={form.state} onChange={e => updateField('state', e.target.value)}>
                                         <option>Select</option><option>Telangana</option><option>AP</option>
                                     </select>
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Mobile: *</label>
-                                    <input className="pc-input" placeholder="Enter Mobile No." value={form.mobileNo} onChange={e => set('mobileNo', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter Mobile No." value={form.mobileNo} onChange={e => updateField('mobileNo', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Rural Area:</label>
-                                    <input className="pc-input" placeholder="Enter Rural Area" value={form.ruralArea} onChange={e => set('ruralArea', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter Rural Area" value={form.ruralArea} onChange={e => updateField('ruralArea', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">City Area:</label>
-                                    <input className="pc-input" placeholder="Enter City Area" value={form.cityArea} onChange={e => set('cityArea', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter City Area" value={form.cityArea} onChange={e => updateField('cityArea', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Land Mark:</label>
-                                    <input className="pc-input" placeholder="Enter Land Mark" value={form.landMark} onChange={e => set('landMark', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter Land Mark" value={form.landMark} onChange={e => updateField('landMark', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Mandal:</label>
-                                    <input className="pc-input" placeholder="Enter Mandal" value={form.mandal} onChange={e => set('mandal', e.target.value)} />
+                                    <input className="pc-input" placeholder="Enter Mandal" value={form.mandal} onChange={e => updateField('mandal', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">DOB:</label>
-                                    <input type="date" className="pc-input" value={form.dob} onChange={e => set('dob', e.target.value)} />
+                                    <input type="date" className="pc-input" value={form.dob} onChange={e => updateField('dob', e.target.value)} />
                                 </div>
                                 <div className="pc-field">
                                     <label className="pc-label">Age:</label>
@@ -473,19 +533,95 @@ export function IntroducedDetails() {
                     <div className="pc-card">
                         <div className="pc-card-header">
                             <div className="pc-card-icon"><Heart size={14} /></div>
-                            <div><p className="pc-card-title">Family</p></div>
+                            <div>
+                                <p className="pc-card-title">Family Details</p>
+                                <p className="pc-card-sub">Family & Nominee Information</p>
+                            </div>
                         </div>
                         <div className="pc-form">
                             <div className="pc-grid">
-                                <div className="pc-field"><label className="pc-label">Father/Husband Name:*</label><input className="pc-input" placeholder="Enter Father/Husband Name" value={form.fatherHusbandName} onChange={e => set('fatherHusbandName', e.target.value)} /></div>
-                                <div className="pc-field"><label className="pc-label">Mother Maiden:*</label><input className="pc-input" placeholder="Enter Mother's Maiden Name" value={form.motherMaidenName} onChange={e => set('motherMaidenName', e.target.value)} /></div>
-                                <div className="pc-field"><label className="pc-label">Nominee Name</label><input className="pc-input" placeholder="Enter Nominee Name" value={form.nomineeName} onChange={e => set('nomineeName', e.target.value)} /></div>
-                                <div className="pc-field"><label className="pc-label">Relation</label><input className="pc-input" placeholder="Enter Relation" value={form.familyRelation} onChange={e => set('familyRelation', e.target.value)} /></div>
-                                <div className="pc-divider-h pc-grid-full" />
-                                <div className="pc-field"><label className="pc-label">Nominee House</label><input className="pc-input" placeholder="Enter House No." value={form.nomineeHouseNo} onChange={e => set('nomineeHouseNo', e.target.value)} /></div>
-                                <div className="pc-field"><label className="pc-label">Nominee Rural</label><input className="pc-input" placeholder="Enter Village" value={form.nomineeRural} onChange={e => set('nomineeRural', e.target.value)} /></div>
-                                <div className="pc-field"><label className="pc-label">Nominee Dist</label><input className="pc-input" placeholder="Enter District" value={form.nomineeDistrict} onChange={e => set('nomineeDistrict', e.target.value)} /></div>
-                                <div className="pc-field"><label className="pc-label">Nominee Mobile:*</label><input className="pc-input" placeholder="Enter Mobile No." value={form.nomineeMobileNo} onChange={e => set('nomineeMobileNo', e.target.value)} /></div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Father's/Husband Name:</label>
+                                    <input className="pc-input" placeholder="ENTER FATHER'S/HUSBAND" value={form.fatherHusbandName} onChange={e => updateField('fatherHusbandName', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Mother's Maiden Name:</label>
+                                    <input className="pc-input" placeholder="ENTER MOTHER'S MAIDEN" value={form.motherMaidenName} onChange={e => updateField('motherMaidenName', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Nominee's Name:</label>
+                                    <input className="pc-input" placeholder="ENTER NOMINEE'S NAME" value={form.nominee.name} onChange={e => updateField('nominee.name', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Relation:</label>
+                                    <input className="pc-input" placeholder="Enter Relation" value={form.nominee.relation} onChange={e => updateField('nominee.relation', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Rural Area:</label>
+                                    <input className="pc-input" placeholder="Enter Rural Area" value={form.familyRuralArea} onChange={e => updateField('familyRuralArea', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">State: *</label>
+                                    <select className="pc-select" value={form.familyState} onChange={e => updateField('familyState', e.target.value)}>
+                                        <option>Select State</option><option>Telangana</option><option>Andhra Pradesh</option>
+                                    </select>
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Mandal:</label>
+                                    <input className="pc-input" placeholder="Enter Mandal" value={form.familyMandal} onChange={e => updateField('familyMandal', e.target.value)} />
+                                </div>
+                            </div>
+
+                            <div className="pc-divider-h" style={{ margin: '1.5rem 0' }} />
+                            
+                            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b', marginBottom: '1rem' }}>Nominee's Address:</h4>
+                            <div className="pc-grid">
+                                <div className="pc-field">
+                                    <label className="pc-label">House No:</label>
+                                    <input className="pc-input" placeholder="Enter House No" value={form.nominee.address.houseNo} onChange={e => updateField('nominee.address.houseNo', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Area:</label>
+                                    <input className="pc-input" placeholder="Enter Street" value={form.nominee.address.area} onChange={e => updateField('nominee.address.area', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Rural :</label>
+                                    <input className="pc-input" placeholder="Enter Village/Colony" value={form.nominee.address.rural} onChange={e => updateField('nominee.address.rural', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Post Office/Sub-City: *</label>
+                                    <input className="pc-input" placeholder="Enter Post Office/Sub-City" value={form.nominee.address.poSubCity} onChange={e => updateField('nominee.address.poSubCity', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">District:</label>
+                                    <input className="pc-input" placeholder="Enter District" value={form.nominee.address.district} onChange={e => updateField('nominee.address.district', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Pincode:</label>
+                                    <input className="pc-input" placeholder="Enter Pincode" value={form.nominee.address.pincode} onChange={e => updateField('nominee.address.pincode', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">City Area :</label>
+                                    <input className="pc-input" placeholder="Enter City Area" value={form.nominee.address.cityArea} onChange={e => updateField('nominee.address.cityArea', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Land Mark :</label>
+                                    <input className="pc-input" placeholder="Enter Land Mark" value={form.nominee.address.landMark} onChange={e => updateField('nominee.address.landMark', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Country: *</label>
+                                    <select className="pc-select" value={form.nominee.address.country} onChange={e => updateField('nominee.address.country', e.target.value)}>
+                                        <option>Select Country</option><option>India</option>
+                                    </select>
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Nominee Age:</label>
+                                    <input className="pc-input" placeholder="Enter Age" value={form.nominee.age} onChange={e => updateField('nominee.age', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Mobile No.: *</label>
+                                    <input className="pc-input" placeholder="Enter Mobile No" value={form.nominee.mobileNo} onChange={e => updateField('nominee.mobileNo', e.target.value)} />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -495,16 +631,96 @@ export function IntroducedDetails() {
                     <div className="pc-card">
                         <div className="pc-card-header">
                             <div className="pc-card-icon"><UserCheck size={14} /></div>
-                            <div><p className="pc-card-title">Other Details</p></div>
+                            <div>
+                                <p className="pc-card-title">Other Details</p>
+                                <p className="pc-card-sub">Bank, Introducer, & Additional Information</p>
+                            </div>
                         </div>
                         <div className="pc-form">
                             <div className="pc-grid">
-                                <div className="pc-field"><label className="pc-label">Bank Name</label><input className="pc-input" placeholder="Enter Bank Name" value={form.bankName} onChange={e => set('bankName', e.target.value)} /></div>
-                                <div className="pc-field"><label className="pc-label">Acc No</label><input className="pc-input" placeholder="Enter Account No." value={form.accountNo} onChange={e => set('accountNo', e.target.value)} /></div>
-                                <div className="pc-field"><label className="pc-label">IFSC</label><input className="pc-input" placeholder="Enter IFSC Code" value={form.ifscCode} onChange={e => set('ifscCode', e.target.value)} /></div>
-                                <div className="pc-field"><label className="pc-label">Blood Group</label><select className="pc-select" value={form.bloodGroup} onChange={e => set('bloodGroup', e.target.value)}><option>Select</option><option>A+</option><option>B+</option><option>O+</option></select></div>
-                                <div className="pc-field"><label className="pc-label">Introducer:*</label><select className="pc-select" value={form.introducerName} onChange={e => set('introducerName', e.target.value)}><option>Select</option><option>Admin</option></select></div>
-                                <div className="pc-field"><label className="pc-label">Qualification</label><select className="pc-select" value={form.qualification} onChange={e => set('qualification', e.target.value)}><option>Select</option><option>Grad</option><option>Post-Grad</option></select></div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Bank Name:</label>
+                                    <input className="pc-input" placeholder="Enter Bank Name" value={form.bankAccount.bankName} onChange={e => updateField('bankAccount.bankName', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Relate Code(if any):</label>
+                                    <input className="pc-input" placeholder="Enter Relate Code(if any)" value={form.relateCode} onChange={e => updateField('relateCode', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Blood Group:</label>
+                                    <select className="pc-select" value={form.bloodGroup} onChange={e => updateField('bloodGroup', e.target.value)}>
+                                        <option>Select Blood Group</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+                                    </select>
+                                </div>
+
+                                <div className="pc-field">
+                                    <label className="pc-label">Branch:</label>
+                                    <input className="pc-input" placeholder="Enter Branch" value={form.bankAccount.branch} onChange={e => updateField('bankAccount.branch', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Proposed Area of Work:</label>
+                                    <input className="pc-input" placeholder="Enter Proposed Area of Work" value={form.proposedArea} onChange={e => updateField('proposedArea', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Occupation:</label>
+                                    <input className="pc-input" placeholder="Enter Occupation" value={form.occupation} onChange={e => updateField('occupation', e.target.value)} />
+                                </div>
+
+                                <div className="pc-field">
+                                    <label className="pc-label">Branch Code</label>
+                                    <input className="pc-input" placeholder="Enter Branch Code" value={form.bankAccount.branchCode} onChange={e => updateField('bankAccount.branchCode', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Name Of The Introducer: *</label>
+                                    <select className="pc-select" value={form.introducerName} onChange={e => updateField('introducerName', e.target.value)}>
+                                        <option>Select Name:</option><option>Admin</option>
+                                    </select>
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Qualification:</label>
+                                    <select className="pc-select" value={form.qualification} onChange={e => updateField('qualification', e.target.value)}>
+                                        <option>Select Qualification</option><option>Graduation</option><option>Post-Graduation</option>
+                                    </select>
+                                </div>
+
+                                <div className="pc-field">
+                                    <label className="pc-label">Bank A/c no.</label>
+                                    <input className="pc-input" placeholder="Enter Bank A/c no." value={form.bankAccount.accountNo} onChange={e => updateField('bankAccount.accountNo', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Introducer Desig Code:</label>
+                                    <input className="pc-input" value={form.introducerDesigCode} onChange={e => updateField('introducerDesigCode', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Introducer Aadhar No.:</label>
+                                    <input className="pc-input" value={form.introducerAadhar} onChange={e => updateField('introducerAadhar', e.target.value)} />
+                                </div>
+
+                                <div className="pc-field">
+                                    <label className="pc-label">ID Proof Type:</label>
+                                    <select className="pc-select" value={form.idProofType} onChange={e => updateField('idProofType', e.target.value)}>
+                                        <option>-Select-</option><option>Aadhar</option><option>PAN</option><option>Passport</option>
+                                    </select>
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Issued On :</label>
+                                    <input type="date" className="pc-input" value={form.issuedOn} onChange={e => updateField('issuedOn', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Valid Upto :</label>
+                                    <input type="date" className="pc-input" value={form.validUpto} onChange={e => updateField('validUpto', e.target.value)} />
+                                </div>
+
+                                <div className="pc-field">
+                                    <label className="pc-label">Bank Address:</label>
+                                    <input className="pc-input" placeholder="Enter Bank Address" value={form.bankAccount.bankAddress} onChange={e => updateField('bankAccount.bankAddress', e.target.value)} />
+                                </div>
+                                <div className="pc-field" style={{ gridColumn: 'span 2' }}></div> {/* Empty space to align remaining fields to left column */}
+
+                                <div className="pc-field">
+                                    <label className="pc-label">IFSC Code :</label>
+                                    <input className="pc-input" placeholder="Enter IFSC Code" value={form.bankAccount.ifscCode} onChange={e => updateField('bankAccount.ifscCode', e.target.value)} />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -514,25 +730,52 @@ export function IntroducedDetails() {
                     <div className="pc-card">
                         <div className="pc-card-header">
                             <div className="pc-card-icon"><Briefcase size={14} /></div>
-                            <div><p className="pc-card-title">Experience</p></div>
+                            <div>
+                                <p className="pc-card-title">Details of Past Experience</p>
+                                <p className="pc-card-sub">Previous employment and grading information</p>
+                            </div>
                         </div>
                         <div className="pc-form">
                             <div className="pc-grid">
-                                <div className="pc-field pc-grid-double"><label className="pc-label">Company Name</label><input className="pc-input" placeholder="Enter Company Name" value={form.prevCompanyName} onChange={e => set('prevCompanyName', e.target.value)} /></div>
-                                <div className="pc-field"><label className="pc-label">Join Date</label><input type="date" className="pc-input" value={form.joiningDate} onChange={e => set('joiningDate', e.target.value)} /></div>
-                                <div className="pc-field"><label className="pc-label">Operation Area</label><input className="pc-input" placeholder="Enter Operation Area" value={form.operationArea} onChange={e => set('operationArea', e.target.value)} /></div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Name of company/organization:</label>
+                                    <input className="pc-input" placeholder="Enter Name of company" value={form.experience.companyName} onChange={e => updateField('experience.companyName', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Grade at present:</label>
+                                    <input className="pc-input" placeholder="Enter Grade at present" value={form.experience.currentGrade} onChange={e => updateField('experience.currentGrade', e.target.value)} />
+                                </div>
+                                <div className="pc-field" style={{ gridColumn: 'span 1' }}></div> {/* Spacer to match layout if needed, though grid will auto-flow */}
+
+                                <div className="pc-field">
+                                    <label className="pc-label">Date of Joining:</label>
+                                    <input type="date" className="pc-input" value={form.experience.joiningDate} onChange={e => updateField('experience.joiningDate', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Area of operation:</label>
+                                    <input className="pc-input" placeholder="Enter Area of operation" value={form.experience.operationArea} onChange={e => updateField('experience.operationArea', e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">Grade on date of joining:</label>
+                                    <input className="pc-input" placeholder="Enter Grade on date of joining" value={form.experience.joiningGrade} onChange={e => updateField('experience.joiningGrade', e.target.value)} />
+                                </div>
                             </div>
                         </div>
                     </div>
                 )}
 
                 <div className="pc-submit-bar" style={{ marginTop: '0.5rem' }}>
-                    <span style={{ fontSize: '0.65rem' }}>{saved ? '✅ Saved!' : '* Mandatory'}</span>
+                    <span style={{ fontSize: '0.65rem' }}>{isSubmitting ? 'Saving...' : '* Mandatory'}</span>
                     <div className="pc-submit-actions">
                         {activeTab > 0 && <button type="button" className="pc-btn-ghost" onClick={handlePrev}><ChevronLeft size={12} /></button>}
                         <button type="button" className="pc-btn-ghost" onClick={() => setForm(INITIAL_FORM)}>Reset</button>
-                        <button type="submit" className="pc-btn-primary">
-                            {activeTab === TABS.length - 1 ? 'Finish' : 'Next'} <ChevronRight size={12} />
+                        <button 
+                            type="submit" 
+                            className="pc-btn-primary"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? <Loader2 size={12} className="animate-spin" /> : (activeTab === TABS.length - 1 ? 'Finish' : 'Next')} 
+                            {!isSubmitting && <ChevronRight size={12} />}
                         </button>
                     </div>
                 </div>
