@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Printer, Download, Filter, Search, Building2, Calendar, ChevronDown, TrendingUp } from 'lucide-react';
+import { Printer, Download, FileSpreadsheet, Filter, Search, Building2, Calendar, ChevronDown, TrendingUp } from 'lucide-react';
 import '../../producer-company/producer.css';
+import { exportPDF, exportExcel } from './exportUtils';
 
 interface ComparisonRow {
     id: string;
@@ -73,12 +74,13 @@ const MOCK_DATA: ComparisonRow[] = [
 ];
 
 export default function ComparisonTB() {
-    const [asOnDateChecked, setAsOnDateChecked] = useState(false);
-    const [fromDate, setFromDate] = useState(new Date().toISOString().split('T')[0]);
-    const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
-    const [grouping, setGrouping] = useState(true);
-    const [exportType, setExportType] = useState('PDF');
-    
+    // Period 1 (Current Year/Month)
+    const [p1From, setP1From] = useState('2026-03-01');
+    const [p1To, setP1To] = useState('2026-03-31');
+    // Period 2 (Previous Year/Month)
+    const [p2From, setP2From] = useState('2025-03-01');
+    const [p2To, setP2To] = useState('2025-03-31');
+
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBranch, setSelectedBranch] = useState('ALL');
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ '1': true, '2': true });
@@ -108,6 +110,31 @@ export default function ComparisonTB() {
     const totalVarianceDr = calculateVariance(totals.p1Dr, totals.p2Dr);
     const totalVarianceCr = calculateVariance(totals.p1Cr, totals.p2Cr);
 
+    const fmt = (n: number) => n > 0 ? formatCurrency(n) : '-';
+
+    const getFlatRows = () => {
+        const rows: (string | number)[][] = [];
+        MOCK_DATA.forEach((group, gi) => {
+            const vDr = calculateVariance(group.p1Dr, group.p2Dr);
+            const vCr = calculateVariance(group.p1Cr, group.p2Cr);
+            rows.push([`${gi + 1}`, group.particulars, fmt(group.p1Dr), fmt(group.p1Cr), fmt(group.p2Dr), fmt(group.p2Cr), fmt(Math.abs(vDr.diff || vCr.diff)), `${(vDr.percent || vCr.percent).toFixed(1)}%`]);
+            group.subRows?.forEach((sub, si) => {
+                const svDr = calculateVariance(sub.p1Dr, sub.p2Dr);
+                const svCr = calculateVariance(sub.p1Cr, sub.p2Cr);
+                rows.push([`${gi + 1}.${si + 1}`, `  ${sub.particulars}`, fmt(sub.p1Dr), fmt(sub.p1Cr), fmt(sub.p2Dr), fmt(sub.p2Cr), fmt(Math.abs(svDr.diff || svCr.diff)), `${(svDr.percent || svCr.percent).toFixed(1)}%`]);
+            });
+        });
+        rows.push(['', 'GRAND TOTALS', fmt(totals.p1Dr), fmt(totals.p1Cr), fmt(totals.p2Dr), fmt(totals.p2Cr), '', '']);
+        return rows;
+    };
+
+    const EXPORT_HEADERS = ['Sl.No', 'Particulars', 'P1 Debit', 'P1 Credit', 'P2 Debit', 'P2 Credit', 'Variance', 'Variance %'];
+    const dateRange = `P1: ${p1From} to ${p1To} | P2: ${p2From} to ${p2To}`;
+
+    const handleExportPDF = () => exportPDF('Comparison Trial Balance', dateRange, EXPORT_HEADERS, getFlatRows(), 'comparison_tb');
+    const handleExportExcel = () => exportExcel('Comparison Trial Balance', dateRange, EXPORT_HEADERS, getFlatRows(), 'comparison_tb');
+    const handlePrint = () => window.print();
+
     return (
         <div className="pc-container">
             <style>{`
@@ -134,44 +161,74 @@ export default function ComparisonTB() {
                     </div>
                 </div>
                 <div className="pc-header-right flex gap-2">
-                    <button className="pc-action-btn secondary"><Download size={14} /> Export</button>
-                    <button className="pc-action-btn secondary"><Printer size={14} /> Print</button>
+                    <button onClick={handleExportPDF} className="pc-action-btn secondary"><Download size={14} /> Export PDF</button>
+                    <button onClick={handleExportExcel} className="pc-action-btn secondary"><FileSpreadsheet size={14} /> Export Excel</button>
+                    <button onClick={handlePrint} className="pc-action-btn secondary"><Printer size={14} /> Print</button>
                     <span className="pc-badge success">Consolidated</span>
                 </div>
             </div>
 
-            {/* Standardized Filters */}
-            <div className="bg-[#e8ecef] border border-slate-300 px-4 py-3 flex flex-wrap items-center gap-6 text-[11px] font-semibold text-slate-800 rounded-sm shadow-sm mb-4">
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" checked={asOnDateChecked} onChange={(e) => setAsOnDateChecked(e.target.checked)} />
-                    As On Date
-                </label>
-                
-                <div className="flex items-center gap-1.5">
-                    <span>From Date:</span>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 bg-white font-mono text-[11px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-                </div>
+            {/* Comparison Filters */}
+            <div className="pc-card">
+                <div className="pc-form p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Period 1 Analysis */}
+                        <div className="bg-slate-50/50 p-3 rounded border border-slate-100">
+                            <h4 className="text-[10px] font-bold text-[#009BB0] uppercase mb-3 flex items-center gap-2">
+                                <Calendar size={12} /> Period 1 (Target Period)
+                            </h4>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="pc-field">
+                                    <label className="pc-label">From Date</label>
+                                    <input type="date" className="pc-input" value={p1From} onChange={(e) => setP1From(e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">To Date</label>
+                                    <input type="date" className="pc-input" value={p1To} onChange={(e) => setP1To(e.target.value)} />
+                                </div>
+                            </div>
+                        </div>
 
-                <div className="flex items-center gap-1.5">
-                    <span>To Date:</span>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 bg-white font-mono text-[11px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-                </div>
+                        {/* Period 2 Analysis */}
+                        <div className="bg-slate-50/50 p-3 rounded border border-slate-100">
+                            <h4 className="text-[10px] font-bold text-slate-500 uppercase mb-3 flex items-center gap-2">
+                                <Calendar size={12} /> Period 2 (Baseline Period)
+                            </h4>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="pc-field">
+                                    <label className="pc-label">From Date</label>
+                                    <input type="date" className="pc-input" value={p2From} onChange={(e) => setP2From(e.target.value)} />
+                                </div>
+                                <div className="pc-field">
+                                    <label className="pc-label">To Date</label>
+                                    <input type="date" className="pc-input" value={p2To} onChange={(e) => setP2To(e.target.value)} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" checked={grouping} onChange={(e) => setGrouping(e.target.checked)} />
-                    Grouping
-                </label>
-                
-                <div className="flex items-center gap-1.5 ml-auto">
-                    <span>Export type:</span>
-                    <select className="border border-slate-300 rounded px-2 py-1 bg-white" value={exportType} onChange={(e) => setExportType(e.target.value)}>
-                        <option value="PDF">PDF</option>
-                        <option value="Excel">Excel</option>
-                    </select>
-                    
-                    <button className="flex items-center gap-1.5 bg-[#64748b] text-white px-3 py-1.5 rounded text-[11px] font-bold hover:bg-[#475569] ml-2 border border-transparent shadow hover:shadow-md transition-all">
-                        <Printer size={13} /> Print
-                    </button>
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2"><Building2 size={13} /> Select Branch</label>
+                            <select className="pc-select" value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)}>
+                                <option value="ALL">ALL BRANCHES (CONSOLIDATED)</option>
+                                <option value="B001">MAIN BRANCH - KURNOOL</option>
+                                <option value="B002">GUNTUR BRANCH</option>
+                            </select>
+                        </div>
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2"><Search size={13} /> Search Ledger</label>
+                            <div className="relative">
+                                <input className="pc-input pr-8" placeholder="Filter by name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                                <Search className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                            </div>
+                        </div>
+                        <div className="flex justify-end">
+                            <button className="pc-action-btn primary px-8" style={{ background: '#009BB0' }}>
+                                <Filter size={14} /> Compare Periods
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -225,7 +282,7 @@ export default function ComparisonTB() {
                                             const svDr = calculateVariance(sub.p1Dr, sub.p2Dr);
                                             const svCr = calculateVariance(sub.p1Cr, sub.p2Cr);
                                             const subV = sub.p1Dr > 0 ? svDr : svCr;
-                                            
+
                                             return (
                                                 <tr key={sub.id} className="hover:bg-slate-50 transition-colors">
                                                     <td className="text-center text-[10px] text-slate-400">{index + 1}.{sIdx + 1}</td>

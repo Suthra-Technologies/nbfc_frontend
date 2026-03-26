@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Printer, Download, Filter, Search, Building2, Calendar, LayoutDashboard, ChevronDown } from 'lucide-react';
+import { Printer, Download, FileSpreadsheet, Filter, Search, Building2, Calendar, LayoutDashboard, ChevronDown } from 'lucide-react';
 import '../../producer-company/producer.css';
+import { exportPDF, exportExcel } from './exportUtils';
 
 interface TrialBalanceRow {
     id: string;
@@ -83,13 +84,8 @@ const MOCK_DATA: TrialBalanceRow[] = [
 ];
 
 export default function TrialBalance() {
-    const [asOnDateChecked, setAsOnDateChecked] = useState(false);
     const [fromDate, setFromDate] = useState(new Date().toISOString().split('T')[0]);
     const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
-    const [grouping, setGrouping] = useState(true);
-    const [exportType, setExportType] = useState('PDF');
-    
-    // Original states
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBranch, setSelectedBranch] = useState('ALL');
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ '1': true, '2': true });
@@ -101,6 +97,28 @@ export default function TrialBalance() {
     const formatCurrency = (num: number) => {
         return num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
+
+    const fmt = (n: number) => n > 0 ? formatCurrency(n) : '-';
+
+    // Flatten rows for export
+    const getFlatRows = () => {
+        const rows: (string | number)[][] = [];
+        MOCK_DATA.forEach((group, gi) => {
+            rows.push([`${gi + 1}`, group.particulars, fmt(group.openingDr), fmt(group.openingCr), fmt(group.transactionDr), fmt(group.transactionCr), fmt(group.closingDr), fmt(group.closingCr)]);
+            group.subRows?.forEach((sub, si) => {
+                rows.push([`${gi + 1}.${si + 1}`, `  ${sub.particulars}`, fmt(sub.openingDr), fmt(sub.openingCr), fmt(sub.transactionDr), fmt(sub.transactionCr), fmt(sub.closingDr), fmt(sub.closingCr)]);
+            });
+        });
+        rows.push(['', 'GRAND TOTALS', fmt(totals.openingDr), fmt(totals.openingCr), fmt(totals.transactionDr), fmt(totals.transactionCr), fmt(totals.closingDr), fmt(totals.closingCr)]);
+        return rows;
+    };
+
+    const EXPORT_HEADERS = ['Sl.No', 'Particulars', 'Opening Dr', 'Opening Cr', 'Trans. Dr', 'Trans. Cr', 'Closing Dr', 'Closing Cr'];
+    const dateRange = `${fromDate} to ${toDate}`;
+
+    const handleExportPDF = () => exportPDF('Consolidated Trial Balance', dateRange, EXPORT_HEADERS, getFlatRows(), 'trial_balance');
+    const handleExportExcel = () => exportExcel('Consolidated Trial Balance', dateRange, EXPORT_HEADERS, getFlatRows(), 'trial_balance');
+    const handlePrint = () => window.print();
 
     // Calculate totals
     const totals = {
@@ -127,48 +145,80 @@ export default function TrialBalance() {
                     </div>
                 </div>
                 <div className="pc-header-right flex gap-2">
-                    <button className="pc-action-btn secondary">
+                    <button onClick={handleExportPDF} className="pc-action-btn secondary">
                         <Download size={14} /> Export PDF
                     </button>
-                    <button className="pc-action-btn secondary">
+                    <button onClick={handleExportExcel} className="pc-action-btn secondary">
+                        <FileSpreadsheet size={14} /> Export Excel
+                    </button>
+                    <button onClick={handlePrint} className="pc-action-btn secondary">
                         <Printer size={14} /> Print
                     </button>
                     <span className="pc-badge success">Consolidated</span>
                 </div>
             </div>
 
-            {/* Standardized Filters */}
-            <div className="bg-[#e8ecef] border border-slate-300 px-4 py-3 flex flex-wrap items-center gap-6 text-[11px] font-semibold text-slate-800 rounded-sm shadow-sm mb-4">
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" checked={asOnDateChecked} onChange={(e) => setAsOnDateChecked(e.target.checked)} />
-                    As On Date
-                </label>
-                
-                <div className="flex items-center gap-1.5">
-                    <span>From Date:</span>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 bg-white font-mono text-[11px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                    <span>To Date:</span>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 bg-white font-mono text-[11px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-                </div>
-
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" checked={grouping} onChange={(e) => setGrouping(e.target.checked)} />
-                    Grouping
-                </label>
-                
-                <div className="flex items-center gap-1.5 ml-auto">
-                    <span>Export type:</span>
-                    <select className="border border-slate-300 rounded px-2 py-1 bg-white" value={exportType} onChange={(e) => setExportType(e.target.value)}>
-                        <option value="PDF">PDF</option>
-                        <option value="Excel">Excel</option>
-                    </select>
-                    
-                    <button className="flex items-center gap-1.5 bg-[#64748b] text-white px-3 py-1.5 rounded text-[11px] font-bold hover:bg-[#475569] ml-2 border border-transparent shadow hover:shadow-md transition-all">
-                        <Printer size={13} /> Print
-                    </button>
+            {/* Filters */}
+            <div className="pc-card">
+                <div className="pc-form p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Calendar size={13} /> From Date
+                            </label>
+                            <input
+                                type="date"
+                                className="pc-input"
+                                value={fromDate}
+                                onChange={(e) => setFromDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Calendar size={13} /> To Date
+                            </label>
+                            <input
+                                type="date"
+                                className="pc-input"
+                                value={toDate}
+                                onChange={(e) => setToDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Building2 size={13} /> Branch
+                            </label>
+                            <select
+                                className="pc-select"
+                                value={selectedBranch}
+                                onChange={(e) => setSelectedBranch(e.target.value)}
+                            >
+                                <option value="ALL">ALL BRANCHES (CONSOLIDATED)</option>
+                                <option value="B001">MAIN BRANCH - KURNOOL</option>
+                                <option value="B002">GUNTUR BRANCH</option>
+                                <option value="B003">NELLORE BRANCH</option>
+                            </select>
+                        </div>
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Search size={13} /> Search Ledger
+                            </label>
+                            <div className="relative">
+                                <input
+                                    className="pc-input pr-8"
+                                    placeholder="Search by name..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                <Search className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                        <button className="pc-action-btn primary px-8">
+                            <Filter size={14} /> Generate Report
+                        </button>
+                    </div>
                 </div>
             </div>
 

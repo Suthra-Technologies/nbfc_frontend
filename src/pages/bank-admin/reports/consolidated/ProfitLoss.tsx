@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Printer, Download, Filter, Building2, Calendar, LayoutDashboard, ChevronDown } from 'lucide-react';
+import { Download, FileSpreadsheet, Printer, Filter, Building2, Calendar, LayoutDashboard, ChevronDown } from 'lucide-react';
 import '../../producer-company/producer.css';
+import { exportPDF, exportExcel } from './exportUtils';
 
 interface PLNode {
     id: string;
@@ -71,11 +72,8 @@ const INCOME_DATA: PLNode[] = [
 
 export default function ProfitLoss() {
     // Standard Filter States
-    const [asOnDateChecked, setAsOnDateChecked] = useState(false);
     const [fromDate, setFromDate] = useState(new Date().toISOString().split('T')[0]);
     const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
-    const [grouping, setGrouping] = useState(true);
-    const [exportType, setExportType] = useState('PDF');
     
     // Expand States
     const [expandedExp, setExpandedExp] = useState<Record<string, boolean>>({ 'E1': true, 'E2': true });
@@ -92,41 +90,82 @@ export default function ProfitLoss() {
     const totalIncome = INCOME_DATA.reduce((acc, curr) => acc + curr.amount, 0);
     const netProfit = totalIncome - totalExpenditure;
 
+    const fmt = (n: number) => formatCurrency(n);
+
+    const getExportRows = (): (string | number)[][] => {
+        const rows: (string | number)[][] = [];
+        rows.push(['--- EXPENDITURE ---', '', '--- INCOME ---', '']);
+        const maxLen = Math.max(EXPENDITURE_DATA.length, INCOME_DATA.length);
+        for (let i = 0; i < maxLen; i++) {
+            const exp = EXPENDITURE_DATA[i];
+            const inc = INCOME_DATA[i];
+            rows.push([exp?.particulars ?? '', exp ? fmt(exp.amount) : '', inc?.particulars ?? '', inc ? fmt(inc.amount) : '']);
+            const expSubs = exp?.subNodes ?? [];
+            const incSubs = inc?.subNodes ?? [];
+            const subLen = Math.max(expSubs.length, incSubs.length);
+            for (let j = 0; j < subLen; j++) {
+                rows.push([`  ${expSubs[j]?.particulars ?? ''}`, expSubs[j] ? fmt(expSubs[j].amount) : '', `  ${incSubs[j]?.particulars ?? ''}`, incSubs[j] ? fmt(incSubs[j].amount) : '']);
+            }
+        }
+        rows.push(['TOTAL EXPENDITURE', fmt(totalExpenditure), 'TOTAL INCOME', fmt(totalIncome)]);
+        rows.push([netProfit > 0 ? 'NET PROFIT' : 'NET LOSS', fmt(Math.abs(netProfit)), '', '']);
+        return rows;
+    };
+
+    const EXPORT_HEADERS = ['Expenditure', 'Amount (INR)', 'Income', 'Amount (INR)'];
+    const dateRange = `${fromDate} to ${toDate}`;
+    const handleExportPDF = () => exportPDF('Profit & Loss Statement', dateRange, EXPORT_HEADERS, getExportRows(), 'profit_loss');
+    const handleExportExcel = () => exportExcel('Profit & Loss Statement', dateRange, EXPORT_HEADERS, getExportRows(), 'profit_loss');
+    const handlePrint = () => window.print();
+
     return (
         <div className="pc-container flex flex-col pt-2">
             
-            {/* Standardized Filters */}
-            <div className="bg-[#e8ecef] border border-slate-300 px-4 py-3 flex flex-wrap items-center gap-6 text-[11px] font-semibold text-slate-800 rounded-sm shadow-sm mb-4">
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" checked={asOnDateChecked} onChange={(e) => setAsOnDateChecked(e.target.checked)} />
-                    As On Date
-                </label>
-                
-                <div className="flex items-center gap-1.5">
-                    <span>From Date:</span>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 bg-white font-mono text-[11px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                    <span>To Date:</span>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 bg-white font-mono text-[11px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-                </div>
-
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" checked={grouping} onChange={(e) => setGrouping(e.target.checked)} />
-                    Grouping
-                </label>
-                
-                <div className="flex items-center gap-1.5 ml-8">
-                    <span>Export type:</span>
-                    <select className="border border-slate-300 rounded px-2 py-1 bg-white" value={exportType} onChange={(e) => setExportType(e.target.value)}>
-                        <option value="PDF">PDF</option>
-                        <option value="Excel">Excel</option>
-                    </select>
-                    
-                    <button className="flex items-center gap-1.5 bg-[#64748b] text-white px-3 py-1.5 rounded text-[11px] font-bold hover:bg-[#475569] ml-2 border border-transparent shadow hover:shadow-md transition-all">
-                        <Printer size={13} /> Print
-                    </button>
+            {/* Filters */}
+            <div className="pc-card">
+                <div className="pc-form p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Calendar size={13} /> From Date
+                            </label>
+                            <input
+                                type="date"
+                                className="pc-input"
+                                value={fromDate}
+                                onChange={(e) => setFromDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Calendar size={13} /> To Date
+                            </label>
+                            <input
+                                type="date"
+                                className="pc-input"
+                                value={toDate}
+                                onChange={(e) => setToDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Building2 size={13} /> Branch
+                            </label>
+                            <select
+                                className="pc-select"
+                            >
+                                <option value="ALL">ALL BRANCHES (CONSOLIDATED)</option>
+                                <option value="B001">MAIN BRANCH - KURNOOL</option>
+                                <option value="B002">GUNTUR BRANCH</option>
+                                <option value="B003">NELLORE BRANCH</option>
+                            </select>
+                        </div>
+                        <div className="col-span-1 flex items-end justify-end">
+                            <button className="pc-action-btn primary px-8">
+                                <Filter size={14} /> Generate Statement
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -143,6 +182,15 @@ export default function ProfitLoss() {
                     </div>
                 </div>
                 <div className="pc-header-right flex gap-2">
+                    <button onClick={handleExportPDF} className="pc-action-btn secondary">
+                        <Download size={14} /> Export PDF
+                    </button>
+                    <button onClick={handleExportExcel} className="pc-action-btn secondary">
+                        <FileSpreadsheet size={14} /> Export Excel
+                    </button>
+                    <button onClick={handlePrint} className="pc-action-btn secondary">
+                        <Printer size={14} /> Print
+                    </button>
                     <span className="pc-badge success">Consolidated</span>
                 </div>
             </div>

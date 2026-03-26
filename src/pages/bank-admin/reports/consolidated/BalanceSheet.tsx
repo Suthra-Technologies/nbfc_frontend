@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Printer, Download, Filter, Building2, Calendar, LayoutDashboard, ChevronDown } from 'lucide-react';
+import { Printer, Download, FileSpreadsheet, Filter, Building2, Calendar, LayoutDashboard, ChevronDown } from 'lucide-react';
 import '../../producer-company/producer.css';
+import { exportPDF, exportExcel } from './exportUtils';
 
 interface BalanceSheetNode {
     id: string;
@@ -102,13 +103,7 @@ const ASSETS_DATA: BalanceSheetNode[] = [
 ];
 
 export default function BalanceSheet() {
-    const [asOnDateChecked, setAsOnDateChecked] = useState(false);
-    const [fromDate, setFromDate] = useState(new Date().toISOString().split('T')[0]);
-    const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
-    const [grouping, setGrouping] = useState(true);
-    const [exportType, setExportType] = useState('PDF');
-    
-    // Original states
+    const [asOnDate, setAsOnDate] = useState(new Date().toISOString().split('T')[0]);
     const [selectedBranch, setSelectedBranch] = useState('ALL');
     const [expandedLiabilities, setExpandedLiabilities] = useState<Record<string, boolean>>({ 'L1': true, 'L3': true });
     const [expandedAssets, setExpandedAssets] = useState<Record<string, boolean>>({ 'A1': true, 'A3': true });
@@ -128,6 +123,31 @@ export default function BalanceSheet() {
     const totalLiabilities = LIABILITIES_DATA.reduce((acc, curr) => acc + curr.amount, 0);
     const totalAssets = ASSETS_DATA.reduce((acc, curr) => acc + curr.amount, 0);
 
+    const fmt = (n: number) => n > 0 ? formatCurrency(n) : '-';
+
+    const flattenSection = (nodes: typeof LIABILITIES_DATA): (string | number)[][] =>
+        nodes.flatMap(node => [
+            [node.particulars, fmt(node.amount)],
+            ...(node.subNodes?.map(sub => [`  ${sub.particulars}`, fmt(sub.amount)]) ?? [])
+        ]);
+
+    const getExportRows = (): (string | number)[][] => [
+        ['--- CAPITAL AND LIABILITIES ---', ''],
+        ...flattenSection(LIABILITIES_DATA),
+        ['TOTAL LIABILITIES', fmt(totalLiabilities)],
+        ['', ''],
+        ['--- PROPERTY AND ASSETS ---', ''],
+        ...flattenSection(ASSETS_DATA),
+        ['TOTAL ASSETS', fmt(totalAssets)],
+    ];
+
+    const EXPORT_HEADERS = ['Particulars', 'Amount (INR)'];
+    const dateRange = `As on ${asOnDate} | Branch: ${selectedBranch}`;
+
+    const handleExportPDF = () => exportPDF('Consolidated Balance Sheet', dateRange, EXPORT_HEADERS, getExportRows(), 'balance_sheet');
+    const handleExportExcel = () => exportExcel('Consolidated Balance Sheet', dateRange, EXPORT_HEADERS, getExportRows(), 'balance_sheet');
+    const handlePrint = () => window.print();
+
     return (
         <div className="pc-container">
             <div className="pc-header">
@@ -143,48 +163,55 @@ export default function BalanceSheet() {
                     </div>
                 </div>
                 <div className="pc-header-right flex gap-2">
-                    <button className="pc-action-btn secondary">
+                    <button onClick={handleExportPDF} className="pc-action-btn secondary">
                         <Download size={14} /> Export PDF
                     </button>
-                    <button className="pc-action-btn secondary">
+                    <button onClick={handleExportExcel} className="pc-action-btn secondary">
+                        <FileSpreadsheet size={14} /> Export Excel
+                    </button>
+                    <button onClick={handlePrint} className="pc-action-btn secondary">
                         <Printer size={14} /> Print
                     </button>
                     <span className="pc-badge success">Consolidated</span>
                 </div>
             </div>
 
-            {/* Standardized Filters */}
-            <div className="bg-[#e8ecef] border border-slate-300 px-4 py-3 flex flex-wrap items-center gap-6 text-[11px] font-semibold text-slate-800 rounded-sm shadow-sm mb-4">
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" checked={asOnDateChecked} onChange={(e) => setAsOnDateChecked(e.target.checked)} />
-                    As On Date
-                </label>
-                
-                <div className="flex items-center gap-1.5">
-                    <span>From Date:</span>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 bg-white font-mono text-[11px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                    <span>To Date:</span>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 bg-white font-mono text-[11px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-                </div>
-
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" checked={grouping} onChange={(e) => setGrouping(e.target.checked)} />
-                    Grouping
-                </label>
-                
-                <div className="flex items-center gap-1.5 ml-auto">
-                    <span>Export type:</span>
-                    <select className="border border-slate-300 rounded px-2 py-1 bg-white" value={exportType} onChange={(e) => setExportType(e.target.value)}>
-                        <option value="PDF">PDF</option>
-                        <option value="Excel">Excel</option>
-                    </select>
-                    
-                    <button className="flex items-center gap-1.5 bg-[#64748b] text-white px-3 py-1.5 rounded text-[11px] font-bold hover:bg-[#475569] ml-2 border border-transparent shadow hover:shadow-md transition-all">
-                        <Printer size={13} /> Print
-                    </button>
+            {/* Filters */}
+            <div className="pc-card">
+                <div className="pc-form p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Calendar size={13} /> As On Date
+                            </label>
+                            <input 
+                                type="date" 
+                                className="pc-input" 
+                                value={asOnDate} 
+                                onChange={(e) => setAsOnDate(e.target.value)} 
+                            />
+                        </div>
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Building2 size={13} /> Branch
+                            </label>
+                            <select 
+                                className="pc-select" 
+                                value={selectedBranch} 
+                                onChange={(e) => setSelectedBranch(e.target.value)}
+                            >
+                                <option value="ALL">ALL BRANCHES (CONSOLIDATED)</option>
+                                <option value="B001">MAIN BRANCH - KURNOOL</option>
+                                <option value="B002">GUNTUR BRANCH</option>
+                                <option value="B003">NELLORE BRANCH</option>
+                            </select>
+                        </div>
+                        <div className="col-span-2 flex items-end justify-end">
+                            <button className="pc-action-btn primary px-8">
+                                <Filter size={14} /> Generate Balance Sheet
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

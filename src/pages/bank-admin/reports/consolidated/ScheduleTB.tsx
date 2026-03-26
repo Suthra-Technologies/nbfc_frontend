@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Printer, Download, Filter, Search, Building2, Calendar, LayoutDashboard, ChevronDown } from 'lucide-react';
+import { Printer, Download, FileSpreadsheet, Filter, Search, Building2, Calendar, LayoutDashboard, ChevronDown } from 'lucide-react';
 import '../../producer-company/producer.css';
+import { exportPDF, exportExcel } from './exportUtils';
 
 interface ScheduleRow {
     id: string;
@@ -72,18 +73,13 @@ const MOCK_DATA: ScheduleRow[] = [
 ];
 
 export default function ScheduleTB() {
-    const [asOnDateChecked, setAsOnDateChecked] = useState(false);
     const [fromDate, setFromDate] = useState(new Date().toISOString().split('T')[0]);
     const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
-    const [grouping, setGrouping] = useState(true);
-    const [exportType, setExportType] = useState('PDF');
-    
-    // Original states
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBranch, setSelectedBranch] = useState('ALL');
-    
+
     // By default expand top-level groups and schedules
-    const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ 
+    const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
         '1': true, '1.1': true, '1.2': true, '1.3': true,
         '2': true, '2.1': true, '2.2': true
     });
@@ -107,6 +103,30 @@ export default function ScheduleTB() {
         closingBalanceDr: MOCK_DATA[1].closingBalance, // Assets closing
     };
 
+    const fmt = (n: number) => n > 0 ? formatCurrency(n) : '-';
+
+    const flattenRows = (rows: ScheduleRow[], prefix = ''): (string | number)[][] => {
+        const result: (string | number)[][] = [];
+        rows.forEach((row, i) => {
+            const label = prefix ? `  ${'  '.repeat(prefix.split('.').length - 1)}${row.particulars}` : row.particulars;
+            result.push([row.scheduleNo || '', label, fmt(row.openingBalance), fmt(row.transactionDr), fmt(row.transactionCr), fmt(row.closingBalance)]);
+            if (row.subRows) result.push(...flattenRows(row.subRows, `${prefix || (i + 1)}`));
+        });
+        return result;
+    };
+
+    const EXPORT_HEADERS = ['Sch.No', 'Particulars', 'Opening Balance', 'Trans. Dr', 'Trans. Cr', 'Closing Balance'];
+    const dateRange = `${fromDate} to ${toDate}`;
+    const exportRows = () => [
+        ...flattenRows(MOCK_DATA),
+        ['', 'GRAND TOTAL (LIABILITIES-CR)', fmt(totals.openingBalanceCr), '', fmt(totals.transactionCr), fmt(totals.closingBalanceCr)],
+        ['', 'GRAND TOTAL (ASSETS-DR)', fmt(totals.openingBalanceDr), fmt(totals.transactionDr), '', fmt(totals.closingBalanceDr)],
+    ];
+
+    const handleExportPDF = () => exportPDF('Schedule Trial Balance', dateRange, EXPORT_HEADERS, exportRows(), 'schedule_tb');
+    const handleExportExcel = () => exportExcel('Schedule Trial Balance', dateRange, EXPORT_HEADERS, exportRows(), 'schedule_tb');
+    const handlePrint = () => window.print();
+
     const renderRows = (rows: ScheduleRow[], level = 0) => {
         return rows.map((row, index) => {
             const isTopLevel = level === 0;
@@ -115,8 +135,8 @@ export default function ScheduleTB() {
 
             return (
                 <div key={row.id} style={{ display: 'contents' }}>
-                    <tr className={`group-row ${expandedGroups[row.id] ? 'expanded' : ''}`} 
-                        style={{ 
+                    <tr className={`group-row ${expandedGroups[row.id] ? 'expanded' : ''}`}
+                        style={{
                             backgroundColor: isTopLevel ? '#f8fafc' : isSchedule ? '#ffffff' : 'transparent',
                             fontWeight: isTopLevel ? 800 : isSchedule ? 700 : 500,
                             color: isTopLevel ? '#009BB0' : isSchedule ? '#334155' : '#475569',
@@ -129,18 +149,18 @@ export default function ScheduleTB() {
                         <td className="text-center font-bold text-slate-500">
                             {row.scheduleNo || '-'}
                         </td>
-                        <td 
-                            className="flex items-center gap-2 cursor-pointer" 
-                            style={{ 
+                        <td
+                            className="flex items-center gap-2 cursor-pointer"
+                            style={{
                                 paddingLeft: isSchedule ? '2rem' : isDetail ? '3.5rem' : '1rem',
                                 color: isTopLevel ? '#009BB0' : 'inherit'
                             }}
                             onClick={(e) => row.isGroup ? toggleGroup(row.id, e) : undefined}
                         >
                             {row.isGroup && (
-                                <ChevronDown 
-                                    size={14} 
-                                    className={`transition-transform duration-200 ${expandedGroups[row.id] ? '' : '-rotate-90'}`} 
+                                <ChevronDown
+                                    size={14}
+                                    className={`transition-transform duration-200 ${expandedGroups[row.id] ? '' : '-rotate-90'}`}
                                 />
                             )}
                             {!row.isGroup && <span className="w-[14px]"></span>}
@@ -182,48 +202,80 @@ export default function ScheduleTB() {
                     </div>
                 </div>
                 <div className="pc-header-right flex gap-2">
-                    <button className="pc-action-btn secondary">
+                    <button onClick={handleExportPDF} className="pc-action-btn secondary">
                         <Download size={14} /> Export PDF
                     </button>
-                    <button className="pc-action-btn secondary">
+                    <button onClick={handleExportExcel} className="pc-action-btn secondary">
+                        <FileSpreadsheet size={14} /> Export Excel
+                    </button>
+                    <button onClick={handlePrint} className="pc-action-btn secondary">
                         <Printer size={14} /> Print
                     </button>
                     <span className="pc-badge success">Consolidated</span>
                 </div>
             </div>
 
-            {/* Standardized Filters */}
-            <div className="bg-[#e8ecef] border border-slate-300 px-4 py-3 flex flex-wrap items-center gap-6 text-[11px] font-semibold text-slate-800 rounded-sm shadow-sm mb-4">
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" checked={asOnDateChecked} onChange={(e) => setAsOnDateChecked(e.target.checked)} />
-                    As On Date
-                </label>
-                
-                <div className="flex items-center gap-1.5">
-                    <span>From Date:</span>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 bg-white font-mono text-[11px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                    <span>To Date:</span>
-                    <input type="date" className="border border-slate-300 rounded px-2 py-1 bg-white font-mono text-[11px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-                </div>
-
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" checked={grouping} onChange={(e) => setGrouping(e.target.checked)} />
-                    Grouping
-                </label>
-                
-                <div className="flex items-center gap-1.5 ml-auto">
-                    <span>Export type:</span>
-                    <select className="border border-slate-300 rounded px-2 py-1 bg-white" value={exportType} onChange={(e) => setExportType(e.target.value)}>
-                        <option value="PDF">PDF</option>
-                        <option value="Excel">Excel</option>
-                    </select>
-                    
-                    <button className="flex items-center gap-1.5 bg-[#64748b] text-white px-3 py-1.5 rounded text-[11px] font-bold hover:bg-[#475569] ml-2 border border-transparent shadow hover:shadow-md transition-all">
-                        <Printer size={13} /> Print
-                    </button>
+            {/* Filters */}
+            <div className="pc-card">
+                <div className="pc-form p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Calendar size={13} /> From Date
+                            </label>
+                            <input
+                                type="date"
+                                className="pc-input"
+                                value={fromDate}
+                                onChange={(e) => setFromDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Calendar size={13} /> To Date
+                            </label>
+                            <input
+                                type="date"
+                                className="pc-input"
+                                value={toDate}
+                                onChange={(e) => setToDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Building2 size={13} /> Branch
+                            </label>
+                            <select
+                                className="pc-select"
+                                value={selectedBranch}
+                                onChange={(e) => setSelectedBranch(e.target.value)}
+                            >
+                                <option value="ALL">ALL BRANCHES (CONSOLIDATED)</option>
+                                <option value="B001">MAIN BRANCH - KURNOOL</option>
+                                <option value="B002">GUNTUR BRANCH</option>
+                                <option value="B003">NELLORE BRANCH</option>
+                            </select>
+                        </div>
+                        <div className="pc-field">
+                            <label className="pc-label flex items-center gap-2">
+                                <Search size={13} /> Search Schedule
+                            </label>
+                            <div className="relative">
+                                <input
+                                    className="pc-input pr-8"
+                                    placeholder="Search by name or number..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                <Search className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                        <button className="pc-action-btn primary px-8">
+                            <Filter size={14} /> Generate Report
+                        </button>
+                    </div>
                 </div>
             </div>
 
