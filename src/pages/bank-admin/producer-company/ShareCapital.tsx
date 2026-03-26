@@ -302,17 +302,34 @@ export function ShareCapital() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {shareIssues.map((row, i) => (
-                                    <tr key={row._id} style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: i % 2 === 0 ? 'white' : '#f8fafc' }}>
-                                        <td style={{ padding: '12px', color: '#0f172a' }}>{i + 1}</td>
-                                        <td style={{ padding: '12px', color: '#0f172a' }}>{row.memberId?.name || 'N/A'}</td>
-                                        <td style={{ padding: '12px', color: '#0f172a' }}>{row.memberId?.memberId || 'N/A'}</td>
-                                        <td style={{ padding: '12px', color: '#0f172a', fontWeight: 600 }}>{row.noOfSharesHeld}</td>
-                                        <td style={{ padding: '12px', color: '#009BB0', fontWeight: 700 }}>₹ {row.totalAmount}</td>
-                                        <td style={{ padding: '12px', color: '#64748b' }}>{row.distinctiveNos}</td>
-                                        <td style={{ padding: '12px', color: '#64748b' }}>{new Date(row.issuedDate).toLocaleDateString()}</td>
-                                    </tr>
-                                ))}
+                                {(() => {
+                                    const sortedShareIssues = [...shareIssues].sort((a, b) => {
+                                        const getFirstNum = (str?: string) => {
+                                            if (!str) return Infinity;
+                                            const match = str.match(/\d+/);
+                                            return match ? parseInt(match[0], 10) : Infinity;
+                                        };
+                                        const numA = getFirstNum(a.distinctiveNos);
+                                        const numB = getFirstNum(b.distinctiveNos);
+                                        if (numA !== numB) return numA - numB;
+                                        
+                                        const dateA = new Date(a.createdAt || a.issuedDate || 0).getTime();
+                                        const dateB = new Date(b.createdAt || b.issuedDate || 0).getTime();
+                                        return dateA - dateB;
+                                    });
+
+                                    return sortedShareIssues.map((row, i) => (
+                                        <tr key={row._id} style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: i % 2 === 0 ? 'white' : '#f8fafc' }}>
+                                            <td style={{ padding: '12px', color: '#0f172a' }}>{i + 1}</td>
+                                            <td style={{ padding: '12px', color: '#0f172a' }}>{row.memberId?.name || 'N/A'}</td>
+                                            <td style={{ padding: '12px', color: '#0f172a' }}>{row.memberId?.memberId || 'N/A'}</td>
+                                            <td style={{ padding: '12px', color: '#0f172a', fontWeight: 600 }}>{row.noOfSharesHeld}</td>
+                                            <td style={{ padding: '12px', color: '#009BB0', fontWeight: 700 }}>₹ {row.totalAmount}</td>
+                                            <td style={{ padding: '12px', color: '#64748b' }}>{row.distinctiveNos}</td>
+                                            <td style={{ padding: '12px', color: '#64748b' }}>{new Date(row.issuedDate).toLocaleDateString()}</td>
+                                        </tr>
+                                    ));
+                                })()}
                             </tbody>
                         </table>
                     ) : (
