@@ -41,6 +41,7 @@ import FDMonthlyPayment from './pages/bank-admin/producer-company/ReceiptsAndWit
 import TrimMobileAppReceipts from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/TrimMobileAppReceipts';
 import ShareCapitalWithdrawal from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/ShareCapitalWithdrawal';
 import DOManagement from './pages/bank-admin/loan-management/client-master/DOManagement';
+import { ApprovalTransactions } from './pages/bank-admin/approvals/transactions';
 import ApplicationForm from './pages/bank-admin/loan-management/loan-management/ApplicationForm';
 import ApplicantDetails from './pages/bank-admin/loan-management/loan-management/ApplicantDetails';
 import MaturityBonds from './pages/bank-admin/producer-company/surrenders/MaturityBonds';
@@ -54,7 +55,8 @@ import ProcessingChargesReceipt from "./pages/bank-admin/loan-disbursal-emi-rece
 import EmiDateChange from "./pages/bank-admin/loan-disbursal-emi-receipt/emi-date-change";
 import EmiCalculator from "./pages/bank-admin/loan-disbursal-emi-receipt/emi-calculator";
 import PreClosure from "./pages/bank-admin/loan-disbursal-emi-receipt/pre-closure";
-
+import { ChequeManagement } from "./pages/bank-admin/Financial Accounting/Financial-master/ChequeManagement";
+import { DealerIncentiveMaster } from "./pages/bank-admin/Financial Accounting/Financial-master/DealerIncentiveMaster";
 
 
 
@@ -73,6 +75,7 @@ import OnlineDO from "./pages/bank-admin/DMS/online";
 import PrintDO from "./pages/bank-admin/DMS/duplicate-online";
 
 import { NotificationProvider } from "@/components/common/NotificationProvider"
+import { EmployeeInformation } from "./pages/bank-admin/Financial Accounting/Financial-master/Employee-Information";
 
 
 function App() {
@@ -219,7 +222,7 @@ function App() {
                   <Route path="/bank-admin/dms/extra-info" element={<DMS />} />
                   <Route path="/bank-admin/dms/online-do" element={<OnlineDO />} />
                   <Route path="/bank-admin/dms/reports/duplicate-do" element={<PrintDO />} />
-                  <Route path="/bank-admin/loans/dms/tx" element={<PCPlaceholder title="Document Transactions" />} />
+                  <Route path="/bank-admin/approvals/transactions" element={<ApprovalTransactions />} />
                   <Route path="/bank-admin/loans/calculator" element={<PCPlaceholder title="EMI Calculator" />} />
                   <Route path="/bank-admin/loans/gold-loan" element={<PCPlaceholder title="Gold Loan Performance" />} />
                   <Route path="/bank-admin/loans/pre-closure-final" element={<PCPlaceholder title="Loan Pre-Closure (Final)" />} />
@@ -232,9 +235,9 @@ function App() {
                   <Route path="/bank-admin/accounting/masters" element={<PCPlaceholder title="Financial Masters" />} />
                   <Route path="/bank-admin/accounting/masters/subcategory" element={<PCPlaceholder title="SubCategory Master" />} />
                   <Route path="/bank-admin/accounting/masters/bank-info" element={<PCPlaceholder title="Bank Information Master" />} />
-                  <Route path="/bank-admin/accounting/masters/cheque-mgmt" element={<PCPlaceholder title="Cheque Management Master" />} />
-                  <Route path="/bank-admin/accounting/masters/dealer-incentive" element={<PCPlaceholder title="Dealer Incentive Master" />} />
-                  <Route path="/bank-admin/accounting/masters/employee-info" element={<PCPlaceholder title="Employee Information Master" />} />
+                  <Route path="/bank-admin/accounting/masters/cheque-mgmt" element={<ChequeManagement />} />
+                  <Route path="/bank-admin/accounting/masters/dealer-incentive" element={<DealerIncentiveMaster />} />
+                  <Route path="/bank-admin/accounting/masters/employee-info" element={<EmployeeInformation />} />
 
                   <Route path="/bank-admin/accounting/vouchers" element={<PCPlaceholder title="Payment/Journal Vouchers" />} />
                   <Route path="/bank-admin/accounting/vouchers/receipt" element={<PCPlaceholder title="General Receipt Voucher" />} />

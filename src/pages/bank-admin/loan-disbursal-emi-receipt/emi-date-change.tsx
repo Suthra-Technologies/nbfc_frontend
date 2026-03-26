@@ -35,7 +35,7 @@ const EmiDateChange = () => {
                         </div>
                         <div className="space-y-4">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                                <Label htmlFor="nature" className="w-36 text-[11px] font-bold text-[#64748b] uppercase">Nature of loan:</Label>
+                                <Label htmlFor="nature" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Nature of loan:</Label>
                                 <Select>
                                     <SelectTrigger id="nature" className="h-10 border-[#e2e8f0] bg-white text-[#1e293b] flex-1 rounded-sm hover:border-[#009bb0] transition-colors shadow-none">
                                         <SelectValue placeholder="Select Nature of Loan" />
@@ -48,7 +48,7 @@ const EmiDateChange = () => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                                <Label htmlFor="account" className="w-36 text-[11px] font-bold text-[#64748b] uppercase">Loan Account No:</Label>
+                                <Label htmlFor="account" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Loan Account No:</Label>
                                 <Select>
                                     <SelectTrigger id="account" className="h-10 border-[#e2e8f0] bg-white text-[#1e293b] flex-1 rounded-sm hover:border-[#009bb0] transition-colors shadow-none">
                                         <SelectValue placeholder="Select Loan Account No" />
@@ -60,7 +60,7 @@ const EmiDateChange = () => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                                <Label htmlFor="actual-date" className="w-36 text-[11px] font-bold text-[#64748b] uppercase">Actual EMI Date :</Label>
+                                <Label htmlFor="actual-date" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Actual EMI Date :</Label>
                                 <div className="relative flex-1 group">
                                     <Input id="actual-date" defaultValue="24/03/2026" className="h-10 border-[#e2e8f0] group-hover:border-[#009BB0] transition-colors pr-8 bg-white text-[#1e293b] rounded-sm hover:border-[#009bb0] transition-colors shadow-none" />
                                     <CalendarIcon className="absolute right-2 top-1.5 h-4 w-4 text-[#64748b]" />
@@ -68,7 +68,7 @@ const EmiDateChange = () => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                                <Label htmlFor="change-date" className="w-36 text-[11px] font-bold text-[#64748b] uppercase">Change EMI Date :</Label>
+                                <Label htmlFor="change-date" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Change EMI Date :</Label>
                                 <div className="relative flex-1 group">
                                     <Input id="change-date" defaultValue="24/03/2026" className="h-10 border-[#e2e8f0] group-hover:border-[#009BB0] transition-colors pr-8 bg-white text-[#1e293b] rounded-sm hover:border-[#009bb0] transition-colors shadow-none" />
                                     <CalendarIcon className="absolute right-2 top-1.5 h-4 w-4 text-[#64748b]" />

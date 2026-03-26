@@ -27,7 +27,7 @@ const PreClosure = () => {
                     <CardContent className="p-6 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                             <div className="flex items-center gap-4">
-                                <Label htmlFor="date" className="w-40 text-[11px] font-bold text-[#64748b] uppercase">Date:</Label>
+                                <Label htmlFor="date" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Date:</Label>
                                 <div className="relative flex-1 group">
                                     <Input id="date" defaultValue="24/03/2026" className="h-10 border-[#e2e8f0] group-hover:border-[#009BB0] transition-colors pr-8 bg-white text-[#1e293b] rounded-sm hover:border-[#009bb0] transition-colors shadow-none" />
                                     <CalendarIcon className="absolute right-2 top-1.5 h-4 w-4 text-[#64748b]" />
@@ -35,7 +35,7 @@ const PreClosure = () => {
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <Label htmlFor="nature" className="w-40 text-[11px] font-bold text-[#64748b] uppercase">Nature of loan :</Label>
+                                <Label htmlFor="nature" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Nature of loan :</Label>
                                 <Select>
                                     <SelectTrigger id="nature" className="h-10 border-[#e2e8f0] bg-white text-[#1e293b] rounded-sm hover:border-[#009bb0] transition-colors shadow-none">
                                         <SelectValue placeholder="Select Nature of loan" />
@@ -48,7 +48,7 @@ const PreClosure = () => {
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <Label htmlFor="interest-expected" className="w-40 text-[11px] font-bold text-[#64748b] uppercase">
+                                <Label htmlFor="interest-expected" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">
                                     Interest expected :<span className="text-red-500 ml-1 font-bold">*</span>
                                 </Label>
                                 <Select>
@@ -63,7 +63,7 @@ const PreClosure = () => {
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <Label htmlFor="account" className="w-40 text-[11px] font-bold text-[#64748b] uppercase">Loan account No.:</Label>
+                                <Label htmlFor="account" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Loan account No.:</Label>
                                 <Select>
                                     <SelectTrigger id="account" className="h-10 border-[#e2e8f0] bg-white text-[#1e293b] rounded-sm hover:border-[#009bb0] transition-colors shadow-none">
                                         <SelectValue placeholder="Select Loan account No." />
@@ -149,7 +149,7 @@ const PreClosure = () => {
                                 <Input className="h-8 border-[#cbd5e0] bg-white text-[#1e293b] flex-1 text-[13px]" />
                             </div>
                             <div className="flex items-center gap-4">
-                                <Label className="w-32 text-[11px] font-bold text-[#64748b] uppercase">Total amount:</Label>
+                                <Label className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">Total amount:</Label>
                                 <Input className="h-10 border-[#e2e8f0] bg-white text-[#1e293b] flex-1 rounded-sm hover:border-[#009bb0] transition-colors shadow-none" />
                             </div>
                         </div>
