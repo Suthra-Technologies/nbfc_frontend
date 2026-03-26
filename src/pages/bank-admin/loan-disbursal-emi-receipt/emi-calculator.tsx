@@ -21,7 +21,7 @@ const EmiCalculator = () => {
                         {/* EMI Form */}
                         <div className="space-y-6 max-w-2xl">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                                <Label htmlFor="emi-type" className="w-48 text-[11px] font-bold text-[#64748b] uppercase">
+                                <Label htmlFor="emi-type" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">
                                     Emi Type :<span className="text-red-500 ml-1">*</span>
                                 </Label>
                                 <Select>
@@ -36,7 +36,7 @@ const EmiCalculator = () => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                                <Label htmlFor="interest" className="w-48 text-[11px] font-bold text-[#64748b] uppercase">
+                                <Label htmlFor="interest" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">
                                     Interest expected :<span className="text-red-500 ml-1">*</span>
                                 </Label>
                                 <Select>
@@ -53,7 +53,7 @@ const EmiCalculator = () => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                                <Label htmlFor="interest-mode" className="w-48 text-[11px] font-bold text-[#64748b] uppercase">
+                                <Label htmlFor="interest-mode" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">
                                     Interest Mode :<span className="text-red-500 ml-1">*</span>
                                 </Label>
                                 <Select>
@@ -69,7 +69,7 @@ const EmiCalculator = () => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                                <Label htmlFor="tenure" className="w-48 text-[11px] font-bold text-[#64748b] uppercase">
+                                <Label htmlFor="tenure" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">
                                     Tenure of loan :<span className="text-red-500 ml-1">*</span>
                                 </Label>
                                 <Input
@@ -80,7 +80,7 @@ const EmiCalculator = () => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                                <Label htmlFor="amount" className="w-48 text-[11px] font-bold text-[#64748b] uppercase">
+                                <Label htmlFor="amount" className="whitespace-nowrap min-w-max text-[11px] font-bold text-[#64748b] uppercase">
                                     Amount requested:<span className="text-red-500 ml-1">*</span>
                                 </Label>
                                 <Input

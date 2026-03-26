@@ -41,6 +41,7 @@ import FDMonthlyPayment from './pages/bank-admin/producer-company/ReceiptsAndWit
 import TrimMobileAppReceipts from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/TrimMobileAppReceipts';
 import ShareCapitalWithdrawal from './pages/bank-admin/producer-company/ReceiptsAndWithdrawal/ShareCapitalWithdrawal';
 import DOManagement from './pages/bank-admin/loan-management/client-master/DOManagement';
+import { ApprovalTransactions } from './pages/bank-admin/approvals/transactions';
 import ApplicationForm from './pages/bank-admin/loan-management/loan-management/ApplicationForm';
 import ApplicantDetails from './pages/bank-admin/loan-management/loan-management/ApplicantDetails';
 import MaturityBonds from './pages/bank-admin/producer-company/surrenders/MaturityBonds';
@@ -58,7 +59,8 @@ import ProcessingChargesReceipt from "./pages/bank-admin/loan-disbursal-emi-rece
 import EmiDateChange from "./pages/bank-admin/loan-disbursal-emi-receipt/emi-date-change";
 import EmiCalculator from "./pages/bank-admin/loan-disbursal-emi-receipt/emi-calculator";
 import PreClosure from "./pages/bank-admin/loan-disbursal-emi-receipt/pre-closure";
-
+import { ChequeManagement } from "./pages/bank-admin/Financial Accounting/Financial-master/ChequeManagement";
+import { DealerIncentiveMaster } from "./pages/bank-admin/Financial Accounting/Financial-master/DealerIncentiveMaster";
 
 
 
@@ -77,6 +79,15 @@ import OnlineDO from "./pages/bank-admin/DMS/online";
 import PrintDO from "./pages/bank-admin/DMS/duplicate-online";
 
 import { NotificationProvider } from "@/components/common/NotificationProvider"
+import { EmployeeInformation } from "./pages/bank-admin/Financial Accounting/Financial-master/Employee-Information";
+import { LoanReceiptPaidDetails } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-receipt-paid-details";
+import { LoanDisbursedAndClosed } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-disbursed & closed";
+import { LoanWiseDues } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-wise-dues";
+import { LoanWiseDuesSummary } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-wise-dues-summary";
+import { CollectionDetails } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/collection-details";
+import { InterestCollectionLoans } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/interest-collection-loans";
+import { LoanWiseDayClosingReport } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-wise-day-closing-report";
+import { GoldLoanDueReports } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/gold-loan-due-reports";
 
 
 function App() {
@@ -201,44 +212,44 @@ function App() {
                     </Route>
                   </Route>
 
-                  {/* Loan Management Lifecycle - Admin, Manager, etc. */}
-                  <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER]} />}>
-                    <Route path="/bank-admin/loans" element={<Loans />} />
-                    <Route path="/bank-admin/loans/application-form" element={<ApplicationForm />} />
-                    <Route path="/bank-admin/loans/applicant-details" element={<ApplicantDetails />} />
-                    <Route path="/bank-admin/loans/applications" element={<PCPlaceholder title="Loan Applications" />} />
-                    <Route path="/bank-admin/loans/applicants" element={<PCPlaceholder title="Applicant Registry" />} />
-                    <Route path="/bank-admin/loans/guarantors" element={<PCPlaceholder title="Guarantor Details" />} />
-                    <Route path="/bank-admin/loans/do-management" element={<DOManagement />} />
-                    <Route path="/bank-admin/loans/vehicle-mgmt" element={<PCPlaceholder title="DO & Vehicle Management" />} />
-                    <Route path="/bank-admin/loans/approvals" element={<PCPlaceholder title="Approvals & Processing" />} />
-                    <Route path="/bank-admin/loans/disbursal" element={<PCPlaceholder title="Disbursal / EMI Receipt" />} />
-                    <Route path="/bank-admin/loan-disbursal-emi-receipt" element={<LoanDisbursal />} />
-                    <Route path="/bank-admin/loan-disbursal-emi-receipt-charges" element={<ProcessingChargesReceipt />} />
-                    <Route path="/bank-admin/loan-disbursal-emi-date-change" element={<EmiDateChange />} />
-                    <Route path="/bank-admin/loan-disbursal-emi-calculator" element={<EmiCalculator />} />
-                    <Route path="/bank-admin/loan-disbursal-pre-closure" element={<PreClosure />} />
-                    <Route path="/bank-admin/loans/pre-closure" element={<PCPlaceholder title="Loan Pre-Closure" />} />
-                    <Route path="/bank-admin/loans/notices" element={<PCPlaceholder title="Notices & Letters" />} />
-                    <Route path="/bank-admin/dms/extra-info" element={<DMS />} />
-                    <Route path="/bank-admin/dms/online-do" element={<OnlineDO />} />
-                    <Route path="/bank-admin/dms/reports/duplicate-do" element={<PrintDO />} />
-                    <Route path="/bank-admin/loans/dms/tx" element={<PCPlaceholder title="Document Transactions" />} />
-                    <Route path="/bank-admin/loans/calculator" element={<PCPlaceholder title="EMI Calculator" />} />
-                    <Route path="/bank-admin/loans/gold-loan" element={<PCPlaceholder title="Gold Loan Performance" />} />
-                    <Route path="/bank-admin/loans/pre-closure-final" element={<PCPlaceholder title="Loan Pre-Closure (Final)" />} />
-                    <Route path="/bank-admin/reports/loans" element={<PCPlaceholder title="Loan Dues Reports" />} />
-                  </Route>
+                {/* Loan Management Lifecycle - Admin, Manager, etc. */}
+                <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER]} />}>
+                  <Route path="/bank-admin/loans" element={<Loans />} />
+                  <Route path="/bank-admin/loans/application-form" element={<ApplicationForm />} />
+                  <Route path="/bank-admin/loans/applicant-details" element={<ApplicantDetails />} />
+                  <Route path="/bank-admin/loans/applications" element={<PCPlaceholder title="Loan Applications" />} />
+                  <Route path="/bank-admin/loans/applicants" element={<PCPlaceholder title="Applicant Registry" />} />
+                  <Route path="/bank-admin/loans/guarantors" element={<PCPlaceholder title="Guarantor Details" />} />
+                  <Route path="/bank-admin/loans/do-management" element={<DOManagement />} />
+                  <Route path="/bank-admin/loans/vehicle-mgmt" element={<PCPlaceholder title="DO & Vehicle Management" />} />
+                  <Route path="/bank-admin/loans/approvals" element={<PCPlaceholder title="Approvals & Processing" />} />
+                  <Route path="/bank-admin/loans/disbursal" element={<PCPlaceholder title="Disbursal / EMI Receipt" />} />
+                  <Route path="/bank-admin/loan-disbursal-emi-receipt" element={<LoanDisbursal />} />
+                  <Route path="/bank-admin/loan-disbursal-emi-receipt-charges" element={<ProcessingChargesReceipt />} />
+                  <Route path="/bank-admin/loan-disbursal-emi-date-change" element={<EmiDateChange />} />
+                  <Route path="/bank-admin/loan-disbursal-emi-calculator" element={<EmiCalculator />} />
+                  <Route path="/bank-admin/loan-disbursal-pre-closure" element={<PreClosure />} />
+                  <Route path="/bank-admin/loans/pre-closure" element={<PCPlaceholder title="Loan Pre-Closure" />} />
+                  <Route path="/bank-admin/loans/notices" element={<PCPlaceholder title="Notices & Letters" />} />
+                  <Route path="/bank-admin/dms/extra-info" element={<DMS />} />
+                  <Route path="/bank-admin/dms/online-do" element={<OnlineDO />} />
+                  <Route path="/bank-admin/dms/reports/duplicate-do" element={<PrintDO />} />
+                  <Route path="/bank-admin/approvals/transactions" element={<ApprovalTransactions />} />
+                  <Route path="/bank-admin/loans/calculator" element={<PCPlaceholder title="EMI Calculator" />} />
+                  <Route path="/bank-admin/loans/gold-loan" element={<PCPlaceholder title="Gold Loan Performance" />} />
+                  <Route path="/bank-admin/loans/pre-closure-final" element={<PCPlaceholder title="Loan Pre-Closure (Final)" />} />
+                  <Route path="/bank-admin/reports/loans" element={<PCPlaceholder title="Loan Dues Reports" />} />
+                </Route>
 
-                  {/* Financial Accounting & Ledger */}
-                  <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.ACCOUNTANT]} />}>
-                    <Route path="/bank-admin/accounting" element={<PCPlaceholder title="Financial Accounting" />} />
-                    <Route path="/bank-admin/accounting/masters" element={<PCPlaceholder title="Financial Masters" />} />
-                    <Route path="/bank-admin/accounting/masters/subcategory" element={<PCPlaceholder title="SubCategory Master" />} />
-                    <Route path="/bank-admin/accounting/masters/bank-info" element={<PCPlaceholder title="Bank Information Master" />} />
-                    <Route path="/bank-admin/accounting/masters/cheque-mgmt" element={<PCPlaceholder title="Cheque Management Master" />} />
-                    <Route path="/bank-admin/accounting/masters/dealer-incentive" element={<PCPlaceholder title="Dealer Incentive Master" />} />
-                    <Route path="/bank-admin/accounting/masters/employee-info" element={<PCPlaceholder title="Employee Information Master" />} />
+                {/* Financial Accounting & Ledger */}
+                <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.ACCOUNTANT]} />}>
+                  <Route path="/bank-admin/accounting" element={<PCPlaceholder title="Financial Accounting" />} />
+                  <Route path="/bank-admin/accounting/masters" element={<PCPlaceholder title="Financial Masters" />} />
+                  <Route path="/bank-admin/accounting/masters/subcategory" element={<PCPlaceholder title="SubCategory Master" />} />
+                  <Route path="/bank-admin/accounting/masters/bank-info" element={<PCPlaceholder title="Bank Information Master" />} />
+                  <Route path="/bank-admin/accounting/masters/cheque-mgmt" element={<ChequeManagement />} />
+                  <Route path="/bank-admin/accounting/masters/dealer-incentive" element={<DealerIncentiveMaster />} />
+                  <Route path="/bank-admin/accounting/masters/employee-info" element={<EmployeeInformation />} />
 
                     <Route path="/bank-admin/accounting/vouchers" element={<PCPlaceholder title="Payment/Journal Vouchers" />} />
                     <Route path="/bank-admin/accounting/vouchers/receipt" element={<PCPlaceholder title="General Receipt Voucher" />} />
@@ -277,36 +288,36 @@ function App() {
                     <Route path="/bank-admin/transactions" element={<div className="p-8"><h1>Financial Transaction Ledger</h1><p className="text-muted-foreground">Monitor real-time financial activity</p></div>} />
                   </Route>
 
-                  {/* MIS, Analytics & Reporting */}
-                  <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.ACCOUNTANT, UserRole.MANAGER]} />}>
-                    <Route path="/bank-admin/analytics" element={<PCPlaceholder title="MIS & Analytics" />} />
-                    <Route path="/bank-admin/analytics/mis" element={<PCPlaceholder title="MIS Reports" />} />
-                    <Route path="/bank-admin/analytics/consolidated" element={<PCPlaceholder title="Consolidated Reports" />} />
-                    <Route path="/bank-admin/analytics/performance" element={<div className="p-8"><h1>Performance Analytics</h1><p className="text-muted-foreground">Revenue and growth insights</p></div>} />
-                    <Route path="/bank-admin/reports/trial-balance" element={<PCPlaceholder title="Trial Balance" />} />
-                    <Route path="/bank-admin/reports/trial-balance-comp" element={<PCPlaceholder title="Comparison TB" />} />
-                    <Route path="/bank-admin/reports/trial-balance-sched" element={<PCPlaceholder title="Schedule TB" />} />
-                    <Route path="/bank-admin/reports/balance-sheet" element={<PCPlaceholder title="Balance Sheet" />} />
-                    <Route path="/bank-admin/reports/profit-loss" element={<PCPlaceholder title="Profit & Loss" />} />
-                    <Route path="/bank-admin/reports/consolidated" element={<PCPlaceholder title="Consolidated Financials" />} />
-                    <Route path="/bank-admin/reports/consolidated/trial-balance" element={<TrialBalance />} />
-                    <Route path="/bank-admin/reports/consolidated/trial-balance-comp" element={<ComparisonTB />} />
-                    <Route path="/bank-admin/reports/consolidated/trial-balance-sched" element={<ScheduleTB />} />
-                    <Route path="/bank-admin/reports/consolidated/balance-sheet" element={<BalanceSheet />} />
-                    <Route path="/bank-admin/reports/consolidated/profit-loss" element={<ProfitLoss />} />
-                    <Route path="/bank-admin/reports/day-closing" element={<PCPlaceholder title="Day Closing Details" />} />
-                    <Route path="/bank-admin/reports/documents" element={<PCPlaceholder title="Document Management Reports" />} />
-                    <Route path="/bank-admin/reports/collections" element={<PCPlaceholder title="Collection Management" />} />
-                    <Route path="/bank-admin/reports/collections/receipt-paid" element={<PCPlaceholder title="Loan Receipt Paid details" />} />
-                    <Route path="/bank-admin/reports/collections/disbursed-closed" element={<PCPlaceholder title="Loan Disbursed & Closed" />} />
-                    <Route path="/bank-admin/reports/collections/loan-dues" element={<PCPlaceholder title="Loan Wise Dues" />} />
-                    <Route path="/bank-admin/reports/collections/dues-summary" element={<PCPlaceholder title="Loan Wise Dues Summary" />} />
-                    <Route path="/bank-admin/reports/collections/details" element={<PCPlaceholder title="Collection Details" />} />
-                    <Route path="/bank-admin/reports/collections/vehicle-dues" element={<PCPlaceholder title="Vehicle Loan Dues" />} />
-                    <Route path="/bank-admin/reports/collections/interest" element={<PCPlaceholder title="Interest Collection Loans" />} />
-                    <Route path="/bank-admin/reports/collections/day-closing" element={<PCPlaceholder title="Loan Wise Day Closing Report" />} />
-                    <Route path="/bank-admin/reports/collections/gold-dues" element={<PCPlaceholder title="Gold Loan Dues Report" />} />
-                  </Route>
+                {/* MIS, Analytics & Reporting */}
+                <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.ACCOUNTANT, UserRole.MANAGER]} />}>
+                  <Route path="/bank-admin/analytics" element={<PCPlaceholder title="MIS & Analytics" />} />
+                  <Route path="/bank-admin/analytics/mis" element={<PCPlaceholder title="MIS Reports" />} />
+                  <Route path="/bank-admin/analytics/consolidated" element={<PCPlaceholder title="Consolidated Reports" />} />
+                  <Route path="/bank-admin/analytics/performance" element={<div className="p-8"><h1>Performance Analytics</h1><p className="text-muted-foreground">Revenue and growth insights</p></div>} />
+                  <Route path="/bank-admin/reports/trial-balance" element={<PCPlaceholder title="Trial Balance" />} />
+                  <Route path="/bank-admin/reports/trial-balance-comp" element={<PCPlaceholder title="Comparison TB" />} />
+                  <Route path="/bank-admin/reports/trial-balance-sched" element={<PCPlaceholder title="Schedule TB" />} />
+                  <Route path="/bank-admin/reports/balance-sheet" element={<PCPlaceholder title="Balance Sheet" />} />
+                  <Route path="/bank-admin/reports/profit-loss" element={<PCPlaceholder title="Profit & Loss" />} />
+                  <Route path="/bank-admin/reports/consolidated" element={<PCPlaceholder title="Consolidated Financials" />} />
+                  <Route path="/bank-admin/reports/consolidated/trial-balance" element={<PCPlaceholder title="Trial Balance" />} />
+                  <Route path="/bank-admin/reports/consolidated/trial-balance-comp" element={<PCPlaceholder title="Comparison TB" />} />
+                  <Route path="/bank-admin/reports/consolidated/trial-balance-sched" element={<PCPlaceholder title="Schedule TB" />} />
+                  <Route path="/bank-admin/reports/consolidated/balance-sheet" element={<PCPlaceholder title="Balance Sheet" />} />
+                  <Route path="/bank-admin/reports/consolidated/profit-loss" element={<PCPlaceholder title="Profit & Loss" />} />
+                  <Route path="/bank-admin/reports/day-closing" element={<PCPlaceholder title="Day Closing Details" />} />
+                  <Route path="/bank-admin/reports/documents" element={<PCPlaceholder title="Document Management Reports" />} />
+                  <Route path="/bank-admin/reports/collections" element={<PCPlaceholder title="Collection Management" />} />
+                  <Route path="/bank-admin/reports/collections/receipt-paid" element={<LoanReceiptPaidDetails />} />
+                  <Route path="/bank-admin/reports/collections/disbursed-closed" element={<LoanDisbursedAndClosed />} />
+                  <Route path="/bank-admin/reports/collections/loan-dues" element={<LoanWiseDues />} />
+                  <Route path="/bank-admin/reports/collections/dues-summary" element={<LoanWiseDuesSummary />} />
+                  <Route path="/bank-admin/reports/collections/details" element={<CollectionDetails />} />
+                  <Route path="/bank-admin/reports/collections/vehicle-dues" element={<PCPlaceholder title="Vehicle Loan Dues" />} />
+                  <Route path="/bank-admin/reports/collections/interest" element={<InterestCollectionLoans />} />
+                  <Route path="/bank-admin/reports/collections/day-closing" element={<LoanWiseDayClosingReport />} />
+                  <Route path="/bank-admin/reports/collections/gold-dues" element={<GoldLoanDueReports />} />
+                </Route>
 
                   {/* Customers & Basic Operations */}
                   <Route element={<ProtectedRoute allowedRoles={[UserRole.BANK_ADMIN, UserRole.BRANCH_ADMIN, UserRole.MANAGER, UserRole.CASHIER, UserRole.STAFF]} />}>
