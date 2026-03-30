@@ -94,6 +94,20 @@ import { CollectionDetails } from "./pages/bank-admin/Collection-Management-Syst
 import { InterestCollectionLoans } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/interest-collection-loans";
 import { LoanWiseDayClosingReport } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/loan-wise-day-closing-report";
 import { GoldLoanDueReports } from "./pages/bank-admin/Collection-Management-System/Loan-Collection-Reports/gold-loan-due-reports";
+import { AccountLedger } from "./pages/bank-admin/Financial Reports/account-ledger";
+import { BankBook } from "./pages/bank-admin/Financial Reports/bankbook";
+import { BRSReport } from "./pages/bank-admin/Financial Reports/brs";
+import { BRSStatementsReport } from "./pages/bank-admin/Financial Reports/brs-statements";
+import { CashTransactionsReport } from "./pages/bank-admin/Financial Reports/cash";
+import { DayBook } from "./pages/bank-admin/Financial Reports/daybook";
+import { DuplicateAdvisesReport } from "./pages/bank-admin/Financial Reports/duplicate-advises";
+import { DuplicateVoucherReport } from "./pages/bank-admin/Financial Reports/duplicate-voucher";
+import { IssuedChequesReport } from "./pages/bank-admin/Financial Reports/Issued-cheques";
+import { LedgerSummaryReport } from "./pages/bank-admin/Financial Reports/ledger-summary";
+import { JVListReport } from "./pages/bank-admin/Financial Reports/jv-list";
+import { VehicleInvoiceStatusReport } from "./pages/bank-admin/Financial Reports/vehicle-invoice-status";
+import { VehicleSeizureStatusReport } from "./pages/bank-admin/Financial Reports/vehicle-seizure-status";
+import { AccountStatementReport } from "./pages/bank-admin/Financial Reports/account-statement";
 
 
 function App() {
@@ -273,23 +287,23 @@ function App() {
                     <Route path="/bank-admin/accounting/seizures" element={<PCPlaceholder title="Vehicle Seizures" />} />
 
                     <Route path="/bank-admin/reports/ledgers" element={<PCPlaceholder title="Ledger Statements" />} />
-                    <Route path="/bank-admin/reports/ledgers/account" element={<PCPlaceholder title="Account Ledger Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/bank-book" element={<PCPlaceholder title="Bank Book Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/brs" element={<PCPlaceholder title="BRS Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/brs-statements" element={<PCPlaceholder title="BRS Statements Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/cash" element={<PCPlaceholder title="Cash Transactions Report" />} />
+                    <Route path="/bank-admin/reports/ledgers/account" element={<AccountLedger />} />
+                    <Route path="/bank-admin/reports/ledgers/bank-book" element={<BankBook />} />
+                    <Route path="/bank-admin/reports/ledgers/brs" element={<BRSReport />} />
+                    <Route path="/bank-admin/reports/ledgers/brs-statements" element={<BRSStatementsReport />} />
+                    <Route path="/bank-admin/reports/ledgers/cash" element={<CashTransactionsReport />} />
                     <Route path="/bank-admin/reports/ledgers/cheque-cancel" element={<PCPlaceholder title="Cheque Cancel Report" />} />
                     <Route path="/bank-admin/reports/ledgers/cheque-enquiry" element={<PCPlaceholder title="Cheque Enquiry Report" />} />
                     <Route path="/bank-admin/reports/ledgers/cheque-returns" element={<PCPlaceholder title="Cheque Returns Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/day-book" element={<PCPlaceholder title="Day Book Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/advises" element={<PCPlaceholder title="Duplicate Advises Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/vouchers" element={<PCPlaceholder title="Duplicate Voucher Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/issued-cheques" element={<PCPlaceholder title="Issued Cheques Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/summary" element={<PCPlaceholder title="Ledger Summary Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/jv-list" element={<PCPlaceholder title="JV List Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/vehicle-invoice" element={<PCPlaceholder title="Vehicle Invoice Status Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/vehicle-seizure" element={<PCPlaceholder title="Vehicle Seizure Status Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/statement" element={<PCPlaceholder title="Account Statement Report" />} />
+                    <Route path="/bank-admin/reports/ledgers/day-book" element={<DayBook />} />
+                    <Route path="/bank-admin/reports/ledgers/advises" element={<DuplicateAdvisesReport />} />
+                    <Route path="/bank-admin/reports/ledgers/vouchers" element={<DuplicateVoucherReport />} />
+                    <Route path="/bank-admin/reports/ledgers/issued-cheques" element={<IssuedChequesReport />} />
+                    <Route path="/bank-admin/reports/ledgers/summary" element={<LedgerSummaryReport />} />
+                    <Route path="/bank-admin/reports/ledgers/jv-list" element={<JVListReport />} />
+                    <Route path="/bank-admin/reports/ledgers/vehicle-invoice" element={<VehicleInvoiceStatusReport />} />
+                    <Route path="/bank-admin/reports/ledgers/vehicle-seizure" element={<VehicleSeizureStatusReport />} />
+                    <Route path="/bank-admin/reports/ledgers/statement" element={<AccountStatementReport />} />
 
                     <Route path="/bank-admin/transactions" element={<div className="p-8"><h1>Financial Transaction Ledger</h1><p className="text-muted-foreground">Monitor real-time financial activity</p></div>} />
                   </Route>

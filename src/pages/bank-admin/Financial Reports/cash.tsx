@@ -12,38 +12,39 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 
-export function InterestCollectionLoans() {
-    const [renderType, setRenderType] = useState('pdf');
+export function CashTransactionsReport() {
+    const [exportType, setExportType] = useState('pdf');
 
     const handlePrint = () => {
-        if (renderType === 'pdf') {
+        if (exportType === 'pdf') {
             import('jspdf').then(({ default: jsPDF }) => {
                 const doc = new jsPDF();
                 doc.setFontSize(18);
-                doc.text("Interest Collection Loans Report", 14, 20);
+                doc.text("Cash Transactions Report", 14, 20);
                 
                 doc.setFontSize(12);
                 doc.text("---------------------------------------------------------", 14, 25);
-                doc.text("Date Range: 26/03/2026 to 26/03/2026", 14, 35);
-                doc.text("Nature Of Loan: All", 14, 45);
+                doc.text("Statement as at: 30/03/2026", 14, 35);
                 
                 doc.setFontSize(14);
-                doc.text("Sample Data:", 14, 60);
+                doc.text("Daily Cash Summary:", 14, 50);
                 
-                doc.setFontSize(12);
-                doc.text("1. Account: John Doe   | Interest Collected: 1200", 14, 75);
-                doc.text("2. Account: Jane Smith | Interest Collected: 2500", 14, 85);
+                doc.setFontSize(10);
+                const tableHeader = "Date       | Particulars                  | Voucher | Debit   | Credit  | Balance";
+                doc.text(tableHeader, 14, 65);
+                doc.text("-".repeat(tableHeader.length + 10), 14, 70);
+                doc.text("30/03/2026 | Opening Cash Balance         | -       | 0.00    | 25000.00| 25000.00 Dr", 14, 78);
+                doc.text("30/03/2026 | Cash EMI Receipt - CUST001   | REC-001 | 1500.00 | 0.00    | 26500.00 Dr", 14, 86);
                 
-                doc.text("---------------------------------------------------------", 14, 100);
-                doc.setFontSize(14);
-                doc.text("Total Interest Collected: 3700 INR", 14, 110);
+                doc.text("-".repeat(tableHeader.length + 10), 14, 96);
+                doc.setFontSize(11);
+                doc.text("Closing Cash Position: 26,500.00 Dr", 14, 106);
                 
                 window.open(doc.output('bloburl'), '_blank');
             });
         } else {
             // Simple CSV data for Excel file
-            const content = 'Date,Account Name,Interest Collected\n26/03/2026,John Doe,1200\n26/03/2026,Jane Smith,2500';
-            const fileName = 'interest_collection_loans_report.csv';
+            const content = 'Date,Particulars,Voucher,Debit,Credit,Balance\n30/03/2026,Opening Cash Balance,-,0.00,25000.00,25000.00 Dr\n30/03/2026,Cash EMI Receipt - CUST001,REC-001,1500.00,0.00,26500.00 Dr';
             const mimeType = 'text/csv';
 
             const blob = new Blob([content], { type: mimeType });
@@ -55,57 +56,60 @@ export function InterestCollectionLoans() {
 
     return (
         <div className="flex flex-col h-full bg-[#f8fafc] text-[#334155] font-sans">
-            <div className="p-6 space-y-4 max-w-[1600px] mx-auto w-full flex-1 flex flex-col">
+            <div className="p-6 space-y-4 max-w-[1700px] mx-auto w-full flex-1 flex flex-col">
                 
                 {/* 1. Report Filters Section */}
                 <Card className="border-[#e2e8f0] shadow-sm bg-[#e2e8f0]/40 overflow-hidden rounded-md flex-none">
                     <CardContent className="p-4 space-y-4">
-                        {/* Top Row: Dates, Nature of Loan, Render Type, Actions */}
+                        
+                        {/* Top Row: Date, Account, Print */}
                         <div className="flex flex-wrap items-center gap-6">
+                            
                             <div className="flex items-center gap-3">
-                                <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">From Date:</Label>
-                                <div className="relative group w-36">
+                                <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">Cash statement as at:</Label>
+                                <div className="relative group w-40">
                                     <Input 
                                         type="date"
-                                        defaultValue="2026-03-26" 
+                                        defaultValue="2026-03-30" 
                                         className="h-8 border-[#cbd5e0] group-hover:border-[#009BB0] transition-colors pr-8 bg-white text-[#1e293b] rounded-sm shadow-none text-xs font-medium [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:z-10" 
                                     />
                                     <CalendarIcon className="absolute right-2 top-2 h-4 w-4 text-[#64748b] pointer-events-none" />
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">To Date:</Label>
-                                <div className="relative group w-36">
-                                    <Input 
-                                        type="date"
-                                        defaultValue="2026-03-26" 
-                                        className="h-8 border-[#cbd5e0] group-hover:border-[#009BB0] transition-colors pr-8 bg-white text-[#1e293b] rounded-sm shadow-none text-xs font-medium [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:z-10" 
-                                    />
-                                    <CalendarIcon className="absolute right-2 top-2 h-4 w-4 text-[#64748b] pointer-events-none" />
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                                <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">Nature Of Loan :</Label>
-                                <div className="w-48">
+                            <div className="flex items-center gap-3 w-80">
+                                <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">Cash Account:</Label>
+                                <div className="flex-1">
                                     <Select>
                                         <SelectTrigger className="h-8 border-[#cbd5e0] bg-white text-[#1e293b] rounded-sm shadow-none text-xs hover:border-[#009bb0] font-medium">
-                                            <SelectValue placeholder="Select" />
+                                            <SelectValue placeholder="Select Cash Account" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-white border-[#e2e8f0]">
-                                            <SelectItem value="pl">Personal Loan</SelectItem>
-                                            <SelectItem value="gl">Gold Loan</SelectItem>
-                                            <SelectItem value="vl">Vehicle Loan</SelectItem>
+                                            <SelectItem value="main">Main Cash</SelectItem>
+                                            <SelectItem value="petty">Petty Cash</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
 
+                            <div className="flex items-center">
+                                <Button 
+                                    onClick={handlePrint}
+                                    className="bg-[#009bb0] hover:bg-[#007a8a] text-white flex items-center gap-2 px-5 h-8 rounded shadow-sm transition-all active:scale-[0.98] font-bold text-xs"
+                                >
+                                    <Printer className="h-3.5 w-3.5" />
+                                    <span>Print</span>
+                                </Button>
+                            </div>
+                            
+                        </div>
+
+                        {/* Bottom Row: Export Type */}
+                        <div className="flex flex-wrap items-center gap-6">
                             <div className="flex items-center gap-3">
-                                <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">Render Type:</Label>
-                                <div className="w-32">
-                                    <Select value={renderType} onValueChange={setRenderType}>
+                                <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">Export type:</Label>
+                                <div className="w-40">
+                                    <Select value={exportType} onValueChange={setExportType}>
                                         <SelectTrigger className="h-8 border-[#cbd5e0] bg-white text-[#1e293b] rounded-sm shadow-none text-xs font-medium hover:border-[#009bb0]">
                                             <SelectValue placeholder="PDF" />
                                         </SelectTrigger>
@@ -116,17 +120,8 @@ export function InterestCollectionLoans() {
                                     </Select>
                                 </div>
                             </div>
-
-                            <div className="flex items-center ml-2">
-                                <Button 
-                                    onClick={handlePrint}
-                                    className="bg-[#009bb0] hover:bg-[#007a8a] text-white flex items-center gap-2 px-5 h-8 rounded shadow-sm transition-all active:scale-[0.98] font-bold text-xs"
-                                >
-                                    <Printer className="h-3.5 w-3.5" />
-                                    <span>Print</span>
-                                </Button>
-                            </div>
                         </div>
+
                     </CardContent>
                 </Card>
 
@@ -134,7 +129,7 @@ export function InterestCollectionLoans() {
                 <Card className="flex-1 border-[#e2e8f0] shadow-sm bg-white overflow-hidden rounded-md min-h-[500px]">
                     <div className="h-full w-full flex items-center justify-center text-[#94a3b8]">
                         <div className="text-center">
-                            <p className="text-sm font-medium italic">Apply filters and click Print to generate report.</p>
+                            <p className="text-sm font-medium italic">Apply filters and click Print to view cash transactions.</p>
                         </div>
                     </div>
                 </Card>

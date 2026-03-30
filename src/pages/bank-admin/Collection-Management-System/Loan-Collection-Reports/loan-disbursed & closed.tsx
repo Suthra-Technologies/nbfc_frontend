@@ -66,10 +66,11 @@ export function LoanDisbursedAndClosed() {
                                 <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">From Date:</Label>
                                 <div className="relative group w-40">
                                     <Input 
-                                        defaultValue="26/03/2026" 
-                                        className="h-8 border-[#cbd5e0] group-hover:border-[#009BB0] transition-colors pr-8 bg-white text-[#1e293b] rounded-sm shadow-none text-xs font-medium" 
+                                        type="date"
+                                        defaultValue="2026-03-26" 
+                                        className="h-8 border-[#cbd5e0] group-hover:border-[#009BB0] transition-colors pr-8 bg-white text-[#1e293b] rounded-sm shadow-none text-xs font-medium [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:z-10" 
                                     />
-                                    <CalendarIcon className="absolute right-2 top-2 h-4 w-4 text-[#64748b]" />
+                                    <CalendarIcon className="absolute right-2 top-2 h-4 w-4 text-[#64748b] pointer-events-none" />
                                 </div>
                             </div>
 
@@ -77,10 +78,11 @@ export function LoanDisbursedAndClosed() {
                                 <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">To Date:</Label>
                                 <div className="relative group w-40">
                                     <Input 
-                                        defaultValue="26/03/2026" 
-                                        className="h-8 border-[#cbd5e0] group-hover:border-[#009BB0] transition-colors pr-8 bg-white text-[#1e293b] rounded-sm shadow-none text-xs font-medium" 
+                                        type="date"
+                                        defaultValue="2026-03-26" 
+                                        className="h-8 border-[#cbd5e0] group-hover:border-[#009BB0] transition-colors pr-8 bg-white text-[#1e293b] rounded-sm shadow-none text-xs font-medium [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:z-10" 
                                     />
-                                    <CalendarIcon className="absolute right-2 top-2 h-4 w-4 text-[#64748b]" />
+                                    <CalendarIcon className="absolute right-2 top-2 h-4 w-4 text-[#64748b] pointer-events-none" />
                                 </div>
                             </div>
 
