@@ -127,11 +127,6 @@ export function CashTransactionsReport() {
 
                 {/* 2. Document/Report Viewer Area */}
                 <Card className="flex-1 border-[#e2e8f0] shadow-sm bg-white overflow-hidden rounded-md min-h-[500px]">
-                    <div className="h-full w-full flex items-center justify-center text-[#94a3b8]">
-                        <div className="text-center">
-                            <p className="text-sm font-medium italic">Apply filters and click Print to view cash transactions.</p>
-                        </div>
-                    </div>
                 </Card>
 
             </div>

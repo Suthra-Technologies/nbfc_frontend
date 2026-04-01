@@ -108,6 +108,8 @@ import { JVListReport } from "./pages/bank-admin/Financial Reports/jv-list";
 import { VehicleInvoiceStatusReport } from "./pages/bank-admin/Financial Reports/vehicle-invoice-status";
 import { VehicleSeizureStatusReport } from "./pages/bank-admin/Financial Reports/vehicle-seizure-status";
 import { AccountStatementReport } from "./pages/bank-admin/Financial Reports/account-statement";
+import { ChequeCancelReport } from "./pages/bank-admin/Financial Reports/chequecancel";
+
 
 
 function App() {
@@ -292,7 +294,7 @@ function App() {
                     <Route path="/bank-admin/reports/ledgers/brs" element={<BRSReport />} />
                     <Route path="/bank-admin/reports/ledgers/brs-statements" element={<BRSStatementsReport />} />
                     <Route path="/bank-admin/reports/ledgers/cash" element={<CashTransactionsReport />} />
-                    <Route path="/bank-admin/reports/ledgers/cheque-cancel" element={<PCPlaceholder title="Cheque Cancel Report" />} />
+                    <Route path="/bank-admin/reports/ledgers/cheque-cancel" element={<ChequeCancelReport />} />
                     <Route path="/bank-admin/reports/ledgers/cheque-enquiry" element={<PCPlaceholder title="Cheque Enquiry Report" />} />
                     <Route path="/bank-admin/reports/ledgers/cheque-returns" element={<PCPlaceholder title="Cheque Returns Report" />} />
                     <Route path="/bank-admin/reports/ledgers/day-book" element={<DayBook />} />
