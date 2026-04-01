@@ -109,6 +109,10 @@ import { VehicleInvoiceStatusReport } from "./pages/bank-admin/Financial Reports
 import { VehicleSeizureStatusReport } from "./pages/bank-admin/Financial Reports/vehicle-seizure-status";
 import { AccountStatementReport } from "./pages/bank-admin/Financial Reports/account-statement";
 import { ChequeCancelReport } from "./pages/bank-admin/Financial Reports/chequecancel";
+import { ChequeEnquiryReport } from "./pages/bank-admin/Financial Reports/cheque-enquiry";
+import { ChequeReturnsReport } from "./pages/bank-admin/Financial Reports/cheque-returns";
+
+
 
 
 
@@ -295,8 +299,8 @@ function App() {
                     <Route path="/bank-admin/reports/ledgers/brs-statements" element={<BRSStatementsReport />} />
                     <Route path="/bank-admin/reports/ledgers/cash" element={<CashTransactionsReport />} />
                     <Route path="/bank-admin/reports/ledgers/cheque-cancel" element={<ChequeCancelReport />} />
-                    <Route path="/bank-admin/reports/ledgers/cheque-enquiry" element={<PCPlaceholder title="Cheque Enquiry Report" />} />
-                    <Route path="/bank-admin/reports/ledgers/cheque-returns" element={<PCPlaceholder title="Cheque Returns Report" />} />
+                    <Route path="/bank-admin/reports/ledgers/cheque-enquiry" element={<ChequeEnquiryReport />} />
+                    <Route path="/bank-admin/reports/ledgers/cheque-returns" element={<ChequeReturnsReport />} />
                     <Route path="/bank-admin/reports/ledgers/day-book" element={<DayBook />} />
                     <Route path="/bank-admin/reports/ledgers/advises" element={<DuplicateAdvisesReport />} />
                     <Route path="/bank-admin/reports/ledgers/vouchers" element={<DuplicateVoucherReport />} />

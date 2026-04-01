@@ -20,15 +20,15 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
-const mockCancelledCheques = [
-    { sno: 1, chequeNo: "101234", bankName: "State Bank of India", accountNo: "1234567890", amount: "15,000.00", cancelDate: "28/03/2026", cancelledBy: "Admin", reason: "Wrong Amount" },
-    { sno: 2, chequeNo: "101235", bankName: "HDFC Bank", accountNo: "9876543210", amount: "8,500.00", cancelDate: "29/03/2026", cancelledBy: "Manager", reason: "Duplicate Entry" },
-    { sno: 3, chequeNo: "101236", bankName: "ICICI Bank", accountNo: "1122334455", amount: "22,000.00", cancelDate: "30/03/2026", cancelledBy: "Admin", reason: "Stale Cheque" },
-    { sno: 4, chequeNo: "101237", bankName: "Axis Bank", accountNo: "5566778899", amount: "5,750.00", cancelDate: "30/03/2026", cancelledBy: "Manager", reason: "Wrong Payee Name" },
-    { sno: 5, chequeNo: "101238", bankName: "State Bank of India", accountNo: "1234567890", amount: "31,200.00", cancelDate: "31/03/2026", cancelledBy: "Admin", reason: "Signature Mismatch" },
+const mockReturnData = [
+    { sno: 1, chequeNo: "201234", bankName: "State Bank of India", accountNo: "1234567890", amount: "12,500.00", returnDate: "28/03/2026", reason: "Insufficient Funds", payTo: "John Doe" },
+    { sno: 2, chequeNo: "201235", bankName: "HDFC Bank", accountNo: "9876543210", amount: "4,200.00", returnDate: "29/03/2026", reason: "Signature Mismatch", payTo: "Jane Smith" },
+    { sno: 3, chequeNo: "201236", bankName: "ICICI Bank", accountNo: "1122334455", amount: "18,000.00", returnDate: "30/03/2026", reason: "Post Dated Cheque", payTo: "Bob Johnson" },
+    { sno: 4, chequeNo: "201237", bankName: "Axis Bank", accountNo: "5566778899", amount: "2,150.00", returnDate: "30/03/2026", reason: "Stopped Payment", payTo: "Alice Brown" },
+    { sno: 5, chequeNo: "201238", bankName: "State Bank of India", accountNo: "1234567890", amount: "25,000.00", returnDate: "31/03/2026", reason: "Account Closed", payTo: "Charlie Davis" },
 ];
 
-export function ChequeCancelReport() {
+export function ChequeReturnsReport() {
     const [exportType, setExportType] = useState("pdf");
 
     const handlePrint = () => {
@@ -36,43 +36,32 @@ export function ChequeCancelReport() {
             import("jspdf").then(({ default: jsPDF }) => {
                 const doc = new jsPDF({ orientation: "landscape" });
                 doc.setFontSize(16);
-                doc.text("Cheque Cancellation Report", 14, 18);
+                doc.text("Cheque Returns Report", 14, 18);
 
                 doc.setFontSize(10);
                 doc.text("Statement as at: 30/03/2026", 14, 28);
                 doc.text("──────────────────────────────────────────────────────────────────────────────────────────────────────────────", 14, 33);
 
                 doc.setFontSize(9);
-                const headers = "S.No | Cheque No  | Bank Name              | Account No   | Amount    | Cancel Date | Cancelled By | Reason";
+                const headers = "S.No | Cheque No  | Bank Name              | Account No   | Amount    | Return Date | Reason              | Paid To";
                 doc.text(headers, 14, 42);
                 doc.text("──────────────────────────────────────────────────────────────────────────────────────────────────────────────", 14, 46);
 
-                mockCancelledCheques.forEach((row, i) => {
-                    const line = `${row.sno}    | ${row.chequeNo}   | ${row.bankName.padEnd(22)} | ${row.accountNo} | ${row.amount.padStart(9)} | ${row.cancelDate}  | ${row.cancelledBy.padEnd(12)} | ${row.reason}`;
+                mockReturnData.forEach((row, i) => {
+                    const line = `${row.sno}    | ${row.chequeNo}   | ${row.bankName.padEnd(22)} | ${row.accountNo} | ${row.amount.padStart(9)} | ${row.returnDate}  | ${row.reason.padEnd(20)} | ${row.payTo}`;
                     doc.text(line, 14, 54 + i * 8);
                 });
 
-                const totalY = 54 + mockCancelledCheques.length * 8 + 4;
+                const totalY = 54 + mockReturnData.length * 8 + 4;
                 doc.text("──────────────────────────────────────────────────────────────────────────────────────────────────────────────", 14, totalY);
                 doc.setFontSize(10);
-                doc.text("Total Cancelled Cheques: 5   |   Total Amount: 82,450.00", 14, totalY + 8);
+                doc.text("Total Returns: 5   |   Total Amount: 61,850.00", 14, totalY + 8);
 
                 window.open(doc.output("bloburl"), "_blank");
             });
-        } else {
-            const csv = [
-                "S.No,Cheque No,Bank Name,Account No,Amount,Cancel Date,Cancelled By,Reason",
-                ...mockCancelledCheques.map((r) =>
-                    `${r.sno},${r.chequeNo},${r.bankName},${r.accountNo},${r.amount},${r.cancelDate},${r.cancelledBy},${r.reason}`
-                ),
-            ].join("\n");
-            const blob = new Blob([csv], { type: "text/csv" });
-            const url = URL.createObjectURL(blob);
-            window.open(url, "_blank");
-            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
     };
- 
+
     return (
         <div className="flex flex-col h-full bg-[#f8fafc] text-[#334155] font-sans overflow-hidden">
             <div className="p-4 space-y-3 max-w-[1700px] mx-auto w-full flex-1 flex flex-col min-h-0">
@@ -84,10 +73,10 @@ export function ChequeCancelReport() {
                         {/* Row 1: Date | Bank Name | Print */}
                         <div className="flex flex-wrap items-center gap-6">
 
-                            {/* As On Date */}
+                            {/* Date Filter */}
                             <div className="flex items-center gap-3">
                                 <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">
-                                    Cheque cancel as at:
+                                    Returns as at:
                                 </Label>
                                 <div className="relative group w-40">
                                     <Input
@@ -99,7 +88,7 @@ export function ChequeCancelReport() {
                                 </div>
                             </div>
 
-                            {/* Bank Name */}
+                            {/* Bank Select */}
                             <div className="flex items-center gap-3">
                                 <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">
                                     Bank name:
@@ -113,8 +102,6 @@ export function ChequeCancelReport() {
                                             <SelectItem value="sbi">State Bank of India</SelectItem>
                                             <SelectItem value="hdfc">HDFC Bank</SelectItem>
                                             <SelectItem value="icici">ICICI Bank</SelectItem>
-                                            <SelectItem value="axis">Axis Bank</SelectItem>
-                                            <SelectItem value="pnb">Punjab National Bank</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -158,7 +145,6 @@ export function ChequeCancelReport() {
                 {/* ── Data Table ── */}
                 <Card className="flex-1 border-[#e2e8f0] shadow-sm bg-white overflow-hidden rounded-md flex flex-col min-h-0">
                 </Card>
-
 
             </div>
         </div>
